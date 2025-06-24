@@ -108,10 +108,10 @@ const Interpretation = () => {
 
         {/* Cards Section */}
         <div className="flex-1 flex flex-col">
-          {/* Cards container - 控制移动距离不遮住返回按钮 */}
+          {/* Cards container - 在 moveCards 阶段及之后向上移动 */}
           <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
-            animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-65' // 控制移动距离，不遮住返回按钮
+            animationPhase !== 'initial' && animationPhase !== 'hideHeader'
+              ? '-translate-y-65' // 在 moveCards、showText、complete 阶段都保持向上移动
               : 'translate-y-0'
           }`}>
             {cards.map((card: any, index: number) => (
