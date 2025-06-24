@@ -70,23 +70,21 @@ const Cards = () => {
           <div className="flex-1" />
         </div>
 
-        {/* Cat Avatar */}
+        {/* Cat Avatar and Title - 保持与Question页面一致 */}
         <div className="text-center px-6 mb-8">
-          <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white/20">
+          <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-white/20 mb-4">
             <img 
               src={cat.avatar} 
               alt={cat.name}
               className="w-full h-full object-cover"
             />
           </div>
+          <h2 className="text-white text-xl font-bold mb-2">你好呀，我是{cat.name}。</h2>
+          <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
         {/* Cards Section */}
         <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <h2 className="text-white text-xl font-bold mb-8 text-center">
-            这是你抽到的牌
-          </h2>
-          
           <div className="flex justify-center space-x-2 mb-8 w-full max-w-sm">
             {tarotCards.map((card, index) => (
               <div 
@@ -105,19 +103,18 @@ const Cards = () => {
               </div>
             ))}
           </div>
-
-          {/* Question Display */}
-          <div className={`bg-white/10 rounded-xl p-4 mb-8 border border-white/20 transition-all duration-500 mx-4 ${
-            animationComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}>
-            <p className="text-white/80 text-sm text-center">你的问题：</p>
-            <p className="text-white text-center mt-1">{question}</p>
-          </div>
         </div>
       </div>
 
-      {/* Fixed Action Button - 与Question页面保持一致的位置 */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black/30 backdrop-blur-md border-t border-white/10 z-50">
+      {/* Fixed Action Button - 移除背景遮罩，简化问题显示 */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 z-50">
+        {/* 简化的问题显示 - 移除毛玻璃背景 */}
+        <div className={`text-center mb-4 transition-all duration-500 ${
+          animationComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}>
+          <p className="text-white/60 text-sm">你的问题：{question}</p>
+        </div>
+        
         <button
           onClick={handleContinue}
           className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-lg transition-all duration-500 ${
