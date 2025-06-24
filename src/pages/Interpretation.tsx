@@ -54,12 +54,11 @@ const Interpretation = () => {
       } else {
         clearInterval(interval);
         setTextComplete(true);
-        // 文本完成后显示按钮
         setTimeout(() => {
           setAnimationPhase('complete');
         }, 300);
       }
-    }, 30); // 更快的逐字显示
+    }, 30);
   };
 
   const handleChatMore = () => {
@@ -108,38 +107,43 @@ const Interpretation = () => {
           <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
-        {/* Cards - 移动和缩放动画 */}
-        <div className={`flex justify-center space-x-2 px-4 mb-6 transition-all duration-1000 ${
-          animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-            ? '-translate-y-32 scale-75' 
-            : 'translate-y-0 scale-100'
-        }`}>
-          {cards.map((card: any, index: number) => (
-            <div key={card.id} className="flex-1 max-w-[80px]">
-              <TarotCardComponent
-                card={card}
-                revealed={true}
-                size="small"
-              />
-            </div>
-          ))}
-        </div>
+        {/* Cards - 从原位置开始，然后移动和缩放 */}
+        <div className="flex-1 flex flex-col">
+          {/* Cards container - 初始位置在页面中央，然后上移 */}
+          <div className={`flex justify-center space-x-2 px-4 transition-all duration-1000 ${
+            animationPhase === 'initial' || animationPhase === 'hideHeader'
+              ? 'mt-auto mb-auto' // 初始位置：垂直居中
+              : animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+              ? 'mt-0 mb-6 scale-75' // 移动后位置：顶部，缩小
+              : 'mt-auto mb-auto'
+          }`}>
+            {cards.map((card: any, index: number) => (
+              <div key={card.id} className="flex-1 max-w-[80px]">
+                <TarotCardComponent
+                  card={card}
+                  revealed={true}
+                  size="small"
+                />
+              </div>
+            ))}
+          </div>
 
-        {/* Interpretation - 文本框出现和逐字显示 */}
-        <div className={`flex-1 px-6 mb-6 transition-all duration-500 ${
-          animationPhase === 'showText' || animationPhase === 'complete'
-            ? 'opacity-100 translate-y-0' 
-            : 'opacity-0 translate-y-8'
-        }`}>
-          <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
-            <p className="text-white leading-relaxed text-sm whitespace-pre-line">
-              {displayedText}
-              {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
-            </p>
+          {/* Interpretation - 紧贴在卡牌下方 */}
+          <div className={`px-6 mb-6 transition-all duration-500 ${
+            animationPhase === 'showText' || animationPhase === 'complete'
+              ? 'opacity-100 translate-y-0' 
+              : 'opacity-0 translate-y-8'
+          }`}>
+            <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
+              <p className="text-white leading-relaxed text-sm whitespace-pre-line">
+                {displayedText}
+                {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Action Button - 文本完成后出现 */}
+        {/* Action Button */}
         <div className="fixed bottom-0 left-0 right-0 p-6 z-50">
           <button
             onClick={handleChatMore}
