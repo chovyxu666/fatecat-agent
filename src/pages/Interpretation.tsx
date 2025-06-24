@@ -77,7 +77,7 @@ const Interpretation = () => {
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
       
-      <div className="relative z-10 flex flex-col h-screen">
+      <div className="relative z-10 flex flex-col h-screen pb-28">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pt-12">
           <button 
@@ -106,12 +106,12 @@ const Interpretation = () => {
           <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
-        {/* Cards Section - 保持与Cards页面相同的布局结构 */}
+        {/* Cards Section - 调整布局避免重叠 */}
         <div className="flex-1 flex flex-col">
-          {/* Cards container - 与Cards页面保持相同的初始位置 */}
+          {/* Cards container - 向上移动更多，利用页面上方空间 */}
           <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-32' // 只向上移动，不缩放
+              ? '-translate-y-16 mt-4' // 减少向上移动距离，但增加顶部边距
               : 'translate-y-0'
           }`}>
             {cards.map((card: any, index: number) => (
@@ -125,8 +125,8 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 靠近卡牌下方 */}
-          <div className={`px-6 mt-4 transition-all duration-500 ${
+          {/* Interpretation - 调整位置避免与底部按钮重叠 */}
+          <div className={`px-6 mt-6 mb-4 transition-all duration-500 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-8'
