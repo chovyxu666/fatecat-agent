@@ -62,7 +62,7 @@ const Chat = () => {
         </button>
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full overflow-hidden">
-            <img src={cat.avatar} alt={cat.name} className="w-full h-full object-cover" />
+            
           </div>
           <div>
             <p className="text-white font-medium text-sm">{cat.name}</p>
