@@ -106,12 +106,12 @@ const Interpretation = () => {
           <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
-        {/* Cards Section - 几乎挨着顶部返回按钮 */}
+        {/* Cards Section */}
         <div className="flex-1 flex flex-col">
-          {/* Cards container - 大幅增加向上移动距离，几乎挨着返回按钮 */}
+          {/* Cards container - 减少20%的向上移动距离：从-80改为-64 */}
           <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-80 mt-2' // 大幅增加向上移动距离，几乎挨着返回按钮
+              ? '-translate-y-64 mt-2'
               : 'translate-y-0'
           }`}>
             {cards.map((card: any, index: number) => (
@@ -125,14 +125,14 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 紧挨着塔罗牌，无间距 */}
-          <div className={`px-6 mt-0 mb-4 transition-all duration-500 ${
+          {/* Interpretation - 增加10像素间隔，跟着塔罗牌一起向上移动 */}
+          <div className={`px-6 mt-10 mb-4 transition-all duration-500 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-8'
           } ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-80' // 跟着塔罗牌一起向上移动
+              ? '-translate-y-64'
               : 'translate-y-0'
           }`}>
             <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
