@@ -17,10 +17,10 @@ export const cats: Cat[] = [
     name: '小玄',
     breed: '中华田园猫',
     specialty: '八字命理',
-    personality: '深邃智慧',
+    personality: '傲娇自信',
     avatar: '/lovable-uploads/c030e76b-0fda-49ba-a3af-bc36e13fcfec.png',
-    description: '深邃的小玄精通八字命理，虽然表面沉静，但内心充满古老的智慧',
-    color: 'from-gray-900 to-slate-800'
+    description: '傲娇的小玄精通八字命理，虽然表面高冷，但内心充满古老的智慧',
+    color: 'from-purple-900 to-blue-900'
   },
   {
     id: 'bombay',
@@ -30,6 +30,6 @@ export const cats: Cat[] = [
     personality: '优雅时髦',
     avatar: '/lovable-uploads/195842e8-0025-421e-a3d2-8f5e85ec8296.png',
     description: '优雅的Nova对星座运势了如指掌，她时髦的风格深受年轻人喜爱',
-    color: 'from-indigo-900 to-purple-800'
+    color: 'from-purple-900 to-blue-900'
   }
 ];

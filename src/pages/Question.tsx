@@ -26,6 +26,12 @@ const Question = () => {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative overflow-hidden`}>
       {/* Background pattern */}
@@ -83,6 +89,7 @@ const Question = () => {
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
+            onKeyPress={handleKeyPress}
             placeholder="请输入你的问题..."
             className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
           />

@@ -12,7 +12,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 relative overflow-hidden">
-      {/* 多层背景效果 */}
+      {/* Multi-layer background effects */}
       <div className="absolute inset-0 opacity-20">
         <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
           <defs>
@@ -24,20 +24,18 @@ const Home = () => {
         </svg>
       </div>
       
-      {/* 装饰性光效 */}
+      {/* Decorative light effects */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl"></div>
       <div className="absolute top-1/2 left-0 w-64 h-64 bg-violet-500/10 rounded-full blur-2xl"></div>
       
       <div className="relative z-10 p-6 pt-12">
-        {/* Header */}
+        {/* Header - removed glass effects */}
         <div className="text-center mb-8">
-          <div className="inline-block p-4 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 mb-4">
-            <h1 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
-              选择占卜师
-            </h1>
-            <p className="text-white/70 text-sm">每个占卜师风格不同</p>
-          </div>
+          <h1 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+            选择占卜师
+          </h1>
+          <p className="text-white/70 text-sm">每只猫咪拥有独特的风格和占卜技巧</p>
         </div>
 
         {/* Cat Cards */}
@@ -56,15 +54,13 @@ const Home = () => {
           ))}
         </div>
 
-        {/* Footer */}
+        {/* Footer - removed glass effects */}
         <div className="text-center mt-12">
-          <div className="inline-block p-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-            <p className="text-white/60 text-xs flex items-center justify-center space-x-2">
-              <span>✨</span>
-              <span>让神秘的力量指引你前行</span>
-              <span>✨</span>
-            </p>
-          </div>
+          <p className="text-white/60 text-xs flex items-center justify-center space-x-2">
+            <span>✨</span>
+            <span>让喵星人为你解开迷雾</span>
+            <span>✨</span>
+          </p>
         </div>
       </div>
     </div>
