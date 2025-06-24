@@ -22,14 +22,23 @@ const Question = () => {
 
   const handleSubmit = () => {
     if (question.trim()) {
+      console.log('Navigating to cards page with question:', question.trim());
       navigate(`/cards/${catId}`, { state: { question: question.trim() } });
+    } else {
+      console.log('No question provided');
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSubmit();
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Input changed:', e.target.value);
+    setQuestion(e.target.value);
   };
 
   return (
@@ -88,15 +97,16 @@ const Question = () => {
           <input
             type="text"
             value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder="请输入你的问题..."
-            className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+            className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20"
+            autoComplete="off"
           />
           <button
             onClick={handleSubmit}
             disabled={!question.trim()}
-            className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 rounded-full px-6 py-3 text-white font-medium transition-colors duration-200"
+            className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:opacity-50 rounded-full px-6 py-3 text-white font-medium transition-colors duration-200 min-w-[100px]"
           >
             开始占卜
           </button>
