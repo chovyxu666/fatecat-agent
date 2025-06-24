@@ -9,7 +9,7 @@ const Interpretation = () => {
   const { catId } = useParams<{ catId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const [animationPhase, setAnimationPhase] = useState<'initial' | 'shrinking' | 'complete'>('initial');
+  const [animationPhase, setAnimationPhase] = useState<'initial' | 'hideHeader' | 'moveCards' | 'showText' | 'complete'>('initial');
   const [displayedText, setDisplayedText] = useState('');
   const [textComplete, setTextComplete] = useState(false);
 
@@ -21,25 +21,27 @@ const Interpretation = () => {
     return <div>Cat not found</div>;
   }
 
-  const interpretation = `记住，不管前世是什么，今生的你都是如此独特而美好。就像森林里没有两片完全相同的叶子，你的灵魂故事也举世无双呢✨
-
-这些牌会不会让你心里泛起一些涟漪？也许你已经隐约感觉到自己与某些动物的特殊联结了。如果愿意的话，可以和我聊聊你对哪种动物特别有亲切感呢～`;
+  const interpretation = `亲爱的，你的内在坚韧如圣杯里澄澈的水，偶有涟漪终归平静；你的愿望正被宇宙轻轻抱持，只待花期自会盛放。张开双臂去相信爱，让情感自由呼吸；别慌，让心的河流引你，随流而舞。`;
 
   useEffect(() => {
-    // 页面加载后开始动画序列
+    // 动画序列
     const timer1 = setTimeout(() => {
-      setAnimationPhase('shrinking');
-    }, 500);
+      setAnimationPhase('hideHeader');
+    }, 300);
 
     const timer2 = setTimeout(() => {
-      setAnimationPhase('complete');
-      // 开始逐字显示文案
+      setAnimationPhase('moveCards');
+    }, 800);
+
+    const timer3 = setTimeout(() => {
+      setAnimationPhase('showText');
       startTextAnimation();
-    }, 1500);
+    }, 1800);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
+      clearTimeout(timer3);
     };
   }, []);
 
@@ -52,8 +54,12 @@ const Interpretation = () => {
       } else {
         clearInterval(interval);
         setTextComplete(true);
+        // 文本完成后显示按钮
+        setTimeout(() => {
+          setAnimationPhase('complete');
+        }, 300);
       }
-    }, 50); // 每50ms显示一个字符
+    }, 30); // 更快的逐字显示
   };
 
   const handleChatMore = () => {
@@ -85,33 +91,31 @@ const Interpretation = () => {
           <div className="flex-1" />
         </div>
 
-        {/* Cat Avatar - 带有缩放动画 */}
-        <div className="text-center px-6 mb-6">
-          <div className={`mx-auto rounded-full overflow-hidden border-4 border-white/20 transition-all duration-1000 ${
-            animationPhase === 'initial' 
-              ? 'w-32 h-32' 
-              : 'w-20 h-20'
-          }`}>
+        {/* Cat Avatar and Title - 隐藏动画 */}
+        <div className={`text-center px-6 mb-8 transition-all duration-500 ${
+          animationPhase === 'hideHeader' || animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+            ? 'opacity-0 -translate-y-4' 
+            : 'opacity-100'
+        }`}>
+          <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-white/20 mb-4">
             <img 
               src={cat.avatar} 
               alt={cat.name}
               className="w-full h-full object-cover"
             />
           </div>
+          <h2 className="text-white text-xl font-bold mb-2">你好呀，我是{cat.name}。</h2>
+          <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
-        {/* Cards - 带有缩放动画 */}
-        <div className="flex justify-center space-x-4 px-6 mb-6">
+        {/* Cards - 移动和缩放动画 */}
+        <div className={`flex justify-center space-x-2 px-4 mb-6 transition-all duration-1000 ${
+          animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+            ? '-translate-y-32 scale-75' 
+            : 'translate-y-0 scale-100'
+        }`}>
           {cards.map((card: any, index: number) => (
-            <div 
-              key={card.id}
-              className={`transition-all duration-1000 ${
-                animationPhase === 'initial' 
-                  ? 'scale-125' 
-                  : 'scale-100'
-              }`}
-              style={{ transitionDelay: `${index * 100}ms` }}
-            >
+            <div key={card.id} className="flex-1 max-w-[80px]">
               <TarotCardComponent
                 card={card}
                 revealed={true}
@@ -121,24 +125,26 @@ const Interpretation = () => {
           ))}
         </div>
 
-        {/* Interpretation - 逐字显示 */}
-        <div className="flex-1 px-6 mb-6">
-          <div className={`bg-white/10 rounded-2xl p-6 border border-white/20 transition-all duration-500 ${
-            animationPhase === 'complete' ? 'opacity-100' : 'opacity-0'
-          }`}>
+        {/* Interpretation - 文本框出现和逐字显示 */}
+        <div className={`flex-1 px-6 mb-6 transition-all duration-500 ${
+          animationPhase === 'showText' || animationPhase === 'complete'
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-8'
+        }`}>
+          <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
             <p className="text-white leading-relaxed text-sm whitespace-pre-line">
               {displayedText}
-              {!textComplete && <span className="animate-pulse">|</span>}
+              {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
             </p>
           </div>
         </div>
 
-        {/* Action Button - 固定在底部，与之前按钮保持一致的高度 */}
+        {/* Action Button - 文本完成后出现 */}
         <div className="fixed bottom-0 left-0 right-0 p-6 z-50">
           <button
             onClick={handleChatMore}
             className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-lg flex items-center justify-center space-x-2 transition-all duration-500 ${
-              textComplete 
+              animationPhase === 'complete'
                 ? 'opacity-100 translate-y-0' 
                 : 'opacity-0 translate-y-4 pointer-events-none'
             }`}
