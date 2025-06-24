@@ -24,7 +24,6 @@ const Interpretation = () => {
   const interpretation = `亲爱的，你的内在坚韧如圣杯里澄澈的水，偶有涟漪终归平静；你的愿望正被宇宙轻轻抱持，只待花期自会盛放。张开双臂去相信爱，让情感自由呼吸；别慌，让心的河流引你，随流而舞。`;
 
   useEffect(() => {
-    // 动画序列
     const timer1 = setTimeout(() => {
       setAnimationPhase('hideHeader');
     }, 300);
@@ -107,29 +106,27 @@ const Interpretation = () => {
           <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
-        {/* Cards - 从原位置开始，然后移动和缩放 */}
+        {/* Cards Section - 保持与Cards页面相同的布局结构 */}
         <div className="flex-1 flex flex-col">
-          {/* Cards container - 初始位置在页面中央，然后上移 */}
-          <div className={`flex justify-center space-x-2 px-4 transition-all duration-1000 ${
-            animationPhase === 'initial' || animationPhase === 'hideHeader'
-              ? 'mt-auto mb-auto' // 初始位置：垂直居中
-              : animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? 'mt-0 mb-6 scale-75' // 移动后位置：顶部，缩小
-              : 'mt-auto mb-auto'
+          {/* Cards container - 与Cards页面保持相同的初始位置 */}
+          <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
+            animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+              ? '-translate-y-32' // 只向上移动，不缩放
+              : 'translate-y-0'
           }`}>
             {cards.map((card: any, index: number) => (
-              <div key={card.id} className="flex-1 max-w-[80px]">
+              <div key={card.id} className="flex-1">
                 <TarotCardComponent
                   card={card}
                   revealed={true}
-                  size="small"
+                  size="medium"
                 />
               </div>
             ))}
           </div>
 
-          {/* Interpretation - 紧贴在卡牌下方 */}
-          <div className={`px-6 mb-6 transition-all duration-500 ${
+          {/* Interpretation - 靠近卡牌下方 */}
+          <div className={`px-6 mt-4 transition-all duration-500 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-8'
