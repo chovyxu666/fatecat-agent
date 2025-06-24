@@ -4,11 +4,13 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { TarotCardComponent } from '../components/TarotCardComponent';
 import { ChevronLeft } from 'lucide-react';
+import { useIsMobile } from '../hooks/use-mobile';
 
 const Interpretation = () => {
   const { catId } = useParams<{ catId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [animationPhase, setAnimationPhase] = useState<'initial' | 'hideHeader' | 'moveCards' | 'showText' | 'complete'>('initial');
   const [displayedText, setDisplayedText] = useState('');
   const [textComplete, setTextComplete] = useState(false);
@@ -70,6 +72,14 @@ const Interpretation = () => {
     });
   };
 
+  // Calculate transform values based on device type
+  const getTransformClass = () => {
+    if (animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete') {
+      return isMobile ? '-translate-y-32' : '-translate-y-64';
+    }
+    return 'translate-y-0';
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative overflow-hidden`}>
       {/* Background pattern */}
@@ -77,7 +87,7 @@ const Interpretation = () => {
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
       
-      <div className="relative z-10 flex flex-col h-screen pb-28">
+      <div className="relative z-10 flex flex-col h-screen">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pt-12">
           <button 
@@ -108,11 +118,11 @@ const Interpretation = () => {
 
         {/* Cards Section */}
         <div className="flex-1 flex flex-col">
-          {/* Cards container - 减少20%的向上移动距离：从-80改为-64 */}
-          <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
+          {/* Cards container - 使用响应式的向上移动距离 */}
+          <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${getTransformClass()} ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-64 mt-2'
-              : 'translate-y-0'
+              ? 'mt-2'
+              : ''
           }`}>
             {cards.map((card: any, index: number) => (
               <div key={card.id} className="flex-1">
@@ -125,15 +135,13 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 增加10像素间隔，跟着塔罗牌一起向上移动 */}
-          <div className={`px-6 mt-10 mb-4 transition-all duration-500 ${
+          {/* Interpretation - 根据设备类型调整间距和位置 */}
+          <div className={`px-6 mb-4 transition-all duration-500 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-8'
-          } ${
-            animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-64'
-              : 'translate-y-0'
+          } ${getTransformClass()} ${
+            isMobile ? 'mt-6' : 'mt-10'
           }`}>
             <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
               <p className="text-white leading-relaxed text-sm whitespace-pre-line">
@@ -144,8 +152,8 @@ const Interpretation = () => {
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-6 z-50">
+        {/* Action Button - 使用相对定位而不是固定定位 */}
+        <div className="p-6 mt-auto">
           <button
             onClick={handleChatMore}
             className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-lg flex items-center justify-center space-x-2 transition-all duration-500 ${
