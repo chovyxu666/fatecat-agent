@@ -79,7 +79,7 @@ const Cards = () => {
               className="w-full h-full object-cover"
             />
           </div>
-          <h2 className="text-white text-xl font-bold mb-2">你好呀，我是{cat.name}。</h2>
+          <h2 className="text-white text-xl font-bold mb-2">你好呀，我是{cat.name}</h2>
           <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
