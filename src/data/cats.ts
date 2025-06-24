@@ -9,7 +9,7 @@ export const cats: Cat[] = [
     specialty: '塔罗占卜',
     personality: '温柔治愈',
     avatar: '/lovable-uploads/9cee5160-e061-45d4-ae36-be62d3badfed.png',
-    description: '温柔的Tara擅长塔罗占卜，她的直觉敏锐，能够感知你内心深处的疑惑',
+    description: '翻牌吧，命运正在窃窃私语',
     color: 'from-purple-900 to-blue-900'
   },
   {
@@ -19,7 +19,7 @@ export const cats: Cat[] = [
     specialty: '八字命理',
     personality: '傲娇自信',
     avatar: '/lovable-uploads/2538078a-5daa-4196-897e-0f1cbaf9b798.png',
-    description: '傲娇的小玄精通八字命理，虽然表面高冷，但内心充满古老的智慧',
+    description: '哼，小事就不要来打扰本大仙了',
     color: 'from-purple-900 to-blue-900'
   },
   {
@@ -29,7 +29,7 @@ export const cats: Cat[] = [
     specialty: '星座占卜',
     personality: '优雅时髦',
     avatar: '/lovable-uploads/1850e060-3c2c-4c6e-a674-6edfe3d7069c.png',
-    description: '优雅的Nova对星座运势了如指掌，她时髦的风格深受年轻人喜爱',
+    description: '别慌别慌，cosmos never lies',
     color: 'from-purple-900 to-blue-900'
   }
 ];

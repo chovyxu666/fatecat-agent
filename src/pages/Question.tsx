@@ -17,6 +17,7 @@ const Question = () => {
   }
 
   const handleQuestionSelect = (selectedQuestion: string) => {
+    console.log('Question selected:', selectedQuestion);
     setQuestion(selectedQuestion);
   };
 
@@ -41,19 +42,28 @@ const Question = () => {
     setQuestion(e.target.value);
   };
 
+  const handleInputFocus = () => {
+    console.log('Input focused');
+  };
+
+  const handleButtonClick = () => {
+    console.log('Button clicked, question:', question);
+    handleSubmit();
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative overflow-hidden`}>
       {/* Background pattern */}
-      <div className="absolute inset-0 opacity-20" style={{
+      <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
       
-      <div className="relative z-10 min-h-screen pb-24">
+      <div className="relative z-10 min-h-screen pb-32">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 pt-12">
+        <div className="flex items-center justify-between p-6 pt-12 relative z-20">
           <button 
             onClick={() => navigate('/')}
-            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
           >
             <ChevronLeft className="w-6 h-6 text-white" />
           </button>
@@ -61,7 +71,7 @@ const Question = () => {
         </div>
 
         {/* Cat Avatar and Intro */}
-        <div className="text-center px-6 mb-8">
+        <div className="text-center px-6 mb-8 relative z-20">
           <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-white/20 mb-4">
             <img 
               src={cat.avatar} 
@@ -76,13 +86,13 @@ const Question = () => {
         </div>
 
         {/* Predefined Questions */}
-        <div className="px-6 mb-8">
+        <div className="px-6 mb-8 relative z-20">
           <div className="space-y-3">
             {predefinedQuestions.map((q, index) => (
               <button
                 key={index}
                 onClick={() => handleQuestionSelect(q)}
-                className="w-full text-left p-4 bg-white/10 rounded-xl border border-white/20 text-white/90 text-sm hover:bg-white/20 transition-all duration-200"
+                className="w-full text-left p-4 bg-white/10 rounded-xl border border-white/20 text-white/90 text-sm hover:bg-white/20 transition-all duration-200 cursor-pointer active:scale-95"
               >
                 {q}
               </button>
@@ -91,22 +101,23 @@ const Question = () => {
         </div>
       </div>
 
-      {/* Fixed Input Area */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black/20 backdrop-blur-sm">
-        <div className="flex items-center space-x-3">
+      {/* Fixed Input Area - 确保最高层级 */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black/30 backdrop-blur-md border-t border-white/10 z-50">
+        <div className="flex items-center space-x-3 max-w-md mx-auto">
           <input
             type="text"
             value={question}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
+            onFocus={handleInputFocus}
             placeholder="请输入你的问题..."
-            className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20"
+            className="flex-1 bg-white/15 border border-white/30 rounded-full px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/30 focus:bg-white/20 transition-all duration-200"
             autoComplete="off"
           />
           <button
-            onClick={handleSubmit}
+            onClick={handleButtonClick}
             disabled={!question.trim()}
-            className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:opacity-50 rounded-full px-6 py-3 text-white font-medium transition-colors duration-200 min-w-[100px]"
+            className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:opacity-50 rounded-full px-6 py-3 text-white font-medium transition-all duration-200 min-w-[100px] cursor-pointer active:scale-95 disabled:cursor-not-allowed"
           >
             开始占卜
           </button>
