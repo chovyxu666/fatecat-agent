@@ -58,7 +58,7 @@ const Cards = () => {
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
       
-      <div className="relative z-10 flex flex-col h-screen">
+      <div className="relative z-10 flex flex-col min-h-screen pb-32">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pt-12">
           <button 
@@ -82,16 +82,16 @@ const Cards = () => {
         </div>
 
         {/* Cards Section */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6">
+        <div className="flex-1 flex flex-col items-center justify-center px-4">
           <h2 className="text-white text-xl font-bold mb-8 text-center">
             这是你抽到的牌
           </h2>
           
-          <div className="flex justify-center space-x-6 mb-8">
+          <div className="flex justify-center space-x-2 mb-8 w-full max-w-sm">
             {tarotCards.map((card, index) => (
               <div 
                 key={card.id}
-                className={`transition-all duration-700 ${
+                className={`flex-1 transition-all duration-700 ${
                   visibleCards.includes(index) 
                     ? 'opacity-100 translate-y-0 scale-100' 
                     : 'opacity-0 translate-y-8 scale-95'
@@ -100,34 +100,34 @@ const Cards = () => {
                 <TarotCardComponent
                   card={card}
                   revealed={visibleCards.includes(index)}
-                  size="large"
+                  size="medium"
                 />
               </div>
             ))}
           </div>
 
           {/* Question Display */}
-          <div className={`bg-white/10 rounded-xl p-4 mb-8 border border-white/20 transition-all duration-500 ${
+          <div className={`bg-white/10 rounded-xl p-4 mb-8 border border-white/20 transition-all duration-500 mx-4 ${
             animationComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
             <p className="text-white/80 text-sm text-center">你的问题：</p>
             <p className="text-white text-center mt-1">{question}</p>
           </div>
         </div>
+      </div>
 
-        {/* Action Button */}
-        <div className="p-6">
-          <button
-            onClick={handleContinue}
-            className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-lg transition-all duration-500 ${
-              animationComplete 
-                ? 'opacity-100 translate-y-0' 
-                : 'opacity-0 translate-y-4 pointer-events-none'
-            }`}
-          >
-            开始解析
-          </button>
-        </div>
+      {/* Fixed Action Button - 与Question页面保持一致的位置 */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black/30 backdrop-blur-md border-t border-white/10 z-50">
+        <button
+          onClick={handleContinue}
+          className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-lg transition-all duration-500 ${
+            animationComplete 
+              ? 'opacity-100 translate-y-0' 
+              : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
+        >
+          开始解析
+        </button>
       </div>
     </div>
   );

@@ -9,9 +9,9 @@ interface TarotCardComponentProps {
 
 export const TarotCardComponent = ({ card, revealed = true, size = 'medium' }: TarotCardComponentProps) => {
   const sizeClasses = {
-    small: 'w-20 h-32',
-    medium: 'w-24 h-36',
-    large: 'w-32 h-48'
+    small: 'w-16 h-28',
+    medium: 'w-20 h-32',
+    large: 'w-24 h-40'
   };
 
   const positionLabels = {
