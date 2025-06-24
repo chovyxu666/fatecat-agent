@@ -33,7 +33,7 @@ const Question = () => {
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
       
-      <div className="relative z-10 flex flex-col h-screen">
+      <div className="relative z-10 min-h-screen pb-24">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pt-12">
           <button 
@@ -61,8 +61,8 @@ const Question = () => {
         </div>
 
         {/* Predefined Questions */}
-        <div className="flex-1 px-6">
-          <div className="space-y-3 mb-6">
+        <div className="px-6 mb-8">
+          <div className="space-y-3">
             {predefinedQuestions.map((q, index) => (
               <button
                 key={index}
@@ -74,25 +74,25 @@ const Question = () => {
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Input Area */}
-        <div className="p-6 bg-black/20 backdrop-blur-sm">
-          <div className="flex items-center space-x-3">
-            <input
-              type="text"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="请输入你的问题..."
-              className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
-            />
-            <button
-              onClick={handleSubmit}
-              disabled={!question.trim()}
-              className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 rounded-full px-6 py-3 text-white font-medium transition-colors duration-200"
-            >
-              开始占卜
-            </button>
-          </div>
+      {/* Fixed Input Area */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-black/20 backdrop-blur-sm">
+        <div className="flex items-center space-x-3">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="请输入你的问题..."
+            className="flex-1 bg-white/10 border border-white/20 rounded-full px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+          />
+          <button
+            onClick={handleSubmit}
+            disabled={!question.trim()}
+            className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 rounded-full px-6 py-3 text-white font-medium transition-colors duration-200"
+          >
+            开始占卜
+          </button>
         </div>
       </div>
     </div>
