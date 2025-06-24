@@ -3,24 +3,24 @@ import { TarotCard } from '../types';
 
 export const tarotCards: TarotCard[] = [
   {
-    id: 'three-of-cups',
-    name: '圣杯三',
-    image: '/lovable-uploads/72f5c79b-7b42-4532-8b5c-a0d9c9359a29.png',
+    id: 'past-card',
+    name: '过去',
+    image: '/lovable-uploads/56e6e5a2-941e-4003-a9c7-a0e65e47e0f1.png',
     position: 'past',
-    meaning: '友谊、庆祝、团结'
+    meaning: '过往的经历与影响'
   },
   {
-    id: 'justice',
-    name: '正义',
-    image: '/lovable-uploads/72f5c79b-7b42-4532-8b5c-a0d9c9359a29.png',
+    id: 'present-card',
+    name: '现在',
+    image: '/lovable-uploads/bafc68ed-9bef-4351-8f73-456f3db559e1.png',
     position: 'present',
-    meaning: '公正、平衡、因果报应'
+    meaning: '当前的状态与机遇'
   },
   {
-    id: 'five-of-swords',
-    name: '权杖五',
-    image: '/lovable-uploads/72f5c79b-7b42-4532-8b5c-a0d9c9359a29.png',
+    id: 'future-card',
+    name: '未来',
+    image: '/lovable-uploads/cac4b1bd-dd56-4aa9-be6b-d21dce3ce20b.png',
     position: 'future',
-    meaning: '冲突、竞争、挑战'
+    meaning: '未来的趋势与可能'
   }
 ];

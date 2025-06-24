@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { tarotCards } from '../data/tarotCards';
@@ -10,7 +10,8 @@ const Cards = () => {
   const { catId } = useParams<{ catId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const [cardsRevealed, setCardsRevealed] = useState(false);
+  const [visibleCards, setVisibleCards] = useState<number[]>([]);
+  const [animationComplete, setAnimationComplete] = useState(false);
 
   const cat = cats.find(c => c.id === catId);
   const question = location.state?.question || '';
@@ -19,17 +20,35 @@ const Cards = () => {
     return <div>Cat not found</div>;
   }
 
-  const handleRevealCards = () => {
-    setCardsRevealed(true);
-    // Add some delay before navigating to interpretation
+  useEffect(() => {
+    // 依次显示三张牌的动画
+    const showCard = (index: number) => {
+      setTimeout(() => {
+        setVisibleCards(prev => [...prev, index]);
+        if (index === 2) {
+          // 所有卡片都显示完成后，稍等一下再显示按钮
+          setTimeout(() => {
+            setAnimationComplete(true);
+          }, 500);
+        }
+      }, index * 800); // 每张卡片间隔800ms出现
+    };
+
+    // 页面加载后开始动画
     setTimeout(() => {
-      navigate(`/interpretation/${catId}`, { 
-        state: { 
-          question,
-          cards: tarotCards 
-        } 
-      });
-    }, 2000);
+      showCard(0);
+      showCard(1);
+      showCard(2);
+    }, 1000);
+  }, []);
+
+  const handleContinue = () => {
+    navigate(`/interpretation/${catId}`, { 
+      state: { 
+        question,
+        cards: tarotCards 
+      } 
+    });
   };
 
   return (
@@ -44,7 +63,7 @@ const Cards = () => {
         <div className="flex items-center justify-between p-6 pt-12">
           <button 
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
           >
             <ChevronLeft className="w-6 h-6 text-white" />
           </button>
@@ -69,18 +88,28 @@ const Cards = () => {
           </h2>
           
           <div className="flex justify-center space-x-6 mb-8">
-            {tarotCards.map((card) => (
-              <TarotCardComponent
+            {tarotCards.map((card, index) => (
+              <div 
                 key={card.id}
-                card={card}
-                revealed={cardsRevealed}
-                size="large"
-              />
+                className={`transition-all duration-700 ${
+                  visibleCards.includes(index) 
+                    ? 'opacity-100 translate-y-0 scale-100' 
+                    : 'opacity-0 translate-y-8 scale-95'
+                }`}
+              >
+                <TarotCardComponent
+                  card={card}
+                  revealed={visibleCards.includes(index)}
+                  size="large"
+                />
+              </div>
             ))}
           </div>
 
           {/* Question Display */}
-          <div className="bg-white/10 rounded-xl p-4 mb-8 border border-white/20">
+          <div className={`bg-white/10 rounded-xl p-4 mb-8 border border-white/20 transition-all duration-500 ${
+            animationComplete ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
             <p className="text-white/80 text-sm text-center">你的问题：</p>
             <p className="text-white text-center mt-1">{question}</p>
           </div>
@@ -89,10 +118,14 @@ const Cards = () => {
         {/* Action Button */}
         <div className="p-6">
           <button
-            onClick={handleRevealCards}
-            className="w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-lg transition-colors duration-200"
+            onClick={handleContinue}
+            className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-lg transition-all duration-500 ${
+              animationComplete 
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 translate-y-4 pointer-events-none'
+            }`}
           >
-            继续
+            开始解析
           </button>
         </div>
       </div>
