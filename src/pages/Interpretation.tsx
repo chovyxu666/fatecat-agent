@@ -106,41 +106,34 @@ const Interpretation = () => {
           <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
-        {/* Cards Section */}
-        <div className="flex-1 flex flex-col">
-          {/* Cards container - 减少20%的向上移动距离：从-80改为-64 */}
-          <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
-            animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-64 mt-2'
-              : 'translate-y-0'
-          }`}>
-            {cards.map((card: any, index: number) => (
-              <div key={card.id} className="flex-1">
-                <TarotCardComponent
-                  card={card}
-                  revealed={true}
-                  size="medium"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Interpretation - 增加10像素间隔，跟着塔罗牌一起向上移动 */}
-          <div className={`px-6 mt-10 mb-4 transition-all duration-500 ${
-            animationPhase === 'showText' || animationPhase === 'complete'
-              ? 'opacity-100 translate-y-0' 
-              : 'opacity-0 translate-y-8'
-          } ${
-            animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-64'
-              : 'translate-y-0'
-          }`}>
-            <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
-              <p className="text-white leading-relaxed text-sm whitespace-pre-line">
-                {displayedText}
-                {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
-              </p>
+        {/* Cards Section - 移动到屏幕顶部 */}
+        <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
+          animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+            ? 'fixed top-4 left-1/2 transform -translate-x-1/2 z-20'
+            : 'translate-y-0'
+        }`}>
+          {cards.map((card: any, index: number) => (
+            <div key={card.id} className="flex-1">
+              <TarotCardComponent
+                card={card}
+                revealed={true}
+                size="small"
+              />
             </div>
+          ))}
+        </div>
+
+        {/* Interpretation - 固定在距离顶部100px的位置 */}
+        <div className={`fixed top-[100px] left-0 right-0 px-6 z-10 transition-all duration-500 ${
+          animationPhase === 'showText' || animationPhase === 'complete'
+            ? 'opacity-100 translate-y-0' 
+            : 'opacity-0 translate-y-8'
+        }`}>
+          <div className="bg-white/10 rounded-2xl p-6 border border-white/20 max-w-lg mx-auto">
+            <p className="text-white leading-relaxed text-sm whitespace-pre-line">
+              {displayedText}
+              {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
+            </p>
           </div>
         </div>
 
