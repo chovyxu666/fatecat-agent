@@ -102,16 +102,16 @@ const Interpretation = () => {
               className="w-full h-full object-cover"
             />
           </div>
-          <h2 className="text-white text-xl font-bold mb-2">你好呀，我是{cat.name}。</h2>
+          <h2 className="text-white text-xl font-bold mb-2">你好呀，我是{cat.name}</h2>
           <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
-        {/* Cards Section - 调整布局避免重叠 */}
+        {/* Cards Section - 大幅向上移动到屏幕上方区域 */}
         <div className="flex-1 flex flex-col">
-          {/* Cards container - 向上移动更多，利用页面上方空间 */}
+          {/* Cards container - 大幅向上移动 */}
           <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-16 mt-4' // 减少向上移动距离，但增加顶部边距
+              ? '-translate-y-48 mt-8' // 大幅增加向上移动距离
               : 'translate-y-0'
           }`}>
             {cards.map((card: any, index: number) => (
@@ -125,8 +125,8 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 调整位置避免与底部按钮重叠 */}
-          <div className={`px-6 mt-6 mb-4 transition-all duration-500 ${
+          {/* Interpretation - 紧贴塔罗牌下方，显示在屏幕上方50%区域 */}
+          <div className={`px-6 mt-2 mb-4 transition-all duration-500 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-8'
