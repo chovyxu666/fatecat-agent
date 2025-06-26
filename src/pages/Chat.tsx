@@ -1,10 +1,10 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { ChatBubble } from '../components/ChatBubble';
 import { ChatMessage } from '../types';
 import { ChevronLeft } from 'lucide-react';
+import { ChatService, ChatRequest } from '../services/chatService';
 
 const Chat = () => {
   const { catId } = useParams<{ catId: string }>();
@@ -22,6 +22,7 @@ const Chat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFirstMessage, setIsFirstMessage] = useState(true);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const chatServiceRef = useRef(new ChatService());
 
   const cat = cats.find(c => c.id === catId);
   const cards = location.state?.cards || [];
@@ -41,62 +42,6 @@ const Chat = () => {
     });
     
     return cardDescriptions.join('\\n');
-  };
-
-  const handleStreamResponse = async (response: Response, userMessageId: string) => {
-    const reader = response.body?.getReader();
-    const decoder = new TextDecoder();
-    
-    if (!reader) {
-      throw new Error('无法读取响应流');
-    }
-
-    // 创建猫咪回复消息
-    const catMessageId = (Date.now() + 1).toString();
-    const catMessage: ChatMessage = {
-      id: catMessageId,
-      text: '',
-      sender: 'cat',
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, catMessage]);
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const jsonStr = line.substring(6).trim();
-              if (jsonStr) {
-                const data = JSON.parse(jsonStr);
-                if (data.chunk) {
-                  setMessages(prev => 
-                    prev.map(msg => 
-                      msg.id === catMessageId 
-                        ? { ...msg, text: msg.text + data.chunk }
-                        : msg
-                    )
-                  );
-                }
-              }
-            } catch (e) {
-              console.log('解析JSON失败:', e);
-            }
-          }
-        }
-      }
-    } finally {
-      reader.releaseLock();
-      setIsLoading(false);
-    }
   };
 
   const handleSendMessage = async () => {
@@ -121,8 +66,19 @@ const Chat = () => {
 
     abortControllerRef.current = new AbortController();
 
+    // 创建猫咪回复消息
+    const catMessageId = (Date.now() + 1).toString();
+    const catMessage: ChatMessage = {
+      id: catMessageId,
+      text: '',
+      sender: 'cat',
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, catMessage]);
+
     try {
-      const requestBody: any = {
+      const requestBody: ChatRequest = {
         user_id: "123",
         message: currentMessage
       };
@@ -133,20 +89,21 @@ const Chat = () => {
         setIsFirstMessage(false);
       }
 
-      const response = await fetch('http://192.168.124.212:5000/chat/stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      await chatServiceRef.current.sendMessage(
+        requestBody,
+        (chunk: string) => {
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.id === catMessageId 
+                ? { ...msg, text: msg.text + chunk }
+                : msg
+            )
+          );
         },
-        body: JSON.stringify(requestBody),
-        signal: abortControllerRef.current.signal
-      });
+        abortControllerRef.current
+      );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      await handleStreamResponse(response, userMessage.id);
+      setIsLoading(false);
 
     } catch (error: any) {
       if (error.name === 'AbortError') {
@@ -158,7 +115,7 @@ const Chat = () => {
       
       // 添加错误消息
       const errorMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: (Date.now() + 2).toString(),
         text: '抱歉，我现在无法回复你。请稍后再试。',
         sender: 'cat',
         timestamp: new Date()
