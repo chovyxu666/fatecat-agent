@@ -1,4 +1,3 @@
-
 import { TarotCard } from '../types';
 
 export const tarotCards: TarotCard[] = [
@@ -86,7 +85,6 @@ export const tarotCards: TarotCard[] = [
     position: 'future',
     meaning: '内在力量与勇气'
   },
-  // 新增的塔罗牌
   {
     id: 'hermit-new',
     name: '隐士',
@@ -149,6 +147,69 @@ export const tarotCards: TarotCard[] = [
     image: '/lovable-uploads/b626b804-a660-4934-be20-2dc9b582baeb.png',
     position: 'future',
     meaning: '希望与灵感的指引'
+  },
+  {
+    id: 'moon',
+    name: '月亮',
+    image: '/lovable-uploads/087e7736-30b2-4afe-b261-31eafcb77edb.png',
+    position: 'past',
+    meaning: '幻象与潜意识的探索'
+  },
+  {
+    id: 'sun',
+    name: '太阳',
+    image: '/lovable-uploads/5a0aa6e7-db55-441c-8dbd-152ec4e0236c.png',
+    position: 'present',
+    meaning: '光明与生命的活力'
+  },
+  {
+    id: 'judgement',
+    name: '审判',
+    image: '/lovable-uploads/abfcd603-da49-431f-b86c-a962a0322c6c.png',
+    position: 'future',
+    meaning: '重生与心灵的觉醒'
+  },
+  {
+    id: 'world',
+    name: '世界',
+    image: '/lovable-uploads/353216ed-dcc9-4c12-a058-3a29c76a978c.png',
+    position: 'past',
+    meaning: '完成与圆满的成就'
+  },
+  {
+    id: 'ace-of-swords',
+    name: '宝剑王牌',
+    image: '/lovable-uploads/675744cc-eead-4bb3-92e3-fe890fbb67d7.png',
+    position: 'present',
+    meaning: '新的思维与突破'
+  },
+  {
+    id: 'two-of-swords',
+    name: '宝剑二',
+    image: '/lovable-uploads/ae137614-8794-46c7-ac2d-7585ee10892c.png',
+    position: 'future',
+    meaning: '抉择与平衡的考验'
+  },
+  {
+    id: 'three-of-swords',
+    name: '宝剑三',
+    image: '/lovable-uploads/dec0879a-0447-46c7-9d20-e40549cbed5a.png',
+    position: 'past',
+    meaning: '心痛与情感的创伤'
+  },
+  {
+    id: 'four-of-swords',
+    name: '宝剑四',
+    image: '/lovable-uploads/dbed3111-b79d-4a2b-9e55-b393ceb1a6f3.png',
+    position: 'present',
+    meaning: '休息与内心的平静'
+  },
+  {
+    id: 'five-of-swords',
+    name: '宝剑五',
+    image: '/lovable-uploads/d12e51a9-20c9-4495-899a-318dd5b2ffb5.png',
+    position: 'future',
+    meaning: '冲突与胜负的代价'
   }
 ];
 
