@@ -16,8 +16,8 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
-      // 代理所有其他非静态资源请求到后端服务器
-      '^(?!/src|/@|/node_modules|/public|/__vite|/favicon.ico).*': {
+      // 代理所有以 /chat 开头的请求到后端服务器（包括 /chatHistory 等）
+      '^/chat.*': {
         target: 'http://192.168.124.212:5000',
         changeOrigin: true
       }
