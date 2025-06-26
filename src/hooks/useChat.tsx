@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatMessage } from '../types';
@@ -38,6 +39,11 @@ export const useChat = (catId: string | undefined) => {
     return cardDescriptions.join('\n');
   };
 
+  // 处理消息分割函数
+  const splitMessageByNewlines = (text: string): string[] => {
+    return text.split('\n').filter(line => line.trim().length > 0);
+  };
+
   const sendMessageToBackend = async (messageText: string) => {
     setIsLoading(true);
 
@@ -63,10 +69,13 @@ export const useChat = (catId: string | undefined) => {
       // 创建猫咪回复消息的ID
       const catMessageId = (Date.now() + 1).toString();
       let catMessageCreated = false;
+      let accumulatedText = '';
 
       await chatServiceRef.current.sendMessage(
         requestBody,
         (chunk: string) => {
+          accumulatedText += chunk;
+          
           // 只有在第一次接收到数据时才创建猫咪消息
           if (!catMessageCreated) {
             const catMessage: ChatMessage = {
@@ -84,7 +93,7 @@ export const useChat = (catId: string | undefined) => {
             setMessages(prev => 
               prev.map(msg => 
                 msg.id === catMessageId 
-                  ? { ...msg, text: msg.text + chunk }
+                  ? { ...msg, text: accumulatedText }
                   : msg
               )
             );
@@ -92,6 +101,25 @@ export const useChat = (catId: string | undefined) => {
         },
         abortControllerRef.current
       );
+
+      // 流式传输完成后，处理换行符分割
+      setTimeout(() => {
+        const messageParts = splitMessageByNewlines(accumulatedText);
+        
+        if (messageParts.length > 1) {
+          // 如果有多个部分，替换原消息为多个消息
+          setMessages(prev => {
+            const filteredMessages = prev.filter(msg => msg.id !== catMessageId);
+            const newMessages = messageParts.map((part, index) => ({
+              id: `${catMessageId}_${index}`,
+              text: part.trim(),
+              sender: 'cat' as const,
+              timestamp: new Date(Date.now() + index * 100) // 稍微错开时间戳
+            }));
+            return [...filteredMessages, ...newMessages];
+          });
+        }
+      }, 500); // 延迟500ms确保流式传输完成
 
     } catch (error: any) {
       if (error.name === 'AbortError') {
