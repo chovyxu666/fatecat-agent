@@ -1,58 +1,59 @@
-# Welcome to your Lovable project
 
-## Project info
+# 欢迎使用您的 Lovable 项目
+
+## 项目信息
 
 **URL**: https://lovable.dev/projects/8046f06c-42d6-4640-acea-fd42693cc33d
 
-## How can I edit this code?
+## 如何编辑此代码？
 
-There are several ways of editing your application.
+有几种编辑应用程序的方式。
 
-**Use Lovable**
+**使用 Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8046f06c-42d6-4640-acea-fd42693cc33d) and start prompting.
+只需访问 [Lovable 项目](https://lovable.dev/projects/8046f06c-42d6-4640-acea-fd42693cc33d) 并开始对话。
 
-Changes made via Lovable will be committed automatically to this repo.
+通过 Lovable 所做的更改将自动提交到此存储库。
 
-**Use your preferred IDE**
+**使用您喜欢的 IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+如果您想使用自己的 IDE 在本地工作，可以克隆此存储库并推送更改。推送的更改也会在 Lovable 中反映。
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+唯一的要求是安装 Node.js 和 npm - [使用 nvm 安装](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Follow these steps:
+按照以下步骤操作：
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# 步骤 1：使用项目的 Git URL 克隆存储库
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# 步骤 2：导航到项目目录
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
+# 步骤 3：安装必要的依赖项
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 步骤 4：启动带有自动重载和即时预览的开发服务器
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+**直接在 GitHub 中编辑文件**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- 导航到所需的文件。
+- 点击文件视图右上角的"编辑"按钮（铅笔图标）。
+- 进行更改并提交更改。
 
-**Use GitHub Codespaces**
+**使用 GitHub Codespaces**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- 导航到存储库的主页面。
+- 点击右上角附近的"Code"按钮（绿色按钮）。
+- 选择"Codespaces"选项卡。
+- 点击"New codespace"以启动新的 Codespace 环境。
+- 直接在 Codespace 中编辑文件，完成后提交并推送您的更改。
 
-## What technologies are used for this project?
+## 此项目使用了哪些技术？
 
-This project is built with:
+此项目使用以下技术构建：
 
 - Vite
 - TypeScript
@@ -60,14 +61,14 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## 如何部署此项目？
 
-Simply open [Lovable](https://lovable.dev/projects/8046f06c-42d6-4640-acea-fd42693cc33d) and click on Share -> Publish.
+只需打开 [Lovable](https://lovable.dev/projects/8046f06c-42d6-4640-acea-fd42693cc33d) 并点击分享 -> 发布。
 
-## Can I connect a custom domain to my Lovable project?
+## 我可以为我的 Lovable 项目连接自定义域名吗？
 
-Yes, you can!
+是的，您可以！
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+要连接域名，请导航到项目 > 设置 > 域名并点击连接域名。
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+了解更多信息：[设置自定义域名](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
