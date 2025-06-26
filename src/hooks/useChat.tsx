@@ -58,67 +58,72 @@ export const useChat = (catId: string | undefined) => {
         setIsFirstMessage(false);
       }
 
-      // 简化的消息处理逻辑
+      // 重新设计的消息处理逻辑
       const baseMessageId = Date.now().toString();
       let messageCounter = 0;
-      let currentBuffer = '';
+      let textBuffer = '';
+      let currentMessageId: string | null = null;
 
       await chatServiceRef.current.sendMessage(
         requestBody,
         (chunk: string) => {
-          currentBuffer += chunk;
+          textBuffer += chunk;
+          console.log(`接收到chunk: "${chunk}", 当前缓冲区: "${textBuffer}"`);
           
-          // 检查是否包含换行符
-          if (currentBuffer.includes('\n')) {
-            const lines = currentBuffer.split('\n');
+          // 检查是否有换行符，如果有则处理完整的行
+          if (textBuffer.includes('\n')) {
+            const lines = textBuffer.split('\n');
             
-            // 处理除最后一行外的所有行（这些是完整的消息）
+            // 处理除最后一行外的所有完整行
             for (let i = 0; i < lines.length - 1; i++) {
-              const line = lines[i].trim();
-              if (line) {
-                const messageId = `${baseMessageId}_${messageCounter}`;
-                const newMessage: ChatMessage = {
-                  id: messageId,
-                  text: line,
+              const completeLine = lines[i].trim();
+              if (completeLine) {
+                const completeMessageId = `${baseMessageId}_${messageCounter}`;
+                messageCounter++;
+                
+                const completeMessage: ChatMessage = {
+                  id: completeMessageId,
+                  text: completeLine,
                   sender: 'cat',
-                  timestamp: new Date(Date.now() + messageCounter * 100)
+                  timestamp: new Date(Date.now() + messageCounter * 10)
                 };
                 
-                setMessages(prev => [...prev, newMessage]);
-                messageCounter++;
-                console.log(`创建完整消息 ${messageId}: ${line}`);
+                console.log(`创建完整消息: ${completeMessageId} - "${completeLine}"`);
+                setMessages(prev => [...prev, completeMessage]);
               }
             }
             
-            // 最后一行可能是不完整的，重置缓冲区
-            currentBuffer = lines[lines.length - 1];
+            // 最后一行作为新的缓冲区开始
+            textBuffer = lines[lines.length - 1];
+            currentMessageId = null; // 重置当前消息ID
           }
           
-          // 如果当前缓冲区有内容且没有换行符，更新或创建当前消息
-          if (currentBuffer.trim()) {
-            const currentMessageId = `${baseMessageId}_${messageCounter}`;
+          // 处理当前行（可能是不完整的）
+          if (textBuffer.trim()) {
+            if (!currentMessageId) {
+              currentMessageId = `${baseMessageId}_${messageCounter}`;
+              console.log(`开始新的当前消息: ${currentMessageId}`);
+            }
             
             setMessages(prev => {
-              const existingMessageIndex = prev.findIndex(msg => msg.id === currentMessageId);
+              const existingIndex = prev.findIndex(msg => msg.id === currentMessageId);
+              const updatedMessage: ChatMessage = {
+                id: currentMessageId!,
+                text: textBuffer.trim(),
+                sender: 'cat',
+                timestamp: new Date(Date.now() + messageCounter * 10)
+              };
               
-              if (existingMessageIndex >= 0) {
+              if (existingIndex >= 0) {
                 // 更新现有消息
-                const updatedMessages = [...prev];
-                updatedMessages[existingMessageIndex] = {
-                  ...updatedMessages[existingMessageIndex],
-                  text: currentBuffer.trim()
-                };
-                return updatedMessages;
+                const updated = [...prev];
+                updated[existingIndex] = updatedMessage;
+                console.log(`更新消息: ${currentMessageId} - "${textBuffer.trim()}"`);
+                return updated;
               } else {
                 // 创建新消息
-                const newMessage: ChatMessage = {
-                  id: currentMessageId,
-                  text: currentBuffer.trim(),
-                  sender: 'cat',
-                  timestamp: new Date(Date.now() + messageCounter * 100)
-                };
-                console.log(`创建当前消息 ${currentMessageId}: ${currentBuffer.trim()}`);
-                return [...prev, newMessage];
+                console.log(`创建新消息: ${currentMessageId} - "${textBuffer.trim()}"`);
+                return [...prev, updatedMessage];
               }
             });
           }
