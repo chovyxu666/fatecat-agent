@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ChatMessage } from '../types';
@@ -15,6 +14,7 @@ export const useChat = (catId: string | undefined) => {
   const chatServiceRef = useRef(new ChatService());
 
   const cards = location.state?.cards || [];
+  const question = location.state?.question || ''; // 获取问题页面传递的问题
 
   // 格式化塔罗牌信息
   const formatTarotCards = () => {
@@ -122,10 +122,10 @@ export const useChat = (catId: string | undefined) => {
     await sendMessageToBackend(currentMessage);
   };
 
-  // 组件初始化时自动发送空消息
+  // 组件初始化时自动发送问题
   useEffect(() => {
     if (isFirstMessage) {
-      sendMessageToBackend('');
+      sendMessageToBackend(question); // 传入问题页面的问题
     }
   }, []);
 
