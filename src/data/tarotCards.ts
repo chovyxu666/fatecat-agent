@@ -85,6 +85,70 @@ export const tarotCards: TarotCard[] = [
     image: '/lovable-uploads/9594d129-2e15-417c-8d69-051186040c20.png',
     position: 'future',
     meaning: '内在力量与勇气'
+  },
+  // 新增的塔罗牌
+  {
+    id: 'hermit-new',
+    name: '隐士',
+    image: '/lovable-uploads/1ef07d0c-33d2-4a6f-82a9-a2f734f511f8.png',
+    position: 'past',
+    meaning: '寻找内在的光明与指引'
+  },
+  {
+    id: 'wheel-of-fortune',
+    name: '命运之轮',
+    image: '/lovable-uploads/c478b957-c57f-4996-9c0b-93b83bae54e3.png',
+    position: 'present',
+    meaning: '变化的循环与机遇'
+  },
+  {
+    id: 'justice',
+    name: '正义',
+    image: '/lovable-uploads/6d4132dd-3645-4015-b79d-bc28c14e1c22.png',
+    position: 'future',
+    meaning: '公正与平衡的力量'
+  },
+  {
+    id: 'hanged-man',
+    name: '倒吊人',
+    image: '/lovable-uploads/b2a5f9d3-79de-4306-af80-040cec991368.png',
+    position: 'past',
+    meaning: '牺牲与不同视角的启示'
+  },
+  {
+    id: 'death',
+    name: '死神',
+    image: '/lovable-uploads/9720f844-9e85-4c40-8899-70d010599cc4.png',
+    position: 'present',
+    meaning: '转变与重生的时刻'
+  },
+  {
+    id: 'temperance',
+    name: '节制',
+    image: '/lovable-uploads/06d5f5a7-a6c7-41d4-91d0-9d36c5c10b1c.png',
+    position: 'future',
+    meaning: '和谐与平衡的艺术'
+  },
+  {
+    id: 'devil',
+    name: '恶魔',
+    image: '/lovable-uploads/254fd2a4-d5af-43e4-ab84-e7852785bea0.png',
+    position: 'past',
+    meaning: '束缚与诱惑的挑战'
+  },
+  {
+    id: 'tower',
+    name: '塔',
+    image: '/lovable-uploads/ed10b16e-90fc-4a31-bd56-55262feb2933.png',
+    position: 'present',
+    meaning: '突然的变化与觉醒'
+  },
+  {
+    id: 'star',
+    name: '星星',
+    image: '/lovable-uploads/b626b804-a660-4934-be20-2dc9b582baeb.png',
+    position: 'future',
+    meaning: '希望与灵感的指引'
   }
 ];
 
