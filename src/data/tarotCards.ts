@@ -351,6 +351,87 @@ export const tarotCards: TarotCard[] = [
     meaning: '独立与清晰的思维',
     uprightMeaning: '独立与清晰的思维，理性的判断',
     reversedMeaning: '情感冷漠、过于严苛、报复心理'
+  },
+  {
+    id: 'ace-of-wands',
+    name: '权杖王牌',
+    image: '/lovable-uploads/e598b91b-b8b2-4445-8f35-3266ef08813c.png',
+    position: 'past',
+    meaning: '新的创意与开始',
+    uprightMeaning: '新的创意与开始，创造力的火花',
+    reversedMeaning: '缺乏动力、创意受阻、延迟的开始'
+  },
+  {
+    id: 'two-of-wands',
+    name: '权杖二',
+    image: '/lovable-uploads/9c37c3ee-6881-41dc-a22d-7444585961d9.png',
+    position: 'present',
+    meaning: '规划与未来的愿景',
+    uprightMeaning: '规划与未来的愿景，掌控全局',
+    reversedMeaning: '缺乏计划、个人目标、恐惧未知'
+  },
+  {
+    id: 'three-of-wands',
+    name: '权杖三',
+    image: '/lovable-uploads/47dba1d0-6638-4541-91d0-28fb5d34ceb0.png',
+    position: 'future',
+    meaning: '扩展与远见',
+    uprightMeaning: '扩展与远见，长期计划的成果',
+    reversedMeaning: '缺乏远见、计划失败、延迟的进展'
+  },
+  {
+    id: 'four-of-wands',
+    name: '权杖四',
+    image: '/lovable-uploads/a48bbfa5-8692-42cb-889c-77951c757488.png',
+    position: 'past',
+    meaning: '庆祝与和谐',
+    uprightMeaning: '庆祝与和谐，稳定的基础',
+    reversedMeaning: '家庭不和、缺乏稳定、延迟的庆祝'
+  },
+  {
+    id: 'five-of-wands',
+    name: '权杖五',
+    image: '/lovable-uploads/966a9699-1659-49ad-bf2c-9ef8e2c3979f.png',
+    position: 'present',
+    meaning: '竞争与冲突',
+    uprightMeaning: '竞争与冲突，健康的竞争',
+    reversedMeaning: '避免冲突、内在冲突、缺乏竞争'
+  },
+  {
+    id: 'six-of-wands',
+    name: '权杖六',
+    image: '/lovable-uploads/63086fe6-f13f-43f7-8112-41f887c10dd2.png',
+    position: 'future',
+    meaning: '胜利与认可',
+    uprightMeaning: '胜利与认可，公众的赞赏',
+    reversedMeaning: '私人成就、缺乏认可、自我怀疑'
+  },
+  {
+    id: 'seven-of-wands',
+    name: '权杖七',
+    image: '/lovable-uploads/19fa199b-c43a-4def-9ace-48d9db0219be.png',
+    position: 'past',
+    meaning: '防守与坚持',
+    uprightMeaning: '防守与坚持，勇敢面对挑战',
+    reversedMeaning: '放弃抵抗、压力过大、失去立场'
+  },
+  {
+    id: 'eight-of-wands',
+    name: '权杖八',
+    image: '/lovable-uploads/6a88af63-11e0-46ac-89e8-c64ec39d83ce.png',
+    position: 'present',
+    meaning: '快速行动与进展',
+    uprightMeaning: '快速行动与进展，事情加速发展',
+    reversedMeaning: '延迟、缺乏进展、急躁行事'
+  },
+  {
+    id: 'nine-of-wands',
+    name: '权杖九',
+    image: '/lovable-uploads/63fb32ec-8b6e-46c5-a211-4b14efaa95c5.png',
+    position: 'future',
+    meaning: '坚韧与最后的坚持',
+    uprightMeaning: '坚韧与最后的坚持，接近成功',
+    reversedMeaning: '精疲力竭、放弃坚持、缺乏韧性'
   }
 ];
 
