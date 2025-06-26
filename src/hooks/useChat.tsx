@@ -66,63 +66,90 @@ export const useChat = (catId: string | undefined) => {
         setIsFirstMessage(false);
       }
 
-      // 创建猫咪回复消息的ID
-      const catMessageId = (Date.now() + 1).toString();
-      let catMessageCreated = false;
-      let accumulatedText = '';
+      // 创建当前消息的基础ID和缓冲区
+      const baseMessageId = Date.now().toString();
+      let currentMessageIndex = 0;
+      let currentMessageBuffer = '';
+      let isFirstChunk = true;
 
       await chatServiceRef.current.sendMessage(
         requestBody,
         (chunk: string) => {
-          accumulatedText += chunk;
+          currentMessageBuffer += chunk;
           
-          // 只有在第一次接收到数据时才创建猫咪消息
-          if (!catMessageCreated) {
-            const catMessage: ChatMessage = {
-              id: catMessageId,
-              text: chunk,
-              sender: 'cat',
-              timestamp: new Date()
-            };
-            setMessages(prev => [...prev, catMessage]);
-            catMessageCreated = true;
-            // 接收到第一个数据块时隐藏加载指示器
-            setIsLoading(false);
+          // 检查是否包含换行符
+          if (currentMessageBuffer.includes('\n')) {
+            // 按换行符分割
+            const parts = currentMessageBuffer.split('\n');
+            // 最后一部分可能不完整，保留作为下一个消息的开始
+            const incompletePart = parts.pop() || '';
+            
+            // 处理完整的部分
+            parts.forEach((part, index) => {
+              if (part.trim()) {
+                const messageId = `${baseMessageId}_${currentMessageIndex}`;
+                const catMessage: ChatMessage = {
+                  id: messageId,
+                  text: part.trim(),
+                  sender: 'cat',
+                  timestamp: new Date(Date.now() + currentMessageIndex * 100)
+                };
+                
+                setMessages(prev => [...prev, catMessage]);
+                currentMessageIndex++;
+              }
+            });
+            
+            // 重置缓冲区为不完整的部分
+            currentMessageBuffer = incompletePart;
           } else {
-            // 后续的数据块追加到现有消息
-            setMessages(prev => 
-              prev.map(msg => 
-                msg.id === catMessageId 
-                  ? { ...msg, text: accumulatedText }
-                  : msg
-              )
-            );
+            // 如果没有换行符，更新当前消息
+            const messageId = `${baseMessageId}_${currentMessageIndex}`;
+            
+            if (isFirstChunk) {
+              // 第一次创建消息
+              const catMessage: ChatMessage = {
+                id: messageId,
+                text: currentMessageBuffer,
+                sender: 'cat',
+                timestamp: new Date()
+              };
+              setMessages(prev => [...prev, catMessage]);
+              isFirstChunk = false;
+            } else {
+              // 更新现有消息
+              setMessages(prev => 
+                prev.map(msg => 
+                  msg.id === messageId 
+                    ? { ...msg, text: currentMessageBuffer }
+                    : msg
+                )
+              );
+            }
+          }
+          
+          // 接收到第一个数据块时隐藏加载指示器
+          if (isFirstChunk && !currentMessageBuffer.includes('\n')) {
+            setIsLoading(false);
+            isFirstChunk = false;
+          } else if (currentMessageBuffer.includes('\n')) {
+            setIsLoading(false);
           }
         },
         abortControllerRef.current
       );
 
-      // 流式传输完成后，检查是否需要按换行符分割
-      setTimeout(() => {
-        // 只有当消息包含换行符时才分割
-        if (accumulatedText.includes('\n')) {
-          const messageParts = splitMessageByNewlines(accumulatedText);
-          
-          if (messageParts.length > 1) {
-            // 如果有多个部分，替换原消息为多个消息
-            setMessages(prev => {
-              const filteredMessages = prev.filter(msg => msg.id !== catMessageId);
-              const newMessages = messageParts.map((part, index) => ({
-                id: `${catMessageId}_${index}`,
-                text: part.trim(),
-                sender: 'cat' as const,
-                timestamp: new Date(Date.now() + index * 100) // 稍微错开时间戳
-              }));
-              return [...filteredMessages, ...newMessages];
-            });
-          }
-        }
-      }, 500); // 延迟500ms确保流式传输完成
+      // 流式传输完成后，处理剩余的缓冲区内容
+      if (currentMessageBuffer.trim()) {
+        const messageId = `${baseMessageId}_${currentMessageIndex}`;
+        const catMessage: ChatMessage = {
+          id: messageId,
+          text: currentMessageBuffer.trim(),
+          sender: 'cat',
+          timestamp: new Date(Date.now() + currentMessageIndex * 100)
+        };
+        setMessages(prev => [...prev, catMessage]);
+      }
 
     } catch (error: any) {
       if (error.name === 'AbortError') {
