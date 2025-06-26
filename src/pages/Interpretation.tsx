@@ -84,13 +84,13 @@ const Interpretation = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative overflow-hidden`}>
+    <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative overflow-auto`}>
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-20" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
       
-      <div className="relative z-10 flex flex-col h-screen pb-40">
+      <div className="relative z-10 flex flex-col min-h-screen pb-32">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pt-12">
           <button 
@@ -120,7 +120,7 @@ const Interpretation = () => {
         </div>
 
         {/* Cards and Interpretation Container */}
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col flex-1 mb-8">
           {/* Cards container */}
           <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
@@ -157,8 +157,8 @@ const Interpretation = () => {
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-8 z-50 h-40 bg-gradient-to-t from-black/20 to-transparent">
+        {/* Action Button - 改为相对定位，包含在页面流中 */}
+        <div className="p-8 z-50 bg-gradient-to-t from-black/20 to-transparent">
           <button
             onClick={handleChatMore}
             className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-6 text-white font-bold text-xl flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
