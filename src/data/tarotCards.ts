@@ -1,4 +1,5 @@
 
+
 import { TarotCard } from '../types';
 
 export const tarotCards: TarotCard[] = [
@@ -631,6 +632,78 @@ export const tarotCards: TarotCard[] = [
     meaning: '慈善与公平交换',
     uprightMeaning: '慈善与公平交换，给予与接受的平衡',
     reversedMeaning: '不公平交易、自私、滥用慷慨'
+  },
+  {
+    id: 'seven-of-pentacles',
+    name: '金币七',
+    image: '/lovable-uploads/0a37170b-d99d-4c18-a0c4-972035a2d5d0.png',
+    position: 'present',
+    meaning: '耐心与长期投资',
+    uprightMeaning: '耐心与长期投资，等待收获的时机',
+    reversedMeaning: '缺乏耐心、急于求成、投资失败'
+  },
+  {
+    id: 'eight-of-pentacles',
+    name: '金币八',
+    image: '/lovable-uploads/594bfb77-6c34-401b-b27b-b0f0495dc4b9.png',
+    position: 'future',
+    meaning: '技艺与专注',
+    uprightMeaning: '技艺与专注，精益求精的工匠精神',
+    reversedMeaning: '技能不足、缺乏专注、质量低下'
+  },
+  {
+    id: 'nine-of-pentacles',
+    name: '金币九',
+    image: '/lovable-uploads/e5124f1d-f06c-4e17-b742-5b143cfa3950.png',
+    position: 'past',
+    meaning: '独立与物质成就',
+    uprightMeaning: '独立与物质成就，自力更生的成功',
+    reversedMeaning: '依赖他人、物质不安全、缺乏独立'
+  },
+  {
+    id: 'ten-of-pentacles',
+    name: '金币十',
+    image: '/lovable-uploads/0af21473-e39b-4d5d-8e9f-76c432a283c4.png',
+    position: 'present',
+    meaning: '财富传承与家族',
+    uprightMeaning: '财富传承与家族，世代的积累与传承',
+    reversedMeaning: '家族冲突、财务不稳、传承中断'
+  },
+  {
+    id: 'king-of-pentacles',
+    name: '金币国王',
+    image: '/lovable-uploads/2d7568e2-123d-4e74-aaae-70b8f678cf03.png',
+    position: 'future',
+    meaning: '财富的智慧与慷慨',
+    uprightMeaning: '财富的智慧与慷慨，成功的企业家',
+    reversedMeaning: '贪婪、物质主义、不负责任'
+  },
+  {
+    id: 'knight-of-pentacles',
+    name: '金币骑士',
+    image: '/lovable-uploads/97dc1a10-c10c-4554-8ca2-8e470933d666.png',
+    position: 'past',
+    meaning: '勤奋与责任感',
+    uprightMeaning: '勤奋与责任感，踏实稳重的进步',
+    reversedMeaning: '懒惰、拖延、缺乏动力'
+  },
+  {
+    id: 'page-of-pentacles',
+    name: '金币侍者',
+    image: '/lovable-uploads/20395ddd-7106-4603-b85c-d9acbf8f97f6.png',
+    position: 'present',
+    meaning: '学习与新机会',
+    uprightMeaning: '学习与新机会，实用技能的开始',
+    reversedMeaning: '缺乏实用性、学习困难、机会流失'
+  },
+  {
+    id: 'queen-of-pentacles',
+    name: '金币王后',
+    image: '/lovable-uploads/33656417-236c-4723-b30c-37caede8f455.png',
+    position: 'future',
+    meaning: '实用智慧与滋养',
+    uprightMeaning: '实用智慧与滋养，慈爱的提供者',
+    reversedMeaning: '过度保护、物质焦虑、忽视精神需求'
   }
 ];
 
@@ -660,3 +733,4 @@ export const getRandomCards = (): TarotCard[] => {
   
   return selectedCards;
 };
+
