@@ -1,33 +1,7 @@
+
 import { TarotCard } from '../types';
 
 export const tarotCards: TarotCard[] = [
-  {
-    id: 'hermit',
-    name: '隐士',
-    image: '/lovable-uploads/7959332e-0350-40a9-9d99-45e8d32dd7fc.png',
-    position: 'past',
-    meaning: '内省与寻求内在智慧',
-    uprightMeaning: '内省与寻求内在智慧，心灵的指引',
-    reversedMeaning: '孤立、迷茫、缺乏方向'
-  },
-  {
-    id: 'high-priestess',
-    name: '女祭司',
-    image: '/lovable-uploads/548d1ede-171b-418c-a59e-fac922fcaca0.png',
-    position: 'present',
-    meaning: '直觉与隐藏的知识',
-    uprightMeaning: '直觉与隐藏的知识，神秘智慧',
-    reversedMeaning: '缺乏直觉、秘密被揭露、表面化'
-  },
-  {
-    id: 'emperor',
-    name: '皇帝',
-    image: '/lovable-uploads/3bdd2e23-5ef2-4190-98ee-20bc6d0dbc09.png',
-    position: 'future',
-    meaning: '权威与稳定的力量',
-    uprightMeaning: '权威与稳定的力量，领导力',
-    reversedMeaning: '滥用权力、专制、缺乏自制力'
-  },
   {
     id: 'fool',
     name: '愚者',
@@ -432,6 +406,87 @@ export const tarotCards: TarotCard[] = [
     meaning: '坚韧与最后的坚持',
     uprightMeaning: '坚韧与最后的坚持，接近成功',
     reversedMeaning: '精疲力竭、放弃坚持、缺乏韧性'
+  },
+  {
+    id: 'ten-of-wands',
+    name: '权杖十',
+    image: '/lovable-uploads/af7eaba4-6163-40f6-92f2-9e51e75bca25.png',
+    position: 'past',
+    meaning: '重负与责任的承担',
+    uprightMeaning: '重负与责任的承担，接近成功但负重',
+    reversedMeaning: '负担过重、委派他人、寻求帮助'
+  },
+  {
+    id: 'king-of-wands',
+    name: '权杖国王',
+    image: '/lovable-uploads/292f071b-c363-448e-b416-ad86f16a3919.png',
+    position: 'present',
+    meaning: '自然的领导者',
+    uprightMeaning: '自然的领导者，富有远见的统治',
+    reversedMeaning: '专横独断、缺乏耐心、滥用权力'
+  },
+  {
+    id: 'knight-of-wands',
+    name: '权杖骑士',
+    image: '/lovable-uploads/8aa902b9-9b7d-4fd7-8859-6635b836ef03.png',
+    position: 'future',
+    meaning: '冒险与热情的行动',
+    uprightMeaning: '冒险与热情的行动，勇敢追求',
+    reversedMeaning: '冲动鲁莽、缺乏方向、半途而废'
+  },
+  {
+    id: 'page-of-wands',
+    name: '权杖侍者',
+    image: '/lovable-uploads/a7a25e93-8bde-4b91-b735-b2ca24b9b11e.png',
+    position: 'past',
+    meaning: '创意的信使',
+    uprightMeaning: '创意的信使，新机会的预兆',
+    reversedMeaning: '缺乏方向、创意受阻、坏消息'
+  },
+  {
+    id: 'queen-of-wands',
+    name: '权杖王后',
+    image: '/lovable-uploads/79dfac7b-c12a-429b-9353-28e6d6a50db0.png',
+    position: 'present',
+    meaning: '独立与自信的女性',
+    uprightMeaning: '独立与自信的女性，温暖的领导力',
+    reversedMeaning: '嫉妒、自私、缺乏自信'
+  },
+  {
+    id: 'ace-of-cups',
+    name: '圣杯王牌',
+    image: '/lovable-uploads/0ba3b618-04e1-42aa-94cf-96981834df82.png',
+    position: 'future',
+    meaning: '情感的新开始',
+    uprightMeaning: '情感的新开始，心灵的滋养',
+    reversedMeaning: '情感封闭、机会流失、内心空虚'
+  },
+  {
+    id: 'two-of-cups',
+    name: '圣杯二',
+    image: '/lovable-uploads/bb0784eb-62a2-46a5-b7ea-fdea1f7289fd.png',
+    position: 'past',
+    meaning: '和谐的伙伴关系',
+    uprightMeaning: '和谐的伙伴关系，相互吸引',
+    reversedMeaning: '关系不平衡、分离、缺乏和谐'
+  },
+  {
+    id: 'three-of-cups',
+    name: '圣杯三',
+    image: '/lovable-uploads/5e6fa5fc-2220-45e7-a3fb-8d45ee130c85.png',
+    position: 'present',
+    meaning: '友谊与庆祝',
+    uprightMeaning: '友谊与庆祝，社交活动',
+    reversedMeaning: '孤立、社交问题、过度沉溺'
+  },
+  {
+    id: 'four-of-cups',
+    name: '圣杯四',
+    image: '/lovable-uploads/4ed354be-6519-4b8f-b607-ffd159ac1c9e.png',
+    position: 'future',
+    meaning: '冷漠与机会错失',
+    uprightMeaning: '冷漠与机会错失，内省时期',
+    reversedMeaning: '重新接纳、抓住机会、走出沉思'
   }
 ];
 
