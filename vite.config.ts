@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    historyApiFallback: true,
     proxy: {
       '/api': {
         target: 'http://192.168.124.212:5000',
