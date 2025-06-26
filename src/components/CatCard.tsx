@@ -4,13 +4,18 @@ import { Cat } from '../types';
 interface CatCardProps {
   cat: Cat;
   onClick: () => void;
+  disabled?: boolean;
 }
 
-export const CatCard = ({ cat, onClick }: CatCardProps) => {
+export const CatCard = ({ cat, onClick, disabled = false }: CatCardProps) => {
   return (
     <div 
-      onClick={onClick}
-      className={`relative bg-gradient-to-br ${cat.color} rounded-2xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border border-white/10 backdrop-blur-sm`}
+      onClick={disabled ? undefined : onClick}
+      className={`relative bg-gradient-to-br ${cat.color} rounded-2xl p-6 transform transition-all duration-300 border border-white/10 backdrop-blur-sm ${
+        disabled 
+          ? 'opacity-50 cursor-not-allowed' 
+          : 'cursor-pointer hover:scale-105 hover:shadow-2xl'
+      }`}
     >
       {/* 添加装饰性光效 */}
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent rounded-2xl"></div>
@@ -38,6 +43,9 @@ export const CatCard = ({ cat, onClick }: CatCardProps) => {
       </div>
       <p className="relative text-white/80 text-sm mt-4 leading-relaxed">
         {cat.description}
+        {disabled && (
+          <span className="block text-white/60 text-xs mt-2">即将开放</span>
+        )}
       </p>
     </div>
   );

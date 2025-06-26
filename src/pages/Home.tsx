@@ -7,7 +7,10 @@ const Home = () => {
   const navigate = useNavigate();
 
   const handleCatSelect = (catId: string) => {
-    navigate(`/question/${catId}`);
+    // 只有Tara可以点击
+    if (catId === 'siamese') {
+      navigate(`/question/${catId}`);
+    }
   };
 
   return (
@@ -49,6 +52,7 @@ const Home = () => {
               <CatCard 
                 cat={cat} 
                 onClick={() => handleCatSelect(cat.id)}
+                disabled={cat.id !== 'siamese'}
               />
             </div>
           ))}
