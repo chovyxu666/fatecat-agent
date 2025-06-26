@@ -1,4 +1,3 @@
-
 import { TarotCard } from '../types';
 
 export const tarotCards: TarotCard[] = [
@@ -487,6 +486,87 @@ export const tarotCards: TarotCard[] = [
     meaning: '冷漠与机会错失',
     uprightMeaning: '冷漠与机会错失，内省时期',
     reversedMeaning: '重新接纳、抓住机会、走出沉思'
+  },
+  {
+    id: 'five-of-cups',
+    name: '圣杯五',
+    image: '/lovable-uploads/19c75c34-545f-41fd-acc6-6a15d4bd7ca0.png',
+    position: 'past',
+    meaning: '失望与悲伤',
+    uprightMeaning: '失望与悲伤，情感的损失',
+    reversedMeaning: '接受现实、重新振作、从失望中学习'
+  },
+  {
+    id: 'six-of-cups',
+    name: '圣杯六',
+    image: '/lovable-uploads/04dde8d2-dd0d-44c8-8d47-0de66624fca5.png',
+    position: 'present',
+    meaning: '怀旧与童真',
+    uprightMeaning: '怀旧与童真，美好的回忆',
+    reversedMeaning: '沉溺过去、拒绝成长、理想化过去'
+  },
+  {
+    id: 'seven-of-cups',
+    name: '圣杯七',
+    image: '/lovable-uploads/07a5962f-8ebb-4dd6-8491-ec8bd0e3ca56.png',
+    position: 'future',
+    meaning: '幻想与选择的迷惑',
+    uprightMeaning: '幻想与选择的迷惑，太多选择',
+    reversedMeaning: '现实清晰、做出决定、专注目标'
+  },
+  {
+    id: 'eight-of-cups',
+    name: '圣杯八',
+    image: '/lovable-uploads/e5383d56-966a-4ad1-9d7a-f15d1557eeaf.png',
+    position: 'past',
+    meaning: '放弃与寻求',
+    uprightMeaning: '放弃与寻求，离开舒适圈',
+    reversedMeaning: '恐惧改变、逃避现实、停滞不前'
+  },
+  {
+    id: 'nine-of-cups',
+    name: '圣杯九',
+    image: '/lovable-uploads/7f563500-5333-47d0-b4ab-c92de976518e.png',
+    position: 'present',
+    meaning: '满足与愿望实现',
+    uprightMeaning: '满足与愿望实现，情感的满足',
+    reversedMeaning: '虚假的满足、贪婪、缺乏感恩'
+  },
+  {
+    id: 'ten-of-cups',
+    name: '圣杯十',
+    image: '/lovable-uploads/7b6e3f5a-4c33-4ce4-9e07-91c4b683f2b7.png',
+    position: 'future',
+    meaning: '家庭和谐与幸福',
+    uprightMeaning: '家庭和谐与幸福，情感的圆满',
+    reversedMeaning: '家庭冲突、关系破裂、缺乏和谐'
+  },
+  {
+    id: 'king-of-cups',
+    name: '圣杯国王',
+    image: '/lovable-uploads/00259f0c-9877-42e6-8c41-b73c6e989a66.png',
+    position: 'past',
+    meaning: '情感的智慧与平衡',
+    uprightMeaning: '情感的智慧与平衡，慈悲的领导',
+    reversedMeaning: '情绪失控、操控他人、情感冷漠'
+  },
+  {
+    id: 'knight-of-cups',
+    name: '圣杯骑士',
+    image: '/lovable-uploads/0df99ed5-31ba-4ecb-8ed7-0f72353fe595.png',
+    position: 'present',
+    meaning: '浪漫与理想主义',
+    uprightMeaning: '浪漫与理想主义，追求美好',
+    reversedMeaning: '不切实际、情绪化、缺乏行动'
+  },
+  {
+    id: 'page-of-cups',
+    name: '圣杯侍者',
+    image: '/lovable-uploads/50006589-6a57-4ab3-8d77-0b9fafc5a816.png',
+    position: 'future',
+    meaning: '情感的信使',
+    uprightMeaning: '情感的信使，创意的灵感',
+    reversedMeaning: '情感不成熟、缺乏创意、坏消息'
   }
 ];
 
