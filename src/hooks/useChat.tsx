@@ -57,17 +57,6 @@ export const useChat = (catId: string | undefined) => {
 
     abortControllerRef.current = new AbortController();
 
-    // 创建猫咪回复消息
-    const catMessageId = (Date.now() + 1).toString();
-    const catMessage: ChatMessage = {
-      id: catMessageId,
-      text: '',
-      sender: 'cat',
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, catMessage]);
-
     try {
       const requestBody: ChatRequest = {
         user_id: "123",
@@ -80,16 +69,33 @@ export const useChat = (catId: string | undefined) => {
         setIsFirstMessage(false);
       }
 
+      // 创建猫咪回复消息的ID
+      const catMessageId = (Date.now() + 1).toString();
+      let catMessageCreated = false;
+
       await chatServiceRef.current.sendMessage(
         requestBody,
         (chunk: string) => {
-          setMessages(prev => 
-            prev.map(msg => 
-              msg.id === catMessageId 
-                ? { ...msg, text: msg.text + chunk }
-                : msg
-            )
-          );
+          // 只有在第一次接收到数据时才创建猫咪消息
+          if (!catMessageCreated) {
+            const catMessage: ChatMessage = {
+              id: catMessageId,
+              text: chunk,
+              sender: 'cat',
+              timestamp: new Date()
+            };
+            setMessages(prev => [...prev, catMessage]);
+            catMessageCreated = true;
+          } else {
+            // 后续的数据块追加到现有消息
+            setMessages(prev => 
+              prev.map(msg => 
+                msg.id === catMessageId 
+                  ? { ...msg, text: msg.text + chunk }
+                  : msg
+              )
+            );
+          }
         },
         abortControllerRef.current
       );
@@ -97,21 +103,19 @@ export const useChat = (catId: string | undefined) => {
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('请求被取消');
-        // 移除空的猫咪消息
-        setMessages(prev => prev.filter(msg => msg.id !== catMessageId));
         return;
       }
       
       console.error('发送消息失败:', error);
       
-      // 更新现有的猫咪消息为错误消息，而不是添加新消息
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === catMessageId 
-            ? { ...msg, text: '抱歉，我现在无法回复你。请稍后再试。' }
-            : msg
-        )
-      );
+      // 添加错误消息
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: '抱歉，我现在无法回复你。请稍后再试。',
+        sender: 'cat',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
