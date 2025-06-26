@@ -1,3 +1,4 @@
+
 import { TarotCard } from '../types';
 
 export const tarotCards: TarotCard[] = [
@@ -567,6 +568,69 @@ export const tarotCards: TarotCard[] = [
     meaning: '情感的信使',
     uprightMeaning: '情感的信使，创意的灵感',
     reversedMeaning: '情感不成熟、缺乏创意、坏消息'
+  },
+  {
+    id: 'queen-of-cups',
+    name: '圣杯王后',
+    image: '/lovable-uploads/0fcf5e57-400b-43af-9c07-e7690f001d80.png',
+    position: 'past',
+    meaning: '情感的直觉与慈悲',
+    uprightMeaning: '情感的直觉与慈悲，母性的关怀',
+    reversedMeaning: '情绪不稳、过度敏感、情感操控'
+  },
+  {
+    id: 'ace-of-pentacles',
+    name: '金币王牌',
+    image: '/lovable-uploads/cf81c04f-d05b-49a4-a681-435cb4b7c193.png',
+    position: 'present',
+    meaning: '物质的新开始',
+    uprightMeaning: '物质的新开始，财富的机会',
+    reversedMeaning: '错失良机、贪婪、物质主义'
+  },
+  {
+    id: 'two-of-pentacles',
+    name: '金币二',
+    image: '/lovable-uploads/6770e4aa-4197-468a-93e0-593d31be38b0.png',
+    position: 'future',
+    meaning: '平衡与适应',
+    uprightMeaning: '平衡与适应，灵活处理多重任务',
+    reversedMeaning: '失去平衡、过度承担、时间管理不当'
+  },
+  {
+    id: 'three-of-pentacles',
+    name: '金币三',
+    image: '/lovable-uploads/54344d70-bb81-4a79-a05e-641541016441.png',
+    position: 'past',
+    meaning: '合作与技艺',
+    uprightMeaning: '合作与技艺，团队工作的成果',
+    reversedMeaning: '缺乏合作、技能不足、工作冲突'
+  },
+  {
+    id: 'four-of-pentacles',
+    name: '金币四',
+    image: '/lovable-uploads/f0394b32-88ce-4416-b876-e471875e5500.png',
+    position: 'present',
+    meaning: '保守与控制',
+    uprightMeaning: '保守与控制，财务安全',
+    reversedMeaning: '过度贪婪、执着物质、缺乏慷慨'
+  },
+  {
+    id: 'five-of-pentacles',
+    name: '金币五',
+    image: '/lovable-uploads/3468fa63-effb-47b9-bd68-1b4c28dd7f9c.png',
+    position: 'future',
+    meaning: '物质困难与精神支持',
+    uprightMeaning: '物质困难与精神支持，逆境中的坚持',
+    reversedMeaning: '困难结束、重新获得稳定、接受帮助'
+  },
+  {
+    id: 'six-of-pentacles',
+    name: '金币六',
+    image: '/lovable-uploads/9a8d051b-4cf9-4509-9ffd-89163db8c5e5.png',
+    position: 'past',
+    meaning: '慈善与公平交换',
+    uprightMeaning: '慈善与公平交换，给予与接受的平衡',
+    reversedMeaning: '不公平交易、自私、滥用慷慨'
   }
 ];
 
