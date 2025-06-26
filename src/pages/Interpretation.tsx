@@ -92,7 +92,7 @@ const Interpretation = () => {
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
       
-      <div className="relative z-10 flex flex-col h-screen pb-28">
+      <div className="relative z-10 flex flex-col h-screen pb-40">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pt-12">
           <button 
@@ -162,10 +162,10 @@ const Interpretation = () => {
         </ScrollArea>
 
         {/* Action Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-6 z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-8 z-50 h-40 bg-gradient-to-t from-black/20 to-transparent">
           <button
             onClick={handleChatMore}
-            className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-lg flex items-center justify-center space-x-2 transition-all duration-500 ${
+            className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-6 text-white font-bold text-xl flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
               animationPhase === 'complete'
                 ? 'opacity-100 translate-y-0' 
                 : 'opacity-0 translate-y-4 pointer-events-none'
