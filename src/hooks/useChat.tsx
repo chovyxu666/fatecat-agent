@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ChatMessage } from '../types';
 import { ChatService, ChatRequest } from '../services/chatService';
+import { getUserId } from '../utils/userIdUtils';
 
 export const useChat = (catId: string | undefined) => {
   const location = useLocation();
@@ -40,7 +41,7 @@ export const useChat = (catId: string | undefined) => {
 
     try {
       const requestBody: ChatRequest = {
-        user_id: "123",
+        user_id: getUserId(), // 使用缓存的用户ID
         message: messageText
       };
 
