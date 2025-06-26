@@ -7,14 +7,7 @@ import { ChatService, ChatRequest } from '../services/chatService';
 export const useChat = (catId: string | undefined) => {
   const location = useLocation();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      text: location.state?.interpretation || '感谢你的提问，如果你还有什么想了解的，请随时告诉我。',
-      sender: 'cat',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isFirstMessage, setIsFirstMessage] = useState(true);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -35,19 +28,7 @@ export const useChat = (catId: string | undefined) => {
     return cardDescriptions.join('\n');
   };
 
-  const handleSendMessage = async () => {
-    if (!message.trim() || isLoading) return;
-
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      text: message.trim(),
-      sender: 'user',
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    const currentMessage = message.trim();
-    setMessage('');
+  const sendMessageToBackend = async (messageText: string) => {
     setIsLoading(true);
 
     // 取消之前的请求
@@ -60,7 +41,7 @@ export const useChat = (catId: string | undefined) => {
     try {
       const requestBody: ChatRequest = {
         user_id: "123",
-        message: currentMessage
+        message: messageText
       };
 
       // 第一次发送消息时包含塔罗牌信息
@@ -122,6 +103,30 @@ export const useChat = (catId: string | undefined) => {
       setIsLoading(false);
     }
   };
+
+  const handleSendMessage = async () => {
+    if (!message.trim() || isLoading) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      text: message.trim(),
+      sender: 'user',
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    const currentMessage = message.trim();
+    setMessage('');
+
+    await sendMessageToBackend(currentMessage);
+  };
+
+  // 组件初始化时自动发送空消息
+  useEffect(() => {
+    if (isFirstMessage) {
+      sendMessageToBackend('');
+    }
+  }, []);
 
   useEffect(() => {
     return () => {
