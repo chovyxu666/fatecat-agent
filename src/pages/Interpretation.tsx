@@ -1,10 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { TarotCardComponent } from '../components/TarotCardComponent';
 import { ChevronLeft } from 'lucide-react';
-import { ScrollArea } from '../components/ui/scroll-area';
 
 const Interpretation = () => {
   const { catId } = useParams<{ catId: string }>();
@@ -121,45 +119,43 @@ const Interpretation = () => {
           <h3 className="text-white text-xl font-bold">这是你抽到的牌</h3>
         </div>
 
-        {/* Cards and Interpretation Container - 添加滚动区域 */}
-        <ScrollArea className="flex-1 overflow-hidden">
-          <div className="flex flex-col">
-            {/* Cards container */}
-            <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
-              animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-                ? '-translate-y-64 mt-2'
-                : 'translate-y-0'
-            }`}>
-              {cards.map((card: any, index: number) => (
-                <div key={card.id} className="flex-1">
-                  <TarotCardComponent
-                    card={card}
-                    revealed={true}
-                    size="medium"
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Interpretation - 与塔罗牌同步移动 */}
-            <div className={`px-6 mt-10 mb-4 transition-all duration-1000 ${
-              animationPhase === 'showText' || animationPhase === 'complete'
-                ? 'opacity-100' 
-                : 'opacity-0 translate-y-8'
-            } ${
-              animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-                ? '-translate-y-64'
-                : 'translate-y-0'
-            }`}>
-              <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
-                <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                  {displayedText}
-                  {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
-                </p>
+        {/* Cards and Interpretation Container */}
+        <div className="flex flex-col flex-1">
+          {/* Cards container */}
+          <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
+            animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+              ? '-translate-y-64 mt-2'
+              : 'translate-y-0'
+          }`}>
+            {cards.map((card: any, index: number) => (
+              <div key={card.id} className="flex-1">
+                <TarotCardComponent
+                  card={card}
+                  revealed={true}
+                  size="medium"
+                />
               </div>
+            ))}
+          </div>
+
+          {/* Interpretation - 与塔罗牌同步移动 */}
+          <div className={`px-6 mt-10 mb-4 transition-all duration-1000 ${
+            animationPhase === 'showText' || animationPhase === 'complete'
+              ? 'opacity-100' 
+              : 'opacity-0 translate-y-8'
+          } ${
+            animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+              ? '-translate-y-64'
+              : 'translate-y-0'
+          }`}>
+            <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
+              <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
+                {displayedText}
+                {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
+              </p>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Action Button */}
         <div className="fixed bottom-0 left-0 right-0 p-8 z-50 h-40 bg-gradient-to-t from-black/20 to-transparent">
