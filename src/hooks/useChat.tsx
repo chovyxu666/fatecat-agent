@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatMessage } from '../types';
@@ -15,9 +16,9 @@ export const useChat = (catId: string | undefined) => {
   const chatServiceRef = useRef(new ChatService());
 
   const cards = location.state?.cards || [];
-  const question = location.state?.question || ''; // 获取问题页面传递的问题
+  const question = location.state?.question || '';
 
-  // 初始化验证 - 如果question为空或cards为空则跳转到首页
+  // 初始化验证
   useEffect(() => {
     if (!question.trim() || cards.length === 0) {
       navigate('/');
@@ -38,15 +39,9 @@ export const useChat = (catId: string | undefined) => {
     return cardDescriptions.join('\n');
   };
 
-  // 处理消息分割函数
-  const splitMessageByNewlines = (text: string): string[] => {
-    return text.split('\n').filter(line => line.trim().length > 0);
-  };
-
   const sendMessageToBackend = async (messageText: string) => {
     setIsLoading(true);
 
-    // 取消之前的请求
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -55,94 +50,78 @@ export const useChat = (catId: string | undefined) => {
 
     try {
       const requestBody: ChatRequest = {
-        user_id: getUserId(), // 使用缓存的用户ID
+        user_id: getUserId(),
         message: messageText
       };
 
-      // 第一次发送消息时包含塔罗牌信息
       if (isFirstMessage) {
         requestBody.tarot = formatTarotCards();
         setIsFirstMessage(false);
       }
 
-      // 创建当前消息的基础ID和缓冲区
+      // 简化的消息处理逻辑
       const baseMessageId = Date.now().toString();
-      let currentMessageIndex = 0;
-      let currentMessageBuffer = '';
-      let currentMessageId = `${baseMessageId}_${currentMessageIndex}`;
-      let hasCreatedCurrentMessage = false;
+      let messageCounter = 0;
+      let currentBuffer = '';
+      let currentMessageId = `${baseMessageId}_${messageCounter}`;
+      let currentMessageCreated = false;
 
       await chatServiceRef.current.sendMessage(
         requestBody,
         (chunk: string) => {
-          currentMessageBuffer += chunk;
+          currentBuffer += chunk;
           
-          // 检查是否包含换行符
-          if (currentMessageBuffer.includes('\n')) {
-            // 按换行符分割
-            const parts = currentMessageBuffer.split('\n');
-            // 最后一部分可能不完整，保留作为下一个消息的开始
-            const incompletePart = parts.pop() || '';
+          // 如果包含换行符，需要分割消息
+          if (currentBuffer.includes('\n')) {
+            const lines = currentBuffer.split('\n');
+            const lastLine = lines.pop() || ''; // 保存最后一行（可能不完整）
             
-            // 处理完整的部分 - 包括当前正在构建的消息
-            if (parts.length > 0) {
-              // 如果当前消息还没创建，创建第一条消息
-              if (!hasCreatedCurrentMessage && parts[0].trim()) {
-                const firstMessage: ChatMessage = {
-                  id: currentMessageId,
-                  text: parts[0].trim(),
+            // 处理完整的行
+            lines.forEach((line, index) => {
+              if (line.trim()) {
+                const messageId = `${baseMessageId}_${messageCounter}`;
+                const newMessage: ChatMessage = {
+                  id: messageId,
+                  text: line.trim(),
                   sender: 'cat',
-                  timestamp: new Date(Date.now() + currentMessageIndex * 100)
+                  timestamp: new Date(Date.now() + messageCounter * 100)
                 };
-                setMessages(prev => [...prev, firstMessage]);
-                currentMessageIndex++;
+                
+                setMessages(prev => [...prev, newMessage]);
+                messageCounter++;
+                console.log(`创建新消息 ${messageId}: ${line.trim()}`);
               }
-              
-              // 处理剩余的完整部分作为新消息
-              for (let i = hasCreatedCurrentMessage ? 0 : 1; i < parts.length; i++) {
-                if (parts[i].trim()) {
-                  const newMessageId = `${baseMessageId}_${currentMessageIndex}`;
-                  const newMessage: ChatMessage = {
-                    id: newMessageId,
-                    text: parts[i].trim(),
-                    sender: 'cat',
-                    timestamp: new Date(Date.now() + currentMessageIndex * 100)
-                  };
-                  setMessages(prev => [...prev, newMessage]);
-                  currentMessageIndex++;
-                }
-              }
-              
-              hasCreatedCurrentMessage = true;
-            }
+            });
             
-            // 重置缓冲区为不完整的部分，开始新消息
-            currentMessageBuffer = incompletePart;
-            currentMessageId = `${baseMessageId}_${currentMessageIndex}`;
-            hasCreatedCurrentMessage = false;
+            // 重置缓冲区为最后一行
+            currentBuffer = lastLine;
+            currentMessageId = `${baseMessageId}_${messageCounter}`;
+            currentMessageCreated = false;
             
             setIsLoading(false);
           } else {
-            // 如果没有换行符，更新或创建当前消息
-            if (!hasCreatedCurrentMessage) {
-              // 第一次创建消息
-              const catMessage: ChatMessage = {
+            // 没有换行符，更新当前消息
+            if (!currentMessageCreated) {
+              // 创建新消息
+              const newMessage: ChatMessage = {
                 id: currentMessageId,
-                text: currentMessageBuffer,
+                text: currentBuffer,
                 sender: 'cat',
                 timestamp: new Date()
               };
-              setMessages(prev => [...prev, catMessage]);
-              hasCreatedCurrentMessage = true;
+              setMessages(prev => [...prev, newMessage]);
+              currentMessageCreated = true;
+              console.log(`创建当前消息 ${currentMessageId}: ${currentBuffer}`);
             } else {
               // 更新现有消息
               setMessages(prev => 
                 prev.map(msg => 
                   msg.id === currentMessageId 
-                    ? { ...msg, text: currentMessageBuffer }
+                    ? { ...msg, text: currentBuffer }
                     : msg
                 )
               );
+              console.log(`更新消息 ${currentMessageId}: ${currentBuffer}`);
             }
             
             setIsLoading(false);
@@ -151,15 +130,16 @@ export const useChat = (catId: string | undefined) => {
         abortControllerRef.current
       );
 
-      // 流式传输完成后，处理剩余的缓冲区内容
-      if (currentMessageBuffer.trim() && !hasCreatedCurrentMessage) {
+      // 处理最后剩余的缓冲区内容
+      if (currentBuffer.trim() && !currentMessageCreated) {
         const finalMessage: ChatMessage = {
           id: currentMessageId,
-          text: currentMessageBuffer.trim(),
+          text: currentBuffer.trim(),
           sender: 'cat',
-          timestamp: new Date(Date.now() + currentMessageIndex * 100)
+          timestamp: new Date(Date.now() + messageCounter * 100)
         };
         setMessages(prev => [...prev, finalMessage]);
+        console.log(`创建最终消息 ${currentMessageId}: ${currentBuffer.trim()}`);
       }
 
     } catch (error: any) {
@@ -170,7 +150,6 @@ export const useChat = (catId: string | undefined) => {
       
       console.error('发送消息失败:', error);
       
-      // 添加错误消息
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: '抱歉，我现在无法回复你。请稍后再试。',
@@ -203,7 +182,7 @@ export const useChat = (catId: string | undefined) => {
   // 组件初始化时自动发送问题
   useEffect(() => {
     if (isFirstMessage && question.trim() && cards.length > 0) {
-      sendMessageToBackend(question); // 传入问题页面的问题
+      sendMessageToBackend(question);
     }
   }, [question, cards]);
 
