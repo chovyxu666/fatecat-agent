@@ -90,7 +90,7 @@ const Interpretation = () => {
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
       
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col pb-24">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pt-12">
           <button 
@@ -103,7 +103,7 @@ const Interpretation = () => {
         </div>
 
         {/* Cat Avatar and Title - 隐藏动画 */}
-        <div className={`text-center px-6 mb-8 transition-all duration-500 ${
+        <div className={`text-center px-6 mb-6 transition-all duration-500 ${
           animationPhase === 'hideHeader' || animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
             ? 'opacity-0 -translate-y-4' 
             : 'opacity-100'
@@ -120,11 +120,11 @@ const Interpretation = () => {
         </div>
 
         {/* Cards and Interpretation Container */}
-        <div className="flex flex-col flex-1 mb-4">
+        <div className="flex flex-col">
           {/* Cards container */}
           <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-64 mt-2'
+              ? '-translate-y-48 mt-2'
               : 'translate-y-0'
           }`}>
             {cards.map((card: any, index: number) => (
@@ -139,13 +139,13 @@ const Interpretation = () => {
           </div>
 
           {/* Interpretation - 与塔罗牌同步移动 */}
-          <div className={`px-6 mt-10 mb-4 transition-all duration-1000 ${
+          <div className={`px-6 mt-8 transition-all duration-1000 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100' 
               : 'opacity-0 translate-y-8'
           } ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-64'
+              ? '-translate-y-48'
               : 'translate-y-0'
           }`}>
             <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
@@ -156,21 +156,21 @@ const Interpretation = () => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Action Button - 减少 padding */}
-        <div className="p-4 z-50 bg-gradient-to-t from-black/20 to-transparent">
-          <button
-            onClick={handleChatMore}
-            className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-xl flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
-              animationPhase === 'complete'
-                ? 'opacity-100 translate-y-0' 
-                : 'opacity-0 translate-y-4 pointer-events-none'
-            }`}
-          >
-            <span>💬</span>
-            <span>我想聊更多</span>
-          </button>
-        </div>
+      {/* Action Button - 改为固定浮动位置 */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black/20 to-transparent">
+        <button
+          onClick={handleChatMore}
+          className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-4 text-white font-bold text-xl flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
+            animationPhase === 'complete'
+              ? 'opacity-100 translate-y-0' 
+              : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
+        >
+          <span>💬</span>
+          <span>我想聊更多</span>
+        </button>
       </div>
     </div>
   );
