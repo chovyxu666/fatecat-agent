@@ -102,8 +102,12 @@ const Interpretation = () => {
           <div className="flex-1" />
         </div>
 
-        {/* Cat Avatar and Title - 保持显示 */}
-        <div className="text-center px-6 mb-4">
+        {/* Cat Avatar and Title - 隐藏动画 */}
+        <div className={`text-center px-6 mb-4 transition-all duration-500 ${
+          animationPhase === 'hideHeader' || animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+            ? 'opacity-0 -translate-y-4' 
+            : 'opacity-100'
+        }`}>
           <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white/20 mb-3">
             <img 
               src={cat.avatar} 
@@ -120,7 +124,7 @@ const Interpretation = () => {
           {/* Cards container */}
           <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-24 mt-2'
+              ? '-translate-y-16 mt-2'
               : 'translate-y-0'
           }`}>
             {cards.map((card: any, index: number) => (
@@ -141,7 +145,7 @@ const Interpretation = () => {
               : 'opacity-0 translate-y-8'
           } ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-24'
+              ? '-translate-y-16'
               : 'translate-y-0'
           }`}>
             <div className="bg-white/10 rounded-2xl p-4 border border-white/20">
