@@ -32,7 +32,7 @@ export const useChat = (catId: string | undefined) => {
       return `${positions[index]}：${card.name}（${orientation}）`;
     });
     
-    return cardDescriptions.join('\\n');
+    return cardDescriptions.join('\n');
   };
 
   const handleSendMessage = async () => {
@@ -94,24 +94,25 @@ export const useChat = (catId: string | undefined) => {
         abortControllerRef.current
       );
 
-      setIsLoading(false);
-
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('请求被取消');
+        // 移除空的猫咪消息
+        setMessages(prev => prev.filter(msg => msg.id !== catMessageId));
         return;
       }
       
       console.error('发送消息失败:', error);
       
-      // 添加错误消息
-      const errorMessage: ChatMessage = {
-        id: (Date.now() + 2).toString(),
-        text: '抱歉，我现在无法回复你。请稍后再试。',
-        sender: 'cat',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      // 更新现有的猫咪消息为错误消息，而不是添加新消息
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === catMessageId 
+            ? { ...msg, text: '抱歉，我现在无法回复你。请稍后再试。' }
+            : msg
+        )
+      );
+    } finally {
       setIsLoading(false);
     }
   };
