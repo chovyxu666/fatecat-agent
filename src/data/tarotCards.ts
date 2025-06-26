@@ -3,6 +3,7 @@
 import { TarotCard } from '../types';
 
 export const tarotCards: TarotCard[] = [
+  // 大阿卡纳 (22张)
   {
     id: 'fool',
     name: '愚者',
@@ -22,7 +23,7 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '缺乏专注、操控他人、滥用技能'
   },
   {
-    id: 'high-priestess-new',
+    id: 'high-priestess',
     name: '女教皇',
     image: '/lovable-uploads/8c43b0ea-b154-4354-9b79-3cb6c73a2d27.png',
     position: 'future',
@@ -40,7 +41,7 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '过度依赖、创造力受阻、缺乏关爱'
   },
   {
-    id: 'emperor-new',
+    id: 'emperor',
     name: '皇帝',
     image: '/lovable-uploads/74a79576-eb1f-4062-8cc3-5098cdaf18f2.png',
     position: 'present',
@@ -85,7 +86,7 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '缺乏自信、内心软弱、失去控制'
   },
   {
-    id: 'hermit-new',
+    id: 'hermit',
     name: '隐士',
     image: '/lovable-uploads/1ef07d0c-33d2-4a6f-82a9-a2f734f511f8.png',
     position: 'past',
@@ -201,6 +202,8 @@ export const tarotCards: TarotCard[] = [
     uprightMeaning: '完成与圆满的成就，目标达成',
     reversedMeaning: '缺乏成就感、目标未达、需要坚持'
   },
+
+  // 宝剑花色 (14张)
   {
     id: 'ace-of-swords',
     name: '宝剑王牌',
@@ -292,13 +295,13 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '恢复希望、重新开始、走出阴霾'
   },
   {
-    id: 'king-of-swords',
-    name: '宝剑国王',
-    image: '/lovable-uploads/b401e69a-79dc-4bf1-a3ec-579d08521562.png',
-    position: 'future',
-    meaning: '智慧的权威',
-    uprightMeaning: '智慧的权威，公正的领导者',
-    reversedMeaning: '滥用权力、冷酷无情、专制统治'
+    id: 'page-of-swords',
+    name: '宝剑侍者',
+    image: '/lovable-uploads/d6b2123a-494c-4cfc-809b-4d70cc67765a.png',
+    position: 'present',
+    meaning: '新的想法与沟通',
+    uprightMeaning: '新的想法与沟通，好奇心旺盛',
+    reversedMeaning: '谣言传播、缺乏专注、轻率发言'
   },
   {
     id: 'knight-of-swords',
@@ -310,15 +313,6 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '鲁莽行事、缺乏计划、冲动的后果'
   },
   {
-    id: 'page-of-swords',
-    name: '宝剑侍者',
-    image: '/lovable-uploads/d6b2123a-494c-4cfc-809b-4d70cc67765a.png',
-    position: 'present',
-    meaning: '新的想法与沟通',
-    uprightMeaning: '新的想法与沟通，好奇心旺盛',
-    reversedMeaning: '谣言传播、缺乏专注、轻率发言'
-  },
-  {
     id: 'queen-of-swords',
     name: '宝剑王后',
     image: '/lovable-uploads/350efe62-d4fe-4525-a010-00df8f14a63c.png',
@@ -327,6 +321,17 @@ export const tarotCards: TarotCard[] = [
     uprightMeaning: '独立与清晰的思维，理性的判断',
     reversedMeaning: '情感冷漠、过于严苛、报复心理'
   },
+  {
+    id: 'king-of-swords',
+    name: '宝剑国王',
+    image: '/lovable-uploads/b401e69a-79dc-4bf1-a3ec-579d08521562.png',
+    position: 'future',
+    meaning: '智慧的权威',
+    uprightMeaning: '智慧的权威，公正的领导者',
+    reversedMeaning: '滥用权力、冷酷无情、专制统治'
+  },
+
+  // 权杖花色 (14张)
   {
     id: 'ace-of-wands',
     name: '权杖王牌',
@@ -418,13 +423,13 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '负担过重、委派他人、寻求帮助'
   },
   {
-    id: 'king-of-wands',
-    name: '权杖国王',
-    image: '/lovable-uploads/292f071b-c363-448e-b416-ad86f16a3919.png',
-    position: 'present',
-    meaning: '自然的领导者',
-    uprightMeaning: '自然的领导者，富有远见的统治',
-    reversedMeaning: '专横独断、缺乏耐心、滥用权力'
+    id: 'page-of-wands',
+    name: '权杖侍者',
+    image: '/lovable-uploads/a7a25e93-8bde-4b91-b735-b2ca24b9b11e.png',
+    position: 'past',
+    meaning: '创意的信使',
+    uprightMeaning: '创意的信使，新机会的预兆',
+    reversedMeaning: '缺乏方向、创意受阻、坏消息'
   },
   {
     id: 'knight-of-wands',
@@ -436,15 +441,6 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '冲动鲁莽、缺乏方向、半途而废'
   },
   {
-    id: 'page-of-wands',
-    name: '权杖侍者',
-    image: '/lovable-uploads/a7a25e93-8bde-4b91-b735-b2ca24b9b11e.png',
-    position: 'past',
-    meaning: '创意的信使',
-    uprightMeaning: '创意的信使，新机会的预兆',
-    reversedMeaning: '缺乏方向、创意受阻、坏消息'
-  },
-  {
     id: 'queen-of-wands',
     name: '权杖王后',
     image: '/lovable-uploads/79dfac7b-c12a-429b-9353-28e6d6a50db0.png',
@@ -453,6 +449,17 @@ export const tarotCards: TarotCard[] = [
     uprightMeaning: '独立与自信的女性，温暖的领导力',
     reversedMeaning: '嫉妒、自私、缺乏自信'
   },
+  {
+    id: 'king-of-wands',
+    name: '权杖国王',
+    image: '/lovable-uploads/292f071b-c363-448e-b416-ad86f16a3919.png',
+    position: 'present',
+    meaning: '自然的领导者',
+    uprightMeaning: '自然的领导者，富有远见的统治',
+    reversedMeaning: '专横独断、缺乏耐心、滥用权力'
+  },
+
+  // 圣杯花色 (14张)
   {
     id: 'ace-of-cups',
     name: '圣杯王牌',
@@ -544,13 +551,13 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '家庭冲突、关系破裂、缺乏和谐'
   },
   {
-    id: 'king-of-cups',
-    name: '圣杯国王',
-    image: '/lovable-uploads/00259f0c-9877-42e6-8c41-b73c6e989a66.png',
-    position: 'past',
-    meaning: '情感的智慧与平衡',
-    uprightMeaning: '情感的智慧与平衡，慈悲的领导',
-    reversedMeaning: '情绪失控、操控他人、情感冷漠'
+    id: 'page-of-cups',
+    name: '圣杯侍者',
+    image: '/lovable-uploads/50006589-6a57-4ab3-8d77-0b9fafc5a816.png',
+    position: 'future',
+    meaning: '情感的信使',
+    uprightMeaning: '情感的信使，创意的灵感',
+    reversedMeaning: '情感不成熟、缺乏创意、坏消息'
   },
   {
     id: 'knight-of-cups',
@@ -562,15 +569,6 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '不切实际、情绪化、缺乏行动'
   },
   {
-    id: 'page-of-cups',
-    name: '圣杯侍者',
-    image: '/lovable-uploads/50006589-6a57-4ab3-8d77-0b9fafc5a816.png',
-    position: 'future',
-    meaning: '情感的信使',
-    uprightMeaning: '情感的信使，创意的灵感',
-    reversedMeaning: '情感不成熟、缺乏创意、坏消息'
-  },
-  {
     id: 'queen-of-cups',
     name: '圣杯王后',
     image: '/lovable-uploads/0fcf5e57-400b-43af-9c07-e7690f001d80.png',
@@ -579,6 +577,17 @@ export const tarotCards: TarotCard[] = [
     uprightMeaning: '情感的直觉与慈悲，母性的关怀',
     reversedMeaning: '情绪不稳、过度敏感、情感操控'
   },
+  {
+    id: 'king-of-cups',
+    name: '圣杯国王',
+    image: '/lovable-uploads/00259f0c-9877-42e6-8c41-b73c6e989a66.png',
+    position: 'past',
+    meaning: '情感的智慧与平衡',
+    uprightMeaning: '情感的智慧与平衡，慈悲的领导',
+    reversedMeaning: '情绪失控、操控他人、情感冷漠'
+  },
+
+  // 金币花色 (14张)
   {
     id: 'ace-of-pentacles',
     name: '金币王牌',
@@ -670,13 +679,13 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '家族冲突、财务不稳、传承中断'
   },
   {
-    id: 'king-of-pentacles',
-    name: '金币国王',
-    image: '/lovable-uploads/2d7568e2-123d-4e74-aaae-70b8f678cf03.png',
-    position: 'future',
-    meaning: '财富的智慧与慷慨',
-    uprightMeaning: '财富的智慧与慷慨，成功的企业家',
-    reversedMeaning: '贪婪、物质主义、不负责任'
+    id: 'page-of-pentacles',
+    name: '金币侍者',
+    image: '/lovable-uploads/20395ddd-7106-4603-b85c-d9acbf8f97f6.png',
+    position: 'present',
+    meaning: '学习与新机会',
+    uprightMeaning: '学习与新机会，实用技能的开始',
+    reversedMeaning: '缺乏实用性、学习困难、机会流失'
   },
   {
     id: 'knight-of-pentacles',
@@ -688,15 +697,6 @@ export const tarotCards: TarotCard[] = [
     reversedMeaning: '懒惰、拖延、缺乏动力'
   },
   {
-    id: 'page-of-pentacles',
-    name: '金币侍者',
-    image: '/lovable-uploads/20395ddd-7106-4603-b85c-d9acbf8f97f6.png',
-    position: 'present',
-    meaning: '学习与新机会',
-    uprightMeaning: '学习与新机会，实用技能的开始',
-    reversedMeaning: '缺乏实用性、学习困难、机会流失'
-  },
-  {
     id: 'queen-of-pentacles',
     name: '金币王后',
     image: '/lovable-uploads/33656417-236c-4723-b30c-37caede8f455.png',
@@ -704,6 +704,15 @@ export const tarotCards: TarotCard[] = [
     meaning: '实用智慧与滋养',
     uprightMeaning: '实用智慧与滋养，慈爱的提供者',
     reversedMeaning: '过度保护、物质焦虑、忽视精神需求'
+  },
+  {
+    id: 'king-of-pentacles',
+    name: '金币国王',
+    image: '/lovable-uploads/2d7568e2-123d-4e74-aaae-70b8f678cf03.png',
+    position: 'future',
+    meaning: '财富的智慧与慷慨',
+    uprightMeaning: '财富的智慧与慷慨，成功的企业家',
+    reversedMeaning: '贪婪、物质主义、不负责任'
   }
 ];
 
