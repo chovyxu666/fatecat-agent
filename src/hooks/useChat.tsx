@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatMessage } from '../types';
 import { ChatService, ChatRequest } from '../services/chatService';
 import { getUserId } from '../utils/userIdUtils';
 
 export const useChat = (catId: string | undefined) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +16,14 @@ export const useChat = (catId: string | undefined) => {
 
   const cards = location.state?.cards || [];
   const question = location.state?.question || ''; // 获取问题页面传递的问题
+
+  // 初始化验证 - 如果question为空或cards为空则跳转到首页
+  useEffect(() => {
+    if (!question.trim() || cards.length === 0) {
+      navigate('/');
+      return;
+    }
+  }, [question, cards, navigate]);
 
   // 格式化塔罗牌信息
   const formatTarotCards = () => {
@@ -124,11 +133,12 @@ export const useChat = (catId: string | undefined) => {
 
   // 组件初始化时自动发送问题
   useEffect(() => {
-    if (isFirstMessage) {
+    if (isFirstMessage && question.trim() && cards.length > 0) {
       sendMessageToBackend(question); // 传入问题页面的问题
     }
-  }, []);
+  }, [question, cards]);
 
+  // 组件卸载时清理
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
