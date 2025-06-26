@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatMessage } from '../types';
@@ -63,84 +62,71 @@ export const useChat = (catId: string | undefined) => {
       const baseMessageId = Date.now().toString();
       let messageCounter = 0;
       let currentBuffer = '';
-      let currentMessageId = `${baseMessageId}_${messageCounter}`;
-      let currentMessageCreated = false;
 
       await chatServiceRef.current.sendMessage(
         requestBody,
         (chunk: string) => {
           currentBuffer += chunk;
           
-          // 如果包含换行符，需要分割消息
+          // 检查是否包含换行符
           if (currentBuffer.includes('\n')) {
             const lines = currentBuffer.split('\n');
-            const lastLine = lines.pop() || ''; // 保存最后一行（可能不完整）
             
-            // 处理完整的行
-            lines.forEach((line, index) => {
-              if (line.trim()) {
+            // 处理除最后一行外的所有行（这些是完整的消息）
+            for (let i = 0; i < lines.length - 1; i++) {
+              const line = lines[i].trim();
+              if (line) {
                 const messageId = `${baseMessageId}_${messageCounter}`;
                 const newMessage: ChatMessage = {
                   id: messageId,
-                  text: line.trim(),
+                  text: line,
                   sender: 'cat',
                   timestamp: new Date(Date.now() + messageCounter * 100)
                 };
                 
                 setMessages(prev => [...prev, newMessage]);
                 messageCounter++;
-                console.log(`创建新消息 ${messageId}: ${line.trim()}`);
+                console.log(`创建完整消息 ${messageId}: ${line}`);
               }
-            });
-            
-            // 重置缓冲区为最后一行
-            currentBuffer = lastLine;
-            currentMessageId = `${baseMessageId}_${messageCounter}`;
-            currentMessageCreated = false;
-            
-            setIsLoading(false);
-          } else {
-            // 没有换行符，更新当前消息
-            if (!currentMessageCreated) {
-              // 创建新消息
-              const newMessage: ChatMessage = {
-                id: currentMessageId,
-                text: currentBuffer,
-                sender: 'cat',
-                timestamp: new Date()
-              };
-              setMessages(prev => [...prev, newMessage]);
-              currentMessageCreated = true;
-              console.log(`创建当前消息 ${currentMessageId}: ${currentBuffer}`);
-            } else {
-              // 更新现有消息
-              setMessages(prev => 
-                prev.map(msg => 
-                  msg.id === currentMessageId 
-                    ? { ...msg, text: currentBuffer }
-                    : msg
-                )
-              );
-              console.log(`更新消息 ${currentMessageId}: ${currentBuffer}`);
             }
             
-            setIsLoading(false);
+            // 最后一行可能是不完整的，重置缓冲区
+            currentBuffer = lines[lines.length - 1];
           }
+          
+          // 如果当前缓冲区有内容且没有换行符，更新或创建当前消息
+          if (currentBuffer.trim()) {
+            const currentMessageId = `${baseMessageId}_${messageCounter}`;
+            
+            setMessages(prev => {
+              const existingMessageIndex = prev.findIndex(msg => msg.id === currentMessageId);
+              
+              if (existingMessageIndex >= 0) {
+                // 更新现有消息
+                const updatedMessages = [...prev];
+                updatedMessages[existingMessageIndex] = {
+                  ...updatedMessages[existingMessageIndex],
+                  text: currentBuffer.trim()
+                };
+                return updatedMessages;
+              } else {
+                // 创建新消息
+                const newMessage: ChatMessage = {
+                  id: currentMessageId,
+                  text: currentBuffer.trim(),
+                  sender: 'cat',
+                  timestamp: new Date(Date.now() + messageCounter * 100)
+                };
+                console.log(`创建当前消息 ${currentMessageId}: ${currentBuffer.trim()}`);
+                return [...prev, newMessage];
+              }
+            });
+          }
+          
+          setIsLoading(false);
         },
         abortControllerRef.current
       );
-
-      // 处理最后剩余的缓冲区内容
-      if (currentBuffer.trim() && !currentMessageCreated) {
-        const finalMessage: ChatMessage = {
-          id: currentMessageId,
-          text: currentBuffer.trim(),
-          sender: 'cat',
-          timestamp: new Date(Date.now() + messageCounter * 100)
-        };
-        setMessages(prev => [...prev, finalMessage]);
-        console.log(`创建最终消息 ${currentMessageId}: ${currentBuffer.trim()}`);
-      }
 
     } catch (error: any) {
       if (error.name === 'AbortError') {
