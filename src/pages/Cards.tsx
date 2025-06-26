@@ -2,9 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
-import { tarotCards } from '../data/tarotCards';
+import { getRandomCards } from '../data/tarotCards';
 import { TarotCardComponent } from '../components/TarotCardComponent';
 import { ChevronLeft } from 'lucide-react';
+import { TarotCard } from '../types';
 
 const Cards = () => {
   const { catId } = useParams<{ catId: string }>();
@@ -12,6 +13,7 @@ const Cards = () => {
   const navigate = useNavigate();
   const [visibleCards, setVisibleCards] = useState<number[]>([]);
   const [animationComplete, setAnimationComplete] = useState(false);
+  const [selectedCards, setSelectedCards] = useState<TarotCard[]>([]);
 
   const cat = cats.find(c => c.id === catId);
   const question = location.state?.question || '';
@@ -21,6 +23,10 @@ const Cards = () => {
   }
 
   useEffect(() => {
+    // 页面加载时随机选择三张牌
+    const randomCards = getRandomCards();
+    setSelectedCards(randomCards);
+    
     // 依次显示三张牌的动画
     const showCard = (index: number) => {
       setTimeout(() => {
@@ -46,7 +52,7 @@ const Cards = () => {
     navigate(`/interpretation/${catId}`, { 
       state: { 
         question,
-        cards: tarotCards 
+        cards: selectedCards 
       } 
     });
   };
@@ -86,7 +92,7 @@ const Cards = () => {
         {/* Cards Section */}
         <div className="flex-1 flex flex-col items-center justify-center px-4">
           <div className="flex justify-center space-x-2 mb-8 w-full max-w-sm">
-            {tarotCards.map((card, index) => (
+            {selectedCards.map((card, index) => (
               <div 
                 key={card.id}
                 className={`flex-1 transition-all duration-700 ${
