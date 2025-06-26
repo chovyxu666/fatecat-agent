@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatMessage } from '../types';
@@ -66,60 +65,27 @@ export const useChat = (catId: string | undefined) => {
         setIsFirstMessage(false);
       }
 
-      // 创建猫咪回复消息的ID
-      const catMessageId = (Date.now() + 1).toString();
-      let catMessageCreated = false;
-      let accumulatedText = '';
-
       await chatServiceRef.current.sendMessage(
         requestBody,
         (chunk: string) => {
-          accumulatedText += chunk;
+          // 每个chunk都创建一个新的消息
+          const catMessage: ChatMessage = {
+            id: `${Date.now()}_${Math.random()}`,
+            text: chunk.trim(),
+            sender: 'cat',
+            timestamp: new Date()
+          };
           
-          // 只有在第一次接收到数据时才创建猫咪消息
-          if (!catMessageCreated) {
-            const catMessage: ChatMessage = {
-              id: catMessageId,
-              text: chunk,
-              sender: 'cat',
-              timestamp: new Date()
-            };
+          // 只有当chunk有内容时才添加消息
+          if (chunk.trim()) {
             setMessages(prev => [...prev, catMessage]);
-            catMessageCreated = true;
-            // 接收到第一个数据块时隐藏加载指示器
-            setIsLoading(false);
-          } else {
-            // 后续的数据块追加到现有消息
-            setMessages(prev => 
-              prev.map(msg => 
-                msg.id === catMessageId 
-                  ? { ...msg, text: accumulatedText }
-                  : msg
-              )
-            );
           }
+          
+          // 接收到第一个数据块时隐藏加载指示器
+          setIsLoading(false);
         },
         abortControllerRef.current
       );
-
-      // 流式传输完成后，处理换行符分割
-      setTimeout(() => {
-        const messageParts = splitMessageByNewlines(accumulatedText);
-        
-        if (messageParts.length > 1) {
-          // 如果有多个部分，替换原消息为多个消息
-          setMessages(prev => {
-            const filteredMessages = prev.filter(msg => msg.id !== catMessageId);
-            const newMessages = messageParts.map((part, index) => ({
-              id: `${catMessageId}_${index}`,
-              text: part.trim(),
-              sender: 'cat' as const,
-              timestamp: new Date(Date.now() + index * 100) // 稍微错开时间戳
-            }));
-            return [...filteredMessages, ...newMessages];
-          });
-        }
-      }, 500); // 延迟500ms确保流式传输完成
 
     } catch (error: any) {
       if (error.name === 'AbortError') {
