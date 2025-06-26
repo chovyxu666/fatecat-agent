@@ -9,6 +9,8 @@ export interface ChatRequest {
 
 export interface ChatChunk {
   chunk: string;
+  type?: string;
+  emotion_score?: number;
 }
 
 export class ChatService {
@@ -51,27 +53,52 @@ export class ChatService {
     }
 
     try {
+      let buffer = '';
+      
       while (true) {
         const { done, value } = await reader.read();
         
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        
+        // 保留最后一行，可能不完整
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
+          const trimmedLine = line.trim();
+          if (trimmedLine.startsWith('data: ')) {
             try {
-              const jsonStr = line.substring(6).trim();
+              const jsonStr = trimmedLine.substring(6).trim();
               if (jsonStr) {
+                console.log('解析的JSON数据:', jsonStr);
                 const data: ChatChunk = JSON.parse(jsonStr);
-                if (data.chunk) {
+                if (data.chunk && typeof data.chunk === 'string') {
                   onChunk(data.chunk);
                 }
               }
             } catch (e) {
-              console.log('解析JSON失败:', e);
+              console.log('解析JSON失败:', e, '原始数据:', trimmedLine);
             }
+          }
+        }
+      }
+      
+      // 处理缓冲区中剩余的数据
+      if (buffer.trim()) {
+        const trimmedLine = buffer.trim();
+        if (trimmedLine.startsWith('data: ')) {
+          try {
+            const jsonStr = trimmedLine.substring(6).trim();
+            if (jsonStr) {
+              const data: ChatChunk = JSON.parse(jsonStr);
+              if (data.chunk && typeof data.chunk === 'string') {
+                onChunk(data.chunk);
+              }
+            }
+          } catch (e) {
+            console.log('解析最后JSON失败:', e);
           }
         }
       }
