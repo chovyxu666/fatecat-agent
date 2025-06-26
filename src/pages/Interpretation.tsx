@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -121,7 +122,7 @@ const Interpretation = () => {
 
         {/* Cards Section */}
         <div className="flex-1 flex flex-col">
-          {/* Cards container - 减少20%的向上移动距离：从-80改为-64 */}
+          {/* Cards container */}
           <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
               ? '-translate-y-64 mt-2'
@@ -138,14 +139,14 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 固定40px间距，跟着塔罗牌一起向上移动 */}
-          <div className={`px-6 mt-10 mb-4 transition-all duration-500 ${
+          {/* Interpretation - 与塔罗牌同步移动 */}
+          <div className={`px-6 mt-10 mb-4 transition-all duration-1000 ${
             animationPhase === 'showText' || animationPhase === 'complete'
-              ? 'opacity-100 translate-y-0' 
+              ? 'opacity-100' 
               : 'opacity-0 translate-y-8'
           } ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-24'
+              ? '-translate-y-64'
               : 'translate-y-0'
           }`}>
             <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
