@@ -24,11 +24,20 @@ export const TarotCardComponent = ({ card, revealed = true, size = 'medium' }: T
     <div className="flex flex-col items-center space-y-2">
       <div className={`${sizeClasses[size]} relative`}>
         {revealed ? (
-          <img 
-            src={card.image} 
-            alt={card.name}
-            className="w-full h-full object-cover rounded-lg border border-white/20 shadow-lg"
-          />
+          <div className="relative w-full h-full">
+            <img 
+              src={card.image} 
+              alt={card.name}
+              className={`w-full h-full object-cover rounded-lg border border-white/20 shadow-lg transition-transform duration-300 ${
+                card.isReversed ? 'rotate-180' : ''
+              }`}
+            />
+            {card.isReversed && (
+              <div className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded">
+                逆
+              </div>
+            )}
+          </div>
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-purple-900 to-indigo-900 rounded-lg border border-white/20 shadow-lg flex items-center justify-center">
             <div className="text-white/50 text-xs">?</div>
@@ -40,7 +49,12 @@ export const TarotCardComponent = ({ card, revealed = true, size = 'medium' }: T
           {positionLabels[card.position]}
         </p>
         {revealed && (
-          <p className="text-white/60 text-xs mt-1">{card.name}</p>
+          <>
+            <p className="text-white/60 text-xs mt-1">{card.name}</p>
+            {card.isReversed && (
+              <p className="text-red-300 text-xs">逆位</p>
+            )}
+          </>
         )}
       </div>
     </div>

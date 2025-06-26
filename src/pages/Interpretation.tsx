@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -21,7 +20,21 @@ const Interpretation = () => {
     return <div>Cat not found</div>;
   }
 
-  const interpretation = `亲爱的，你的内在坚韧如圣杯里澄澈的水，偶有涟漪终归平静；你的愿望正被宇宙轻轻抱持，只待花期自会盛放。张开双臂去相信爱，让情感自由呼吸；别慌，让心的河流引你，随流而舞。`;
+  // 根据卡牌的正逆位生成解读
+  const generateInterpretation = () => {
+    if (cards.length === 0) return '';
+    
+    const interpretations = cards.map((card: any, index: number) => {
+      const positions = ['过去', '现在', '未来'];
+      const meaning = card.isReversed ? card.reversedMeaning : card.uprightMeaning;
+      const orientation = card.isReversed ? '逆位' : '正位';
+      return `${positions[index]}的${card.name}(${orientation})：${meaning}`;
+    });
+    
+    return `亲爱的，让我为你解读这三张牌的含义：\n\n${interpretations.join('\n\n')}\n\n这三张牌组合在一起，告诉我们你正在经历一个重要的人生阶段。过去的经历为你奠定了基础，现在的状态需要你仔细思考，而未来的道路充满了可能性。相信你的内在智慧，它会指引你找到正确的方向。`;
+  };
+
+  const interpretation = generateInterpretation();
 
   useEffect(() => {
     const timer1 = setTimeout(() => {

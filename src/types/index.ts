@@ -16,6 +16,9 @@ export interface TarotCard {
   image: string;
   position: 'past' | 'present' | 'future';
   meaning: string;
+  uprightMeaning: string;
+  reversedMeaning: string;
+  isReversed?: boolean;
 }
 
 export interface ChatMessage {
