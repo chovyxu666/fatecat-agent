@@ -138,14 +138,14 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 增加10像素间隔，跟着塔罗牌一起向上移动 */}
+          {/* Interpretation - 固定40px间距，跟着塔罗牌一起向上移动 */}
           <div className={`px-6 mt-10 mb-4 transition-all duration-500 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-8'
           } ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-64'
+              ? '-translate-y-24'
               : 'translate-y-0'
           }`}>
             <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
