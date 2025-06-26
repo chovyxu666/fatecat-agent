@@ -149,7 +149,7 @@ const Interpretation = () => {
               : 'translate-y-0'
           }`}>
             <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
-              <p className="text-white leading-relaxed text-sm whitespace-pre-line">
+              <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
                 {displayedText}
                 {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
               </p>
