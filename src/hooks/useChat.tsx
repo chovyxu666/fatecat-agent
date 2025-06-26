@@ -86,6 +86,8 @@ export const useChat = (catId: string | undefined) => {
             };
             setMessages(prev => [...prev, catMessage]);
             catMessageCreated = true;
+            // 接收到第一个数据块时隐藏加载指示器
+            setIsLoading(false);
           } else {
             // 后续的数据块追加到现有消息
             setMessages(prev => 
