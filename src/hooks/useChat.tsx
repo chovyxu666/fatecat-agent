@@ -1,8 +1,7 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatMessage } from '../types';
-import { ChatService, ChatRequest } from '../services/chatService';
+import { ChatService, ChatRequest, ProcessedMessage } from '../services/chatService';
 import { getUserId } from '../utils/userIdUtils';
 
 export const useChat = (catId: string | undefined) => {
@@ -39,6 +38,48 @@ export const useChat = (catId: string | undefined) => {
     return cardDescriptions.join('\n');
   };
 
+  const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
+    setMessages(prev => {
+      if (processedMessage.isComplete) {
+        // 完整消息：移除临时消息，添加完整消息
+        const filtered = prev.filter(msg => !msg.id.includes('_current'));
+        const exists = filtered.some(msg => msg.id === processedMessage.id);
+        
+        if (!exists) {
+          const completeMessage: ChatMessage = {
+            id: processedMessage.id,
+            text: processedMessage.text,
+            sender: 'cat',
+            timestamp: new Date()
+          };
+          
+          console.log(`创建完整消息: ${processedMessage.id} - "${processedMessage.text}"`);
+          return [...filtered, completeMessage];
+        }
+        return filtered;
+      } else {
+        // 临时消息：更新或创建
+        const existingIndex = prev.findIndex(msg => msg.id === processedMessage.id);
+        const tempMessage: ChatMessage = {
+          id: processedMessage.id,
+          text: processedMessage.text,
+          sender: 'cat',
+          timestamp: new Date()
+        };
+        
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          updated[existingIndex] = tempMessage;
+          return updated;
+        } else {
+          return [...prev, tempMessage];
+        }
+      }
+    });
+    
+    setIsLoading(false);
+  };
+
   const sendMessageToBackend = async (messageText: string) => {
     setIsLoading(true);
 
@@ -59,100 +100,11 @@ export const useChat = (catId: string | undefined) => {
         setIsFirstMessage(false);
       }
 
-      // 以换行符为标准的消息处理逻辑
-      let textBuffer = '';
-      let messageCounter = 0;
-      const baseMessageId = Date.now().toString();
-
       await chatServiceRef.current.sendMessage(
         requestBody,
-        (chunk: string) => {
-          console.log(`接收到chunk: "${chunk}"`);
-          textBuffer += chunk;
-          
-          // 检查是否包含换行符
-          if (chunk.includes('\n')) {
-            // 按换行符分割文本
-            const lines = textBuffer.split('\n');
-            
-            // 处理完整的行（除了最后一行）
-            for (let i = 0; i < lines.length - 1; i++) {
-              const lineText = lines[i].trim();
-              if (lineText) {
-                const completeMessageId = `${baseMessageId}_${messageCounter}`;
-                messageCounter++;
-                
-                const completeMessage: ChatMessage = {
-                  id: completeMessageId,
-                  text: lineText,
-                  sender: 'cat',
-                  timestamp: new Date(Date.now() + messageCounter * 10)
-                };
-                
-                console.log(`创建完整消息: ${completeMessageId} - "${lineText}"`);
-                
-                setMessages(prev => {
-                  const exists = prev.some(msg => msg.id === completeMessageId);
-                  if (!exists) {
-                    return [...prev, completeMessage];
-                  }
-                  return prev;
-                });
-              }
-            }
-            
-            // 保留最后一行作为新的缓冲区内容
-            textBuffer = lines[lines.length - 1];
-          }
-          
-          // 更新当前未完成的消息（如果有内容）
-          if (textBuffer.trim()) {
-            const currentMessageId = `${baseMessageId}_current`;
-            
-            setMessages(prev => {
-              const existingIndex = prev.findIndex(msg => msg.id === currentMessageId);
-              const updatedMessage: ChatMessage = {
-                id: currentMessageId,
-                text: textBuffer.trim(),
-                sender: 'cat',
-                timestamp: new Date()
-              };
-              
-              if (existingIndex >= 0) {
-                const updated = [...prev];
-                updated[existingIndex] = updatedMessage;
-                return updated;
-              } else {
-                return [...prev, updatedMessage];
-              }
-            });
-          }
-          
-          setIsLoading(false);
-        },
+        handleProcessedMessage,
         abortControllerRef.current
       );
-
-      // 流结束后，如果还有未完成的文本，创建最终消息
-      if (textBuffer.trim()) {
-        const finalMessageId = `${baseMessageId}_${messageCounter}`;
-        const finalMessage: ChatMessage = {
-          id: finalMessageId,
-          text: textBuffer.trim(),
-          sender: 'cat',
-          timestamp: new Date()
-        };
-        
-        setMessages(prev => {
-          // 移除临时消息，添加最终消息
-          const filtered = prev.filter(msg => !msg.id.includes('_current'));
-          const exists = filtered.some(msg => msg.id === finalMessageId);
-          if (!exists) {
-            return [...filtered, finalMessage];
-          }
-          return filtered;
-        });
-      }
 
     } catch (error: any) {
       if (error.name === 'AbortError') {

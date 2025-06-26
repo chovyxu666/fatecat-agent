@@ -13,12 +13,18 @@ export interface ChatChunk {
   emotion_score?: number;
 }
 
+export interface ProcessedMessage {
+  id: string;
+  text: string;
+  isComplete: boolean;
+}
+
 export class ChatService {
   private abortController: AbortController | null = null;
 
   async sendMessage(
     request: ChatRequest,
-    onChunk: (chunk: string) => void,
+    onMessage: (message: ProcessedMessage) => void,
     signal?: AbortController
   ): Promise<void> {
     if (signal) {
@@ -38,12 +44,12 @@ export class ChatService {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    await this.handleStreamResponse(response, onChunk);
+    await this.handleStreamResponse(response, onMessage);
   }
 
   private async handleStreamResponse(
     response: Response,
-    onChunk: (chunk: string) => void
+    onMessage: (message: ProcessedMessage) => void
   ): Promise<void> {
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
@@ -51,6 +57,11 @@ export class ChatService {
     if (!reader) {
       throw new Error('无法读取响应流');
     }
+
+    let textBuffer = '';
+    let messageCounter = 0;
+    const baseMessageId = Date.now().toString();
+    const currentMessageId = `${baseMessageId}_current`;
 
     try {
       let buffer = '';
@@ -75,7 +86,40 @@ export class ChatService {
                 console.log('解析的JSON数据:', jsonStr);
                 const data: ChatChunk = JSON.parse(jsonStr);
                 if (data.chunk && typeof data.chunk === 'string') {
-                  onChunk(data.chunk);
+                  this.processChunk(data.chunk, baseMessageId, messageCounter, textBuffer, onMessage);
+                  
+                  // 更新本地状态
+                  textBuffer += data.chunk;
+                  
+                  // 检查是否包含换行符，如果有则完成消息
+                  if (data.chunk.includes('\n')) {
+                    const lines = textBuffer.split('\n');
+                    
+                    // 处理完整的行（除了最后一行）
+                    for (let i = 0; i < lines.length - 1; i++) {
+                      const lineText = lines[i].trim();
+                      if (lineText) {
+                        messageCounter++;
+                        onMessage({
+                          id: `${baseMessageId}_${messageCounter}`,
+                          text: lineText,
+                          isComplete: true
+                        });
+                      }
+                    }
+                    
+                    // 重置缓冲区为最后一行
+                    textBuffer = lines[lines.length - 1];
+                  }
+                  
+                  // 更新当前未完成的消息
+                  if (textBuffer.trim()) {
+                    onMessage({
+                      id: currentMessageId,
+                      text: textBuffer.trim(),
+                      isComplete: false
+                    });
+                  }
                 }
               }
             } catch (e) {
@@ -94,7 +138,7 @@ export class ChatService {
             if (jsonStr) {
               const data: ChatChunk = JSON.parse(jsonStr);
               if (data.chunk && typeof data.chunk === 'string') {
-                onChunk(data.chunk);
+                textBuffer += data.chunk;
               }
             }
           } catch (e) {
@@ -102,9 +146,30 @@ export class ChatService {
           }
         }
       }
+
+      // 流结束后，如果还有未完成的文本，创建最终消息
+      if (textBuffer.trim()) {
+        messageCounter++;
+        onMessage({
+          id: `${baseMessageId}_${messageCounter}`,
+          text: textBuffer.trim(),
+          isComplete: true
+        });
+      }
+
     } finally {
       reader.releaseLock();
     }
+  }
+
+  private processChunk(
+    chunk: string,
+    baseMessageId: string,
+    messageCounter: number,
+    textBuffer: string,
+    onMessage: (message: ProcessedMessage) => void
+  ): void {
+    console.log(`接收到chunk: "${chunk}"`);
   }
 
   abort(): void {
