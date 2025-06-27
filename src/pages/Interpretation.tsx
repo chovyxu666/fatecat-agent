@@ -43,7 +43,7 @@ const Interpretation = () => {
     return cardDescriptions.join('\n');
   };
 
-  // 打字动画效果 - 只对新消息进行动画
+  // 打字动画效果 - 优化间隔时间
   const startTypingAnimation = (newMessage: string) => {
     setIsTyping(true);
     setNewMessageToType('');
@@ -62,9 +62,8 @@ const Interpretation = () => {
         setIsTyping(false);
         setNewMessageToType('');
         setAnimationPhase('complete');
-        // 不在这里设置 setIsStreamComplete(true)，因为这只是单个消息的打字完成
       }
-    }, 30); // 每30ms显示一个字符
+    }, 15); // 减少间隔时间从30ms到15ms
   };
 
   // 处理从聊天服务返回的消息
@@ -186,7 +185,7 @@ const Interpretation = () => {
     };
   }, []);
 
-  // 获取要显示的文本内容 - 修复重复显示问题
+  // 获取要显示的文本内容 - 进一步优化
   const getDisplayContent = () => {
     // 构建已完成的消息内容
     let content = '';
@@ -194,7 +193,7 @@ const Interpretation = () => {
       content = interpretationMessages.join('\n\n');
     }
 
-    // 如果正在打字，只添加正在打字的新消息（不重复已完成的内容）
+    // 如果正在打字，只添加正在打字的新消息
     if (isTyping && newMessageToType) {
       if (content) {
         content += '\n\n' + newMessageToType;
