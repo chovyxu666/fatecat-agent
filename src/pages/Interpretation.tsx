@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -117,10 +116,10 @@ const Interpretation = () => {
 
   // 当解读消息完成后，开始文字动画
   useEffect(() => {
-    if (interpretationMessages.length > 0 && !isTyping && !isLoading) {
+    if (interpretationMessages.length > 0 && !isTyping && !isLoading && animationPhase === 'showText') {
       startTextAnimation();
     }
-  }, [interpretationMessages]);
+  }, [interpretationMessages, animationPhase, isLoading]);
 
   const startTextAnimation = () => {
     if (interpretationMessages.length === 0) return;
@@ -208,18 +207,30 @@ const Interpretation = () => {
 
   // 获取要显示的文本内容
   const getDisplayContent = () => {
-    if (isLoading) {
+    console.log('getDisplayContent状态:', {
+      isLoading,
+      isTyping,
+      currentStreamText: currentStreamText.length,
+      displayedText: displayedText.length,
+      interpretationMessages: interpretationMessages.length
+    });
+    
+    // 如果正在加载，显示空
+    if (isLoading && !currentStreamText) {
       return '';
     }
     
+    // 如果正在打字动画，显示打字进度
     if (isTyping && displayedText) {
       return displayedText;
     }
     
-    if (currentStreamText) {
+    // 如果有流式文本（实时接收中），显示流式文本
+    if (currentStreamText && isLoading) {
       return currentStreamText;
     }
     
+    // 如果动画完成或没有动画，显示完整消息
     if (interpretationMessages.length > 0 && !isTyping) {
       return interpretationMessages.join('\n\n');
     }
@@ -290,15 +301,15 @@ const Interpretation = () => {
             ? '-translate-y-32'
             : 'translate-y-0'
         }`}>
-          {isLoading ? (
-            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[100px] flex items-center justify-center">
+          {isLoading && !currentStreamText ? (
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px] flex items-center justify-center">
               <div className="flex items-center">
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span className="ml-3 text-white text-sm">正在为你解读...</span>
               </div>
             </div>
           ) : (
-            <div className="bg-white/10 rounded-2xl border border-white/20 p-6" style={{ minHeight: 'auto' }}>
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px]">
               <div className="text-white leading-relaxed text-sm whitespace-pre-line">
                 {getDisplayContent()}
                 {(isTyping || (currentStreamText && isLoading)) && 
