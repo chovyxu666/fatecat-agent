@@ -14,12 +14,14 @@ const Interpretation = () => {
   const [animationPhase, setAnimationPhase] = useState<'initial' | 'hideHeader' | 'moveCards' | 'showText' | 'complete'>('initial');
   const [displayedText, setDisplayedText] = useState('');
   const [textComplete, setTextComplete] = useState(false);
-  const [interpretationMessages, setInterpretationMessages] = useState<string[]>([]); // 用数组存储解读消息
-  const [currentStreamText, setCurrentStreamText] = useState(''); // 当前流式文本缓冲
+  const [interpretationMessages, setInterpretationMessages] = useState<string[]>([]);
+  const [currentStreamText, setCurrentStreamText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [currentCharIndex, setCurrentCharIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
-  const [currentDisplayIndex, setCurrentDisplayIndex] = useState(0); // 当前显示的文字动画索引
 
   const cat = cats.find(c => c.id === catId);
   const question = location.state?.question || '';
@@ -47,24 +49,11 @@ const Interpretation = () => {
     if (processedMessage.isComplete) {
       // 完整消息：添加到消息数组中
       setInterpretationMessages(prev => [...prev, processedMessage.text]);
-      setCurrentStreamText(''); // 清空当前流式文本
+      setCurrentStreamText('');
       setIsLoading(false);
     } else {
-      // 流式消息：更新当前流式文本，检查是否有换行符
-      const newText = processedMessage.text;
-      setCurrentStreamText(newText);
-      
-      // 检查是否包含换行符
-      if (newText.includes('\n')) {
-        const lines = newText.split('\n');
-        // 将完整的行添加到消息数组中
-        const completeLines = lines.slice(0, -1).filter(line => line.trim());
-        if (completeLines.length > 0) {
-          setInterpretationMessages(prev => [...prev, ...completeLines]);
-        }
-        // 保留最后不完整的行作为当前流式文本
-        setCurrentStreamText(lines[lines.length - 1] || '');
-      }
+      // 流式消息：累积文本
+      setCurrentStreamText(processedMessage.text);
     }
   };
 
@@ -128,40 +117,53 @@ const Interpretation = () => {
 
   // 当解读消息获取完成后，开始文字动画
   useEffect(() => {
-    if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading) {
+    if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading && !isTyping) {
       startTextAnimation();
     }
-  }, [interpretationMessages, animationPhase, isLoading]);
+  }, [interpretationMessages, animationPhase, isLoading, isTyping]);
 
   const startTextAnimation = () => {
     if (interpretationMessages.length === 0) return;
     
-    let messageIndex = 0;
-    let charIndex = 0;
+    setIsTyping(true);
+    setCurrentMessageIndex(0);
+    setCurrentCharIndex(0);
+    setDisplayedText('');
     
     const interval = setInterval(() => {
-      const currentMessage = interpretationMessages[messageIndex];
+      const currentMessage = interpretationMessages[currentMessageIndex];
       if (!currentMessage) {
         clearInterval(interval);
         setTextComplete(true);
+        setIsTyping(false);
         setTimeout(() => {
           setAnimationPhase('complete');
         }, 300);
         return;
       }
       
-      if (charIndex < currentMessage.length) {
+      if (currentCharIndex < currentMessage.length) {
+        // 继续当前消息的打字动画
         setDisplayedText(prev => {
-          const messages = interpretationMessages.slice(0, messageIndex);
-          const currentPartial = currentMessage.slice(0, charIndex + 1);
-          return [...messages, currentPartial].join('\n');
+          const completedMessages = interpretationMessages.slice(0, currentMessageIndex);
+          const currentPartial = currentMessage.slice(0, currentCharIndex + 1);
+          return [...completedMessages, currentPartial].join('\n\n');
         });
-        charIndex++;
+        setCurrentCharIndex(prev => prev + 1);
       } else {
         // 当前消息完成，移动到下一个消息
-        messageIndex++;
-        charIndex = 0;
-        setCurrentDisplayIndex(messageIndex);
+        if (currentMessageIndex < interpretationMessages.length - 1) {
+          setCurrentMessageIndex(prev => prev + 1);
+          setCurrentCharIndex(0);
+        } else {
+          // 所有消息完成
+          clearInterval(interval);
+          setTextComplete(true);
+          setIsTyping(false);
+          setTimeout(() => {
+            setAnimationPhase('complete');
+          }, 300);
+        }
       }
     }, 30);
   };
@@ -199,13 +201,13 @@ const Interpretation = () => {
   }, []);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative overflow-auto`}>
+    <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative`}>
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-20" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
       
-      <div className="relative z-10 flex flex-col pb-20">
+      <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
         <div className="flex items-center justify-between p-4 pt-8">
           <button 
@@ -234,80 +236,54 @@ const Interpretation = () => {
           <h3 className="text-white text-lg font-bold">这是你抽到的牌</h3>
         </div>
 
-        {/* Cards and Interpretation Container */}
-        <div className="flex flex-col">
-          {/* Cards container - 向上调整40% */}
-          <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
-            animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-32 mt-2'
-              : 'translate-y-0'
-          }`}>
-            {cards.map((card: any, index: number) => (
-              <div key={card.id} className="flex-1">
-                <TarotCardComponent
-                  card={card}
-                  revealed={true}
-                  size="medium"
-                />
-              </div>
-            ))}
-          </div>
+        {/* Cards container - 向上调整40% */}
+        <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
+          animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+            ? '-translate-y-32 mt-2'
+            : 'translate-y-0'
+        }`}>
+          {cards.map((card: any, index: number) => (
+            <div key={card.id} className="flex-1">
+              <TarotCardComponent
+                card={card}
+                revealed={true}
+                size="medium"
+              />
+            </div>
+          ))}
+        </div>
 
-          {/* Interpretation - 水平滚动显示多条消息 */}
-          <div className={`px-6 mt-4 transition-all duration-1000 ${
-            animationPhase === 'showText' || animationPhase === 'complete'
-              ? 'opacity-100' 
-              : 'opacity-0 translate-y-8'
-          } ${
-            animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-32'
-              : 'translate-y-0'
-          }`}>
-            {isLoading ? (
-              <div className="bg-white/10 rounded-2xl border border-white/20 p-4 max-h-80">
-                <div className="flex items-center justify-center py-8">
-                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span className="ml-3 text-white text-sm">正在为你解读...</span>
-                </div>
+        {/* Interpretation - 自适应高度 */}
+        <div className={`flex-1 px-6 mt-4 pb-24 transition-all duration-1000 ${
+          animationPhase === 'showText' || animationPhase === 'complete'
+            ? 'opacity-100' 
+            : 'opacity-0 translate-y-8'
+        } ${
+          animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+            ? '-translate-y-32'
+            : 'translate-y-0'
+        }`}>
+          {isLoading ? (
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px] flex items-center justify-center">
+              <div className="flex items-center">
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span className="ml-3 text-white text-sm">正在为你解读...</span>
               </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <div className="flex space-x-4 pb-2">
-                  {interpretationMessages.map((message, index) => (
-                    <div key={index} className="flex-shrink-0 w-72">
-                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 h-80 overflow-y-auto">
-                        <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                          {index === currentDisplayIndex && !textComplete ? 
-                            displayedText.split('\n')[index] || message :
-                            message
-                          }
-                          {index === currentDisplayIndex && !textComplete && animationPhase === 'showText' && 
-                            <span className="animate-pulse">|</span>
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* 显示当前流式文本 */}
-                  {currentStreamText.trim() && (
-                    <div className="flex-shrink-0 w-72">
-                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 h-80 overflow-y-auto">
-                        <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                          {currentStreamText}
-                          <span className="animate-pulse">|</span>
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+            </div>
+          ) : (
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px]">
+              <div className="text-white leading-relaxed text-sm whitespace-pre-line">
+                {displayedText || currentStreamText}
+                {(isTyping || (currentStreamText && !textComplete)) && 
+                  <span className="animate-pulse">|</span>
+                }
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Action Button - 改为固定浮动位置 */}
+      {/* Action Button - 固定浮动位置 */}
       <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black/20 to-transparent">
         <button
           onClick={handleChatMore}
