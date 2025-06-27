@@ -34,15 +34,6 @@ export const useInterpretation = (catId: string | undefined) => {
     return cardDescriptions.join('\n');
   };
 
-  // 简化清理消息文本 - 只移除空的括号，保留有内容的括号
-  const cleanMessageText = (text: string): string => {
-    return text
-      .replace(/^\s*[\(\)（）]\s*$/, '') // 只移除完全空的括号行
-      .replace(/^\s*[\(\)（）]\s*/, '') // 移除开头的空括号
-      .replace(/\s*[\(\)（）]\s*$/, '') // 移除结尾的空括号
-      .trim();
-  };
-
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
     console.log('Received processed message:', processedMessage);
@@ -59,15 +50,10 @@ export const useInterpretation = (catId: string | undefined) => {
           messages = fullText.split('\n').filter(msg => msg.trim().length > 0);
         }
         
-        // 清理并过滤有效消息，但保留正常的中文内容
+        // 直接使用原始消息，只过滤掉完全空的消息
         const validMessages = messages
-          .map(msg => {
-            const cleaned = cleanMessageText(msg);
-            console.log('Original message:', msg);
-            console.log('Cleaned message:', cleaned);
-            return cleaned;
-          })
-          .filter(msg => msg.length > 5); // 只过滤掉很短的无意义消息
+          .map(msg => msg.trim())
+          .filter(msg => msg.length > 0);
         
         console.log('Valid messages:', validMessages);
         setInterpretationMessages(validMessages);
