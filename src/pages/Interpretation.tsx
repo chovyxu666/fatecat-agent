@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -45,21 +46,13 @@ const Interpretation = () => {
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
     if (processedMessage.isComplete) {
+      // 消息完成时，将完整文本添加到解读消息列表
       setInterpretationMessages(prev => [...prev, processedMessage.text]);
       setCurrentStreamText('');
       setIsLoading(false);
     } else {
-      const newText = processedMessage.text;
-      setCurrentStreamText(newText);
-      
-      if (newText.includes('\n')) {
-        const lines = newText.split('\n');
-        const completeLines = lines.slice(0, -1).filter(line => line.trim());
-        if (completeLines.length > 0) {
-          setInterpretationMessages(prev => [...prev, ...completeLines]);
-        }
-        setCurrentStreamText(lines[lines.length - 1] || '');
-      }
+      // 流式更新时，直接更新当前流式文本，不清空
+      setCurrentStreamText(processedMessage.text);
     }
   };
 
