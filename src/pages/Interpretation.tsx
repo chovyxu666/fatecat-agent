@@ -121,10 +121,10 @@ const Interpretation = () => {
 
         {/* Cards and Interpretation Container */}
         <div className="flex flex-col">
-          {/* Cards container */}
+          {/* Cards container - 向上调整20% */}
           <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-16 mt-2'
+              ? '-translate-y-20 mt-2'
               : 'translate-y-0'
           }`}>
             {cards.map((card: any, index: number) => (
@@ -138,14 +138,14 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 与塔罗牌同步移动 */}
+          {/* Interpretation - 与塔罗牌同步移动，向上调整20% */}
           <div className={`px-6 mt-4 transition-all duration-1000 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100' 
               : 'opacity-0 translate-y-8'
           } ${
             animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-              ? '-translate-y-16'
+              ? '-translate-y-20'
               : 'translate-y-0'
           }`}>
             <div className="bg-white/10 rounded-2xl p-4 border border-white/20">
