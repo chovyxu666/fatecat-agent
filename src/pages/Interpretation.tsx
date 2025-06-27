@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -16,6 +15,7 @@ const Interpretation = () => {
   const [displayedText, setDisplayedText] = useState('');
   const [textComplete, setTextComplete] = useState(false);
   const [interpretation, setInterpretation] = useState('');
+  const [fullInterpretation, setFullInterpretation] = useState(''); // 保存完整的解读内容
   const [isLoading, setIsLoading] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
@@ -44,13 +44,12 @@ const Interpretation = () => {
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
     if (processedMessage.isComplete) {
-      // 完整消息：设置最终的解读内容
-      setInterpretation(processedMessage.text);
-      setDisplayedText(''); // 重置显示文本，准备开始动画
+      // 完整消息：累积到完整解读内容中
+      setFullInterpretation(prev => prev + processedMessage.text);
       setIsLoading(false);
     } else {
-      // 流式消息：累积显示内容
-      setInterpretation(processedMessage.text); // 保存完整内容
+      // 流式消息：更新当前显示的解读内容
+      setInterpretation(processedMessage.text);
     }
   };
 
@@ -87,6 +86,7 @@ const Interpretation = () => {
       
       console.error('获取解读失败:', error);
       setInterpretation('抱歉，我现在无法为你提供解读。请稍后再试。');
+      setFullInterpretation('抱歉，我现在无法为你提供解读。请稍后再试。');
       setIsLoading(false);
     }
   };
@@ -113,20 +113,20 @@ const Interpretation = () => {
     };
   }, []);
 
-  // 当解读内容获取到后，开始文字动画
+  // 当解读内容获取完成后，开始文字动画
   useEffect(() => {
-    if (interpretation && animationPhase === 'showText' && !displayedText && !isLoading) {
+    if (fullInterpretation && animationPhase === 'showText' && !displayedText && !isLoading) {
       startTextAnimation();
     }
-  }, [interpretation, animationPhase, isLoading]);
+  }, [fullInterpretation, animationPhase, isLoading]);
 
   const startTextAnimation = () => {
-    if (!interpretation) return;
+    if (!fullInterpretation) return;
     
     let index = 0;
     const interval = setInterval(() => {
-      if (index < interpretation.length) {
-        setDisplayedText(interpretation.slice(0, index + 1));
+      if (index < fullInterpretation.length) {
+        setDisplayedText(fullInterpretation.slice(0, index + 1));
         index++;
       } else {
         clearInterval(interval);
@@ -139,10 +139,10 @@ const Interpretation = () => {
   };
 
   const handleChatMore = () => {
-    // 传递完整的解读消息到聊天页面，使用完整的interpretation数据
+    // 传递完整的解读消息到聊天页面，使用完整的解读内容
     const interpretationMessage = {
       id: 'interpretation_' + Date.now(),
-      text: interpretation, // 使用完整的解读内容
+      text: fullInterpretation, // 使用完整的解读内容
       sender: 'cat' as const,
       timestamp: new Date()
     };
@@ -220,7 +220,7 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 与塔罗牌同步移动，向上调整40%，添加滚动 */}
+          {/* Interpretation - 显示累积的完整解读内容 */}
           <div className={`px-6 mt-4 transition-all duration-1000 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100' 
@@ -240,7 +240,7 @@ const Interpretation = () => {
                 <ScrollArea className="h-full max-h-80">
                   <div className="p-4">
                     <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                      {isLoading ? interpretation : (displayedText || interpretation)}
+                      {isLoading ? (interpretation || fullInterpretation) : (displayedText || fullInterpretation)}
                       {!textComplete && animationPhase === 'showText' && !isLoading && <span className="animate-pulse">|</span>}
                     </p>
                   </div>
@@ -255,9 +255,9 @@ const Interpretation = () => {
       <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black/20 to-transparent">
         <button
           onClick={handleChatMore}
-          disabled={isLoading || !interpretation}
+          disabled={isLoading || !fullInterpretation}
           className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
-            animationPhase === 'complete' && !isLoading && interpretation
+            animationPhase === 'complete' && !isLoading && fullInterpretation
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-4 pointer-events-none'
           }`}

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { predefinedQuestions } from '../data/predefinedQuestions';
 import { ChevronLeft } from 'lucide-react';
+import { getUserId } from '../utils/userIdUtils';
 
 const Question = () => {
   const {
@@ -12,43 +13,79 @@ const Question = () => {
   }>();
   const navigate = useNavigate();
   const [question, setQuestion] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const cat = cats.find(c => c.id === catId);
   if (!cat) {
     return <div>Cat not found</div>;
   }
+
+  // 调用删除历史记录接口
+  const deleteHistory = async () => {
+    try {
+      const response = await fetch('http://192.168.124.212:5000/deleteHistory', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: getUserId(),
+          message: ""
+        })
+      });
+
+      if (!response.ok) {
+        console.error('删除历史记录失败:', response.status);
+      }
+    } catch (error) {
+      console.error('删除历史记录请求失败:', error);
+    }
+  };
+
   const handleQuestionSelect = (selectedQuestion: string) => {
     console.log('Question selected:', selectedQuestion);
     setQuestion(selectedQuestion);
   };
-  const handleSubmit = () => {
-    if (question.trim()) {
+
+  const handleSubmit = async () => {
+    if (question.trim() && !isLoading) {
+      setIsLoading(true);
       console.log('Navigating to cards page with question:', question.trim());
+      
+      // 先调用删除历史记录接口
+      await deleteHistory();
+      
       navigate(`/cards/${catId}`, {
         state: {
           question: question.trim()
         }
       });
+      setIsLoading(false);
     } else {
       console.log('No question provided');
     }
   };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSubmit();
     }
   };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log('Input changed:', e.target.value);
     setQuestion(e.target.value);
   };
+
   const handleInputFocus = () => {
     console.log('Input focused');
   };
+
   const handleButtonClick = () => {
     console.log('Button clicked, question:', question);
     handleSubmit();
   };
+
   return <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative overflow-hidden`}>
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
@@ -89,11 +126,12 @@ const Question = () => {
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-black/30 backdrop-blur-md border-t border-white/10 z-50">
         <div className="flex items-center space-x-3 max-w-md mx-auto">
           <input type="text" value={question} onChange={handleInputChange} onKeyPress={handleKeyPress} onFocus={handleInputFocus} placeholder="点击这里输入你的问题..." className="flex-1 bg-white/15 border border-white/30 rounded-full px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/30 focus:bg-white/20 transition-all duration-200" autoComplete="off" />
-          <button onClick={handleButtonClick} disabled={!question.trim()} className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:opacity-50 rounded-full py-3 text-white font-medium transition-all duration-200 min-w-[100px] cursor-pointer active:scale-95 disabled:cursor-not-allowed px-[10px]">
-            开始占卜
+          <button onClick={handleButtonClick} disabled={!question.trim() || isLoading} className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:opacity-50 rounded-full py-3 text-white font-medium transition-all duration-200 min-w-[100px] cursor-pointer active:scale-95 disabled:cursor-not-allowed px-[10px]">
+            {isLoading ? '处理中...' : '开始占卜'}
           </button>
         </div>
       </div>
     </div>;
 };
+
 export default Question;
