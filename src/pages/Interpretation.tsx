@@ -76,8 +76,6 @@ const Interpretation = () => {
       setCurrentStreamText('');
       setIsLoading(false);
 
-      // 只对新消息开始打字动画
-      startTypingAnimation(newMessage);
     } else {
       // 流式消息：更新当前流文本
       setCurrentStreamText(processedMessage.text);
