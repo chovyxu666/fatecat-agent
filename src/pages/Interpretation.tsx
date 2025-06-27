@@ -1,9 +1,11 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { TarotCardComponent } from '../components/TarotCardComponent';
 import { ChevronLeft } from 'lucide-react';
+import { ChatService, ChatRequest, ProcessedMessage } from '../services/chatService';
+import { getUserId } from '../utils/userIdUtils';
 
 const Interpretation = () => {
   const { catId } = useParams<{ catId: string }>();
@@ -12,6 +14,10 @@ const Interpretation = () => {
   const [animationPhase, setAnimationPhase] = useState<'initial' | 'hideHeader' | 'moveCards' | 'showText' | 'complete'>('initial');
   const [displayedText, setDisplayedText] = useState('');
   const [textComplete, setTextComplete] = useState(false);
+  const [interpretation, setInterpretation] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const chatServiceRef = useRef(new ChatService());
 
   const cat = cats.find(c => c.id === catId);
   const question = location.state?.question || '';
@@ -21,21 +27,64 @@ const Interpretation = () => {
     return <div>Cat not found</div>;
   }
 
-  // 根据卡牌的正逆位生成解读
-  const generateInterpretation = () => {
+  // 格式化塔罗牌信息
+  const formatTarotCards = () => {
     if (cards.length === 0) return '';
     
-    const interpretations = cards.map((card: any, index: number) => {
-      const positions = ['过去', '现在', '未来'];
-      const meaning = card.isReversed ? card.reversedMeaning : card.uprightMeaning;
+    const positions = ['过去', '现在', '未来'];
+    const cardDescriptions = cards.map((card: any, index: number) => {
       const orientation = card.isReversed ? '逆位' : '正位';
-      return `${positions[index]}的${card.name}(${orientation})：${meaning}`;
+      return `${positions[index]}：${card.name}（${orientation}）`;
     });
     
-    return `亲爱的，让我为你解读这三张牌的含义：\n\n${interpretations.join('\n\n')}\n\n这三张牌组合在一起，告诉我们你正在经历一个重要的人生阶段。过去的经历为你奠定了基础，现在的状态需要你仔细思考，而未来的道路充满了可能性。相信你的内在智慧，它会指引你找到正确的方向。`;
+    return cardDescriptions.join('\n');
   };
 
-  const interpretation = generateInterpretation();
+  // 处理从聊天服务返回的消息
+  const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
+    if (processedMessage.isComplete) {
+      setInterpretation(processedMessage.text);
+      setDisplayedText(''); // 重置显示文本，准备开始动画
+      setIsLoading(false);
+    }
+  };
+
+  // 调用聊天接口获取解读
+  const fetchInterpretation = async () => {
+    if (!question.trim() || cards.length === 0) return;
+
+    setIsLoading(true);
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
+
+    try {
+      const requestBody: ChatRequest = {
+        user_id: getUserId(),
+        message: question,
+        tarot: formatTarotCards()
+      };
+
+      await chatServiceRef.current.sendMessage(
+        requestBody,
+        handleProcessedMessage,
+        abortControllerRef.current
+      );
+
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('请求被取消');
+        return;
+      }
+      
+      console.error('获取解读失败:', error);
+      setInterpretation('抱歉，我现在无法为你提供解读。请稍后再试。');
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const timer1 = setTimeout(() => {
@@ -48,7 +97,12 @@ const Interpretation = () => {
 
     const timer3 = setTimeout(() => {
       setAnimationPhase('showText');
-      startTextAnimation();
+      // 如果已经有解读内容，开始文字动画；否则先获取解读
+      if (interpretation) {
+        startTextAnimation();
+      } else {
+        fetchInterpretation();
+      }
     }, 1800);
 
     return () => {
@@ -58,7 +112,16 @@ const Interpretation = () => {
     };
   }, []);
 
+  // 当解读内容获取到后，开始文字动画
+  useEffect(() => {
+    if (interpretation && animationPhase === 'showText' && !displayedText) {
+      startTextAnimation();
+    }
+  }, [interpretation, animationPhase]);
+
   const startTextAnimation = () => {
+    if (!interpretation) return;
+    
     let index = 0;
     const interval = setInterval(() => {
       if (index < interpretation.length) {
@@ -75,14 +138,31 @@ const Interpretation = () => {
   };
 
   const handleChatMore = () => {
+    // 传递解读消息到聊天页面
+    const interpretationMessage = {
+      id: 'interpretation_' + Date.now(),
+      text: interpretation,
+      sender: 'cat' as const,
+      timestamp: new Date()
+    };
+
     navigate(`/chat/${catId}`, { 
       state: { 
         question,
         cards,
-        interpretation
+        initialMessages: [interpretationMessage]
       } 
     });
   };
+
+  // 组件卸载时清理
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative overflow-auto`}>
@@ -150,10 +230,17 @@ const Interpretation = () => {
               : 'translate-y-0'
           }`}>
             <div className="bg-white/10 rounded-2xl p-4 border border-white/20">
-              <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                {displayedText}
-                {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
-              </p>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span className="ml-3 text-white text-sm">正在为你解读...</span>
+                </div>
+              ) : (
+                <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
+                  {displayedText}
+                  {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -163,8 +250,9 @@ const Interpretation = () => {
       <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black/20 to-transparent">
         <button
           onClick={handleChatMore}
-          className={`w-full bg-orange-500 hover:bg-orange-600 rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
-            animationPhase === 'complete'
+          disabled={isLoading || !interpretation}
+          className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
+            animationPhase === 'complete' && !isLoading && interpretation
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-4 pointer-events-none'
           }`}

@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatMessage } from '../types';
@@ -16,14 +17,23 @@ export const useChat = (catId: string | undefined) => {
 
   const cards = location.state?.cards || [];
   const question = location.state?.question || '';
+  const initialMessages = location.state?.initialMessages || [];
 
-  // 初始化验证
+  // 初始化验证和设置初始消息
   useEffect(() => {
+    // 如果有初始消息，直接设置（来自解读页面）
+    if (initialMessages.length > 0) {
+      setMessages(initialMessages);
+      setIsFirstMessage(false); // 已经有消息了，不是第一条
+      return;
+    }
+
+    // 如果没有初始消息且缺少必要信息，返回首页
     if (!question.trim() || cards.length === 0) {
       navigate('/');
       return;
     }
-  }, [question, cards, navigate]);
+  }, [question, cards, initialMessages, navigate]);
 
   // 格式化塔罗牌信息
   const formatTarotCards = () => {
@@ -143,12 +153,12 @@ export const useChat = (catId: string | undefined) => {
     await sendMessageToBackend(currentMessage);
   };
 
-  // 组件初始化时自动发送问题
+  // 组件初始化时自动发送问题（仅当没有初始消息时）
   useEffect(() => {
-    if (isFirstMessage && question.trim() && cards.length > 0) {
+    if (isFirstMessage && question.trim() && cards.length > 0 && initialMessages.length === 0) {
       sendMessageToBackend(question);
     }
-  }, [question, cards]);
+  }, [question, cards, initialMessages]);
 
   // 组件卸载时清理
   useEffect(() => {
