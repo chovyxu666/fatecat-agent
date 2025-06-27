@@ -227,8 +227,8 @@ const Interpretation = () => {
 
         {/* Cat Avatar and Title - 隐藏动画 */}
         <div className={`text-center px-6 mb-4 transition-all duration-500 ${animationPhase === 'hideHeader' || animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-            ? 'opacity-0 -translate-y-4'
-            : 'opacity-100'
+          ? 'opacity-0 -translate-y-4'
+          : 'opacity-100'
           }`}>
           <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white/20 mb-3">
             <img
@@ -243,8 +243,8 @@ const Interpretation = () => {
 
         {/* Cards container - 向上调整40% */}
         <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-            ? '-translate-y-32 mt-2'
-            : 'translate-y-0'
+          ? '-translate-y-32 mt-2'
+          : 'translate-y-0'
           }`}>
           {cards.map((card: any, index: number) => (
             <div key={card.id} className="flex-1">
@@ -257,10 +257,9 @@ const Interpretation = () => {
           ))}
         </div>
 
-        {/* Interpretation - 自适应高度 */}
         <div className={`flex-1 px-6 mt-4 pb-24 transition-all duration-1000 ${animationPhase === 'showText' || animationPhase === 'complete'
-            ? 'opacity-100'
-            : 'opacity-0 translate-y-8'
+          ? 'opacity-100'
+          : 'opacity-0 translate-y-8'
           } ${animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
             ? '-translate-y-32'
             : 'translate-y-0'
@@ -283,14 +282,13 @@ const Interpretation = () => {
         </div>
       </div>
 
-      {/* Action Button - 固定浮动位置 */}
       <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black/20 to-transparent">
         <button
           onClick={handleChatMore}
           disabled={isLoading || (interpretationMessages.length === 0 && !currentStreamText)}
           className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${animationPhase === 'complete' && !isLoading && (interpretationMessages.length > 0 || currentStreamText)
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-4 pointer-events-none'
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 translate-y-4 pointer-events-none'
             }`}
         >
           <span>💬</span>
