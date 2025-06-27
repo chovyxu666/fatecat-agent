@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -43,9 +44,13 @@ const Interpretation = () => {
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
     if (processedMessage.isComplete) {
+      // 完整消息：设置最终的解读内容
       setInterpretation(processedMessage.text);
       setDisplayedText(''); // 重置显示文本，准备开始动画
       setIsLoading(false);
+    } else {
+      // 流式消息：累积显示内容
+      setInterpretation(processedMessage.text); // 保存完整内容
     }
   };
 
@@ -97,12 +102,8 @@ const Interpretation = () => {
 
     const timer3 = setTimeout(() => {
       setAnimationPhase('showText');
-      // 如果已经有解读内容，开始文字动画；否则先获取解读
-      if (interpretation) {
-        startTextAnimation();
-      } else {
-        fetchInterpretation();
-      }
+      // 在页面初始化时就开始获取解读
+      fetchInterpretation();
     }, 1800);
 
     return () => {
@@ -114,10 +115,10 @@ const Interpretation = () => {
 
   // 当解读内容获取到后，开始文字动画
   useEffect(() => {
-    if (interpretation && animationPhase === 'showText' && !displayedText) {
+    if (interpretation && animationPhase === 'showText' && !displayedText && !isLoading) {
       startTextAnimation();
     }
-  }, [interpretation, animationPhase]);
+  }, [interpretation, animationPhase, isLoading]);
 
   const startTextAnimation = () => {
     if (!interpretation) return;
@@ -138,10 +139,10 @@ const Interpretation = () => {
   };
 
   const handleChatMore = () => {
-    // 传递完整的解读消息到聊天页面，包括完整的解读内容
+    // 传递完整的解读消息到聊天页面，使用完整的interpretation数据
     const interpretationMessage = {
       id: 'interpretation_' + Date.now(),
-      text: interpretation, // 使用完整的解读内容，不是displayedText
+      text: interpretation, // 使用完整的解读内容
       sender: 'cat' as const,
       timestamp: new Date()
     };
@@ -239,8 +240,8 @@ const Interpretation = () => {
                 <ScrollArea className="h-full max-h-80">
                   <div className="p-4">
                     <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                      {displayedText}
-                      {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
+                      {isLoading ? interpretation : (displayedText || interpretation)}
+                      {!textComplete && animationPhase === 'showText' && !isLoading && <span className="animate-pulse">|</span>}
                     </p>
                   </div>
                 </ScrollArea>
