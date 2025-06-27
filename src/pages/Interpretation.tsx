@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -217,7 +218,7 @@ const Interpretation = () => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 pt-8">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/')}
             className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
           >
             <ChevronLeft className="w-6 h-6 text-white" />
