@@ -44,22 +44,22 @@ const Interpretation = () => {
 
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
+    console.log('Received processed message:', processedMessage);
+    
     if (processedMessage.isComplete) {
-      setInterpretationMessages(prev => [...prev, processedMessage.text]);
+      // 流式传输完成，处理完整文本
+      const fullText = processedMessage.text.trim();
+      if (fullText) {
+        // 按换行符分割成多条消息
+        const messages = fullText.split('\n').filter(msg => msg.trim().length > 0);
+        console.log('Split complete messages:', messages);
+        setInterpretationMessages(messages);
+      }
       setCurrentStreamText('');
       setIsLoading(false);
     } else {
-      const newText = processedMessage.text;
-      setCurrentStreamText(newText);
-      
-      if (newText.includes('\n')) {
-        const lines = newText.split('\n');
-        const completeLines = lines.slice(0, -1).filter(line => line.trim());
-        if (completeLines.length > 0) {
-          setInterpretationMessages(prev => [...prev, ...completeLines]);
-        }
-        setCurrentStreamText(lines[lines.length - 1] || '');
-      }
+      // 流式传输中，更新当前文本
+      setCurrentStreamText(processedMessage.text);
     }
   };
 
@@ -68,6 +68,8 @@ const Interpretation = () => {
     if (!question.trim() || cards.length === 0) return;
 
     setIsLoading(true);
+    setInterpretationMessages([]);
+    setCurrentStreamText('');
 
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -124,9 +126,12 @@ const Interpretation = () => {
   // 当解读消息获取完成后，开始文字动画
   useEffect(() => {
     if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading && !isTyping) {
+      setDisplayedMessages(new Array(interpretationMessages.length).fill(''));
+      setCurrentDisplayIndex(0);
+      setCurrentCharIndex(0);
       startTextAnimation();
     }
-  }, [interpretationMessages, animationPhase, isLoading, isTyping]);
+  }, [interpretationMessages, animationPhase, isLoading]);
 
   const startTextAnimation = () => {
     if (interpretationMessages.length === 0 || currentDisplayIndex >= interpretationMessages.length) return;
@@ -165,19 +170,13 @@ const Interpretation = () => {
   };
 
   const handleChatMore = () => {
-    const allMessages = [...interpretationMessages];
-    if (currentStreamText.trim()) {
-      allMessages.push(currentStreamText);
-    }
-    
-    const interpretationMessagesForChat = allMessages.flatMap(text => 
-      text.split('\n').filter(line => line.trim()).map((line, index) => ({
-        id: `interpretation_${Date.now()}_${index}`,
-        text: line.trim(),
-        sender: 'cat' as const,
-        timestamp: new Date()
-      }))
-    );
+    // 将所有解读消息传递给聊天页面，每条消息单独处理
+    const interpretationMessagesForChat = interpretationMessages.map((text, index) => ({
+      id: `interpretation_${Date.now()}_${index}`,
+      text: text.trim(),
+      sender: 'cat' as const,
+      timestamp: new Date()
+    }));
 
     navigate(`/chat/${catId}`, { 
       state: { 
@@ -273,35 +272,27 @@ const Interpretation = () => {
               <div className="overflow-x-auto">
                 <div className="flex space-x-4 pb-2">
                   {/* 显示已完成的消息 */}
-                  {displayedMessages.map((message, index) => (
-                    <div key={index} className="flex-shrink-0 w-72">
-                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-20">
-                        <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                          {message}
-                          {index === currentDisplayIndex - 1 && isTyping && 
-                            <span className="animate-pulse">|</span>
-                          }
-                        </p>
+                  {displayedMessages.map((message, index) => {
+                    if (!message && index > currentDisplayIndex) return null;
+                    
+                    return (
+                      <div key={index} className="flex-shrink-0 w-72">
+                        <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-[80px]">
+                          <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
+                            {message}
+                            {index === currentDisplayIndex && isTyping && 
+                              <span className="animate-pulse">|</span>
+                            }
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   
-                  {/* 显示正在输入的消息 */}
-                  {isTyping && currentDisplayIndex < interpretationMessages.length && (
+                  {/* 显示当前流式文本（仅在加载时） */}
+                  {currentStreamText.trim() && isLoading && (
                     <div className="flex-shrink-0 w-72">
-                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-20">
-                        <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                          {displayedMessages[currentDisplayIndex] || ''}
-                          <span className="animate-pulse">|</span>
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* 显示当前流式文本 */}
-                  {currentStreamText.trim() && (
-                    <div className="flex-shrink-0 w-72">
-                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-20">
+                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-[80px]">
                         <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
                           {currentStreamText}
                           <span className="animate-pulse">|</span>
