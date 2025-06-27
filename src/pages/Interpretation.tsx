@@ -52,7 +52,7 @@ const Interpretation = () => {
       setCurrentStreamText('');
       setIsLoading(false);
     } else {
-      // 流式消息：累积文本
+      // 流式消息：更新当前流文本
       setCurrentStreamText(processedMessage.text);
     }
   };
@@ -115,12 +115,12 @@ const Interpretation = () => {
     };
   }, []);
 
-  // 当解读消息获取完成后，开始文字动画
+  // 当解读消息完成后，开始文字动画
   useEffect(() => {
-    if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading && !isTyping) {
+    if (interpretationMessages.length > 0 && !isTyping && !isLoading) {
       startTextAnimation();
     }
-  }, [interpretationMessages, animationPhase, isLoading, isTyping]);
+  }, [interpretationMessages]);
 
   const startTextAnimation = () => {
     if (interpretationMessages.length === 0) return;
@@ -130,42 +130,48 @@ const Interpretation = () => {
     setCurrentCharIndex(0);
     setDisplayedText('');
     
-    const interval = setInterval(() => {
-      const currentMessage = interpretationMessages[currentMessageIndex];
-      if (!currentMessage) {
-        clearInterval(interval);
-        setTextComplete(true);
-        setIsTyping(false);
-        setTimeout(() => {
-          setAnimationPhase('complete');
-        }, 300);
-        return;
-      }
-      
-      if (currentCharIndex < currentMessage.length) {
-        // 继续当前消息的打字动画
-        setDisplayedText(prev => {
-          const completedMessages = interpretationMessages.slice(0, currentMessageIndex);
-          const currentPartial = currentMessage.slice(0, currentCharIndex + 1);
-          return [...completedMessages, currentPartial].join('\n\n');
+    const animateMessages = () => {
+      const interval = setInterval(() => {
+        setDisplayedText(prevDisplayed => {
+          const currentMessage = interpretationMessages[currentMessageIndex];
+          if (!currentMessage) {
+            clearInterval(interval);
+            setIsTyping(false);
+            setTextComplete(true);
+            setTimeout(() => {
+              setAnimationPhase('complete');
+            }, 300);
+            return prevDisplayed;
+          }
+          
+          if (currentCharIndex < currentMessage.length) {
+            // 继续当前消息的打字动画
+            const completedMessages = interpretationMessages.slice(0, currentMessageIndex);
+            const currentPartial = currentMessage.slice(0, currentCharIndex + 1);
+            setCurrentCharIndex(prev => prev + 1);
+            return [...completedMessages, currentPartial].join('\n\n');
+          } else {
+            // 当前消息完成，移动到下一个消息
+            if (currentMessageIndex < interpretationMessages.length - 1) {
+              setCurrentMessageIndex(prev => prev + 1);
+              setCurrentCharIndex(0);
+              return prevDisplayed;
+            } else {
+              // 所有消息完成
+              clearInterval(interval);
+              setIsTyping(false);
+              setTextComplete(true);
+              setTimeout(() => {
+                setAnimationPhase('complete');
+              }, 300);
+              return prevDisplayed;
+            }
+          }
         });
-        setCurrentCharIndex(prev => prev + 1);
-      } else {
-        // 当前消息完成，移动到下一个消息
-        if (currentMessageIndex < interpretationMessages.length - 1) {
-          setCurrentMessageIndex(prev => prev + 1);
-          setCurrentCharIndex(0);
-        } else {
-          // 所有消息完成
-          clearInterval(interval);
-          setTextComplete(true);
-          setIsTyping(false);
-          setTimeout(() => {
-            setAnimationPhase('complete');
-          }, 300);
-        }
-      }
-    }, 30);
+      }, 30);
+    };
+    
+    animateMessages();
   };
 
   const handleChatMore = () => {
@@ -199,6 +205,27 @@ const Interpretation = () => {
       }
     };
   }, []);
+
+  // 获取要显示的文本内容
+  const getDisplayContent = () => {
+    if (isLoading) {
+      return '';
+    }
+    
+    if (isTyping && displayedText) {
+      return displayedText;
+    }
+    
+    if (currentStreamText) {
+      return currentStreamText;
+    }
+    
+    if (interpretationMessages.length > 0 && !isTyping) {
+      return interpretationMessages.join('\n\n');
+    }
+    
+    return '';
+  };
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative`}>
@@ -264,17 +291,17 @@ const Interpretation = () => {
             : 'translate-y-0'
         }`}>
           {isLoading ? (
-            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px] flex items-center justify-center">
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[100px] flex items-center justify-center">
               <div className="flex items-center">
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span className="ml-3 text-white text-sm">正在为你解读...</span>
               </div>
             </div>
           ) : (
-            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px]">
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-6" style={{ minHeight: 'auto' }}>
               <div className="text-white leading-relaxed text-sm whitespace-pre-line">
-                {displayedText || currentStreamText}
-                {(isTyping || (currentStreamText && !textComplete)) && 
+                {getDisplayContent()}
+                {(isTyping || (currentStreamText && isLoading)) && 
                   <span className="animate-pulse">|</span>
                 }
               </div>
