@@ -11,17 +11,17 @@ export const ChatHeader = ({ cat }: ChatHeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative z-10 flex items-center justify-between p-4 pt-8 bg-black/10 backdrop-blur-sm">
+    <div className="relative z-10 flex items-center justify-between p-3 pt-6 bg-black/10 backdrop-blur-sm">
       <button 
         onClick={() => navigate('/')} 
-        className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"
+        className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center"
       >
-        <ChevronLeft className="w-5 h-5 text-white" />
+        <ChevronLeft className="w-4 h-4 text-white" />
       </button>
       <div className="flex-1 text-center">
-        <p className="text-white font-bold text-base">{cat.name}</p>
+        <p className="text-white font-bold text-sm">{cat.name}</p>
       </div>
-      <div className="w-8" />
+      <div className="w-7" />
     </div>
   );
 };
