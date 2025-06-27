@@ -24,7 +24,7 @@ export const ChatBubble = ({ message, catAvatar }: ChatBubbleProps) => {
               : 'bg-white/10 text-white border border-white/20'
           }`}
         >
-          <p className="text-sm leading-relaxed">{message.text}</p>
+          <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
         </div>
       </div>
     </div>
