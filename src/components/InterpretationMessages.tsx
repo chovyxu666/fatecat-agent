@@ -40,15 +40,14 @@ export const InterpretationMessages = ({
               // 只显示已开始显示的消息
               if (index > currentDisplayIndex) return null;
               
-              // 清理消息文本，移除奇怪的字符
-              const cleanMessage = message.replace(/[（）]/g, '').trim();
-              if (!cleanMessage) return null;
+              // 不要过度清理消息，保留原始内容
+              if (!message || message.trim().length === 0) return null;
               
               return (
                 <div key={index} className="flex-shrink-0 w-72">
                   <div className="bg-white/10 rounded-2xl border border-white/20 p-4" style={{ minHeight: 'auto' }}>
                     <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                      {cleanMessage}
+                      {message}
                       {index === currentDisplayIndex && isTyping && 
                         <span className="animate-pulse ml-1">|</span>
                       }

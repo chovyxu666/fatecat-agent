@@ -34,12 +34,12 @@ export const useInterpretation = (catId: string | undefined) => {
     return cardDescriptions.join('\n');
   };
 
-  // 清理消息文本
+  // 简化清理消息文本 - 只移除空的括号，保留有内容的括号
   const cleanMessageText = (text: string): string => {
     return text
-      .replace(/[（）]/g, '') // 移除中文括号
-      .replace(/^\s*[\(\)]\s*/, '') // 移除开头的括号
-      .replace(/\s*[\(\)]\s*$/, '') // 移除结尾的括号
+      .replace(/^\s*[\(\)（）]\s*$/, '') // 只移除完全空的括号行
+      .replace(/^\s*[\(\)（）]\s*/, '') // 移除开头的空括号
+      .replace(/\s*[\(\)（）]\s*$/, '') // 移除结尾的空括号
       .trim();
   };
 
@@ -59,20 +59,24 @@ export const useInterpretation = (catId: string | undefined) => {
           messages = fullText.split('\n').filter(msg => msg.trim().length > 0);
         }
         
-        // 清理并过滤有效消息
+        // 清理并过滤有效消息，但保留正常的中文内容
         const validMessages = messages
-          .map(msg => cleanMessageText(msg))
-          .filter(msg => msg.length > 0);
+          .map(msg => {
+            const cleaned = cleanMessageText(msg);
+            console.log('Original message:', msg);
+            console.log('Cleaned message:', cleaned);
+            return cleaned;
+          })
+          .filter(msg => msg.length > 5); // 只过滤掉很短的无意义消息
         
-        console.log('Cleaned messages:', validMessages);
+        console.log('Valid messages:', validMessages);
         setInterpretationMessages(validMessages);
       }
       setCurrentStreamText('');
       setIsLoading(false);
     } else {
       // 流式传输中，更新当前文本
-      const cleanedText = cleanMessageText(processedMessage.text);
-      setCurrentStreamText(cleanedText);
+      setCurrentStreamText(processedMessage.text);
     }
   };
 
