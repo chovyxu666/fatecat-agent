@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -19,6 +18,7 @@ const Interpretation = () => {
   const [currentDisplayIndex, setCurrentDisplayIndex] = useState(0);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
+  const [hasReceivedMessages, setHasReceivedMessages] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
 
@@ -45,13 +45,20 @@ const Interpretation = () => {
 
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
+    console.log('Received message:', processedMessage);
+    
     if (processedMessage.isComplete) {
       // 消息完成时，将完整文本添加到解读消息列表
-      setInterpretationMessages(prev => [...prev, processedMessage.text]);
+      setInterpretationMessages(prev => {
+        const newMessages = [...prev, processedMessage.text];
+        console.log('Updated interpretationMessages:', newMessages);
+        return newMessages;
+      });
       setCurrentStreamText('');
       setIsLoading(false);
+      setHasReceivedMessages(true);
     } else {
-      // 流式更新时，直接更新当前流式文本，不清空
+      // 流式更新时，直接更新当前流式文本
       setCurrentStreamText(processedMessage.text);
     }
   };
@@ -60,6 +67,7 @@ const Interpretation = () => {
   const fetchInterpretation = async () => {
     if (!question.trim() || cards.length === 0) return;
 
+    console.log('Starting interpretation fetch');
     setIsLoading(true);
 
     if (abortControllerRef.current) {
@@ -90,6 +98,7 @@ const Interpretation = () => {
       console.error('获取解读失败:', error);
       setInterpretationMessages(['抱歉，我现在无法为你提供解读。请稍后再试。']);
       setIsLoading(false);
+      setHasReceivedMessages(true);
     }
   };
 
@@ -116,10 +125,19 @@ const Interpretation = () => {
 
   // 当解读消息获取完成后，开始文字动画
   useEffect(() => {
-    if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading && !isTyping) {
+    console.log('Checking animation condition:', {
+      interpretationMessages: interpretationMessages.length,
+      animationPhase,
+      isLoading,
+      isTyping,
+      hasReceivedMessages
+    });
+    
+    if (hasReceivedMessages && interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading && !isTyping) {
+      console.log('Starting text animation');
       startTextAnimation();
     }
-  }, [interpretationMessages, animationPhase, isLoading, isTyping]);
+  }, [interpretationMessages, animationPhase, isLoading, isTyping, hasReceivedMessages]);
 
   const startTextAnimation = () => {
     if (interpretationMessages.length === 0 || currentDisplayIndex >= interpretationMessages.length) return;
