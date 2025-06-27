@@ -11,14 +11,9 @@ const Interpretation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [animationPhase, setAnimationPhase] = useState<'initial' | 'hideHeader' | 'moveCards' | 'showText' | 'complete'>('initial');
-  const [displayedText, setDisplayedText] = useState('');
-  const [textComplete, setTextComplete] = useState(false);
   const [interpretationMessages, setInterpretationMessages] = useState<string[]>([]);
   const [currentStreamText, setCurrentStreamText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-  const [currentCharIndex, setCurrentCharIndex] = useState(0);
-  const [isTyping, setIsTyping] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
 
@@ -50,6 +45,7 @@ const Interpretation = () => {
       setInterpretationMessages(prev => [...prev, processedMessage.text]);
       setCurrentStreamText('');
       setIsLoading(false);
+      setAnimationPhase('complete');
     } else {
       // 流式消息：更新当前流文本
       setCurrentStreamText(processedMessage.text);
@@ -90,6 +86,7 @@ const Interpretation = () => {
       console.error('获取解读失败:', error);
       setInterpretationMessages(['抱歉，我现在无法为你提供解读。请稍后再试。']);
       setIsLoading(false);
+      setAnimationPhase('complete');
     }
   };
 
@@ -113,65 +110,6 @@ const Interpretation = () => {
       clearTimeout(timer3);
     };
   }, []);
-
-  // 当解读消息完成后，开始文字动画
-  useEffect(() => {
-    if (interpretationMessages.length > 0 && !isTyping && !isLoading && animationPhase === 'showText') {
-      startTextAnimation();
-    }
-  }, [interpretationMessages, animationPhase, isLoading]);
-
-  const startTextAnimation = () => {
-    if (interpretationMessages.length === 0) return;
-    
-    setIsTyping(true);
-    setCurrentMessageIndex(0);
-    setCurrentCharIndex(0);
-    setDisplayedText('');
-    
-    const animateMessages = () => {
-      const interval = setInterval(() => {
-        setDisplayedText(prevDisplayed => {
-          const currentMessage = interpretationMessages[currentMessageIndex];
-          if (!currentMessage) {
-            clearInterval(interval);
-            setIsTyping(false);
-            setTextComplete(true);
-            setTimeout(() => {
-              setAnimationPhase('complete');
-            }, 300);
-            return prevDisplayed;
-          }
-          
-          if (currentCharIndex < currentMessage.length) {
-            // 继续当前消息的打字动画
-            const completedMessages = interpretationMessages.slice(0, currentMessageIndex);
-            const currentPartial = currentMessage.slice(0, currentCharIndex + 1);
-            setCurrentCharIndex(prev => prev + 1);
-            return [...completedMessages, currentPartial].join('\n\n');
-          } else {
-            // 当前消息完成，移动到下一个消息
-            if (currentMessageIndex < interpretationMessages.length - 1) {
-              setCurrentMessageIndex(prev => prev + 1);
-              setCurrentCharIndex(0);
-              return prevDisplayed;
-            } else {
-              // 所有消息完成
-              clearInterval(interval);
-              setIsTyping(false);
-              setTextComplete(true);
-              setTimeout(() => {
-                setAnimationPhase('complete');
-              }, 300);
-              return prevDisplayed;
-            }
-          }
-        });
-      }, 30);
-    };
-    
-    animateMessages();
-  };
 
   const handleChatMore = () => {
     // 将所有解读消息传递到聊天页面
@@ -205,34 +143,16 @@ const Interpretation = () => {
     };
   }, []);
 
-  // 获取要显示的文本内容
+  // 获取要显示的文本内容 - 简化版，直接显示内容
   const getDisplayContent = () => {
-    console.log('getDisplayContent状态:', {
-      isLoading,
-      isTyping,
-      currentStreamText: currentStreamText.length,
-      displayedText: displayedText.length,
-      interpretationMessages: interpretationMessages.length
-    });
-    
-    // 如果正在加载，显示空
-    if (isLoading && !currentStreamText) {
-      return '';
-    }
-    
-    // 如果正在打字动画，显示打字进度
-    if (isTyping && displayedText) {
-      return displayedText;
-    }
-    
-    // 如果有流式文本（实时接收中），显示流式文本
-    if (currentStreamText && isLoading) {
-      return currentStreamText;
-    }
-    
-    // 如果动画完成或没有动画，显示完整消息
-    if (interpretationMessages.length > 0 && !isTyping) {
+    // 如果有完整的解读消息，直接显示
+    if (interpretationMessages.length > 0) {
       return interpretationMessages.join('\n\n');
+    }
+    
+    // 如果有流式文本，显示流式文本
+    if (currentStreamText) {
+      return currentStreamText;
     }
     
     return '';
@@ -312,9 +232,6 @@ const Interpretation = () => {
             <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px]">
               <div className="text-white leading-relaxed text-sm whitespace-pre-line">
                 {getDisplayContent()}
-                {(isTyping || (currentStreamText && isLoading)) && 
-                  <span className="animate-pulse">|</span>
-                }
               </div>
             </div>
           )}
