@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -6,6 +5,7 @@ import { TarotCardComponent } from '../components/TarotCardComponent';
 import { ChevronLeft } from 'lucide-react';
 import { ChatService, ChatRequest, ProcessedMessage } from '../services/chatService';
 import { getUserId } from '../utils/userIdUtils';
+import { ScrollArea } from '../components/ui/scroll-area';
 
 const Interpretation = () => {
   const { catId } = useParams<{ catId: string }>();
@@ -138,10 +138,10 @@ const Interpretation = () => {
   };
 
   const handleChatMore = () => {
-    // 传递解读消息到聊天页面
+    // 传递完整的解读消息到聊天页面，包括完整的解读内容
     const interpretationMessage = {
       id: 'interpretation_' + Date.now(),
-      text: interpretation,
+      text: interpretation, // 使用完整的解读内容，不是displayedText
       sender: 'cat' as const,
       timestamp: new Date()
     };
@@ -219,7 +219,7 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 与塔罗牌同步移动，向上调整40% */}
+          {/* Interpretation - 与塔罗牌同步移动，向上调整40%，添加滚动 */}
           <div className={`px-6 mt-4 transition-all duration-1000 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100' 
@@ -229,17 +229,21 @@ const Interpretation = () => {
               ? '-translate-y-32'
               : 'translate-y-0'
           }`}>
-            <div className="bg-white/10 rounded-2xl p-4 border border-white/20">
+            <div className="bg-white/10 rounded-2xl border border-white/20 max-h-80">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span className="ml-3 text-white text-sm">正在为你解读...</span>
                 </div>
               ) : (
-                <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                  {displayedText}
-                  {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
-                </p>
+                <ScrollArea className="h-full max-h-80">
+                  <div className="p-4">
+                    <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
+                      {displayedText}
+                      {!textComplete && animationPhase === 'showText' && <span className="animate-pulse">|</span>}
+                    </p>
+                  </div>
+                </ScrollArea>
               )}
             </div>
           </div>
