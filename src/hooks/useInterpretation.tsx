@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatService, ChatRequest, ProcessedMessage } from '../services/chatService';
@@ -17,6 +16,7 @@ export const useInterpretation = (catId: string | undefined) => {
   const [isTyping, setIsTyping] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
+  const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const question = location.state?.question || '';
   const cards = location.state?.cards || [];
@@ -34,6 +34,15 @@ export const useInterpretation = (catId: string | undefined) => {
     return cardDescriptions.join('\n');
   };
 
+  // 清理消息文本
+  const cleanMessageText = (text: string): string => {
+    return text
+      .replace(/[（）]/g, '') // 移除中文括号
+      .replace(/^\s*[\(\)]\s*/, '') // 移除开头的括号
+      .replace(/\s*[\(\)]\s*$/, '') // 移除结尾的括号
+      .trim();
+  };
+
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
     console.log('Received processed message:', processedMessage);
@@ -42,7 +51,7 @@ export const useInterpretation = (catId: string | undefined) => {
       // 流式传输完成，处理完整文本
       const fullText = processedMessage.text.trim();
       if (fullText) {
-        // 按两个换行符分割成多条消息（每条解读信息通常用双换行分隔）
+        // 按两个换行符分割成多条消息
         let messages = fullText.split('\n\n').filter(msg => msg.trim().length > 0);
         
         // 如果没有双换行符分隔，尝试单换行符分割
@@ -50,17 +59,20 @@ export const useInterpretation = (catId: string | undefined) => {
           messages = fullText.split('\n').filter(msg => msg.trim().length > 0);
         }
         
-        // 确保每条消息都有内容
-        const validMessages = messages.map(msg => msg.trim()).filter(msg => msg.length > 0);
+        // 清理并过滤有效消息
+        const validMessages = messages
+          .map(msg => cleanMessageText(msg))
+          .filter(msg => msg.length > 0);
         
-        console.log('Split complete messages:', validMessages);
+        console.log('Cleaned messages:', validMessages);
         setInterpretationMessages(validMessages);
       }
       setCurrentStreamText('');
       setIsLoading(false);
     } else {
       // 流式传输中，更新当前文本
-      setCurrentStreamText(processedMessage.text);
+      const cleanedText = cleanMessageText(processedMessage.text);
+      setCurrentStreamText(cleanedText);
     }
   };
 
@@ -103,6 +115,58 @@ export const useInterpretation = (catId: string | undefined) => {
     }
   };
 
+  // 清理动画定时器
+  const clearAnimationInterval = () => {
+    if (animationIntervalRef.current) {
+      clearInterval(animationIntervalRef.current);
+      animationIntervalRef.current = null;
+    }
+  };
+
+  // 开始文字动画
+  const startTextAnimation = () => {
+    if (interpretationMessages.length === 0 || currentDisplayIndex >= interpretationMessages.length) {
+      setAnimationPhase('complete');
+      setIsTyping(false);
+      return;
+    }
+    
+    console.log(`Starting animation for message ${currentDisplayIndex}: "${interpretationMessages[currentDisplayIndex]}"`);
+    setIsTyping(true);
+    const currentMessage = interpretationMessages[currentDisplayIndex];
+    
+    clearAnimationInterval();
+    
+    animationIntervalRef.current = setInterval(() => {
+      if (currentCharIndex < currentMessage.length) {
+        setDisplayedMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[currentDisplayIndex] = currentMessage.slice(0, currentCharIndex + 1);
+          return newMessages;
+        });
+        setCurrentCharIndex(prev => prev + 1);
+      } else {
+        // 当前消息完成
+        clearAnimationInterval();
+        setIsTyping(false);
+        
+        // 如果还有更多消息，继续下一个
+        if (currentDisplayIndex + 1 < interpretationMessages.length) {
+          setTimeout(() => {
+            setCurrentDisplayIndex(prev => prev + 1);
+            setCurrentCharIndex(0);
+            startTextAnimation();
+          }, 800);
+        } else {
+          // 所有消息完成
+          setTimeout(() => {
+            setAnimationPhase('complete');
+          }, 500);
+        }
+      }
+    }, 30);
+  };
+
   // 初始动画序列
   useEffect(() => {
     const timer1 = setTimeout(() => {
@@ -134,52 +198,11 @@ export const useInterpretation = (catId: string | undefined) => {
       setCurrentCharIndex(0);
       setIsTyping(false);
       
-      // 开始第一条消息的动画
       setTimeout(() => {
         startTextAnimation();
       }, 500);
     }
   }, [interpretationMessages, animationPhase, isLoading]);
-
-  const startTextAnimation = () => {
-    if (interpretationMessages.length === 0 || currentDisplayIndex >= interpretationMessages.length) {
-      setAnimationPhase('complete');
-      return;
-    }
-    
-    console.log(`Starting animation for message ${currentDisplayIndex}: "${interpretationMessages[currentDisplayIndex]}"`);
-    setIsTyping(true);
-    const currentMessage = interpretationMessages[currentDisplayIndex];
-    
-    const interval = setInterval(() => {
-      if (currentCharIndex < currentMessage.length) {
-        setDisplayedMessages(prev => {
-          const newMessages = [...prev];
-          newMessages[currentDisplayIndex] = currentMessage.slice(0, currentCharIndex + 1);
-          return newMessages;
-        });
-        setCurrentCharIndex(prev => prev + 1);
-      } else {
-        // 当前消息完成
-        clearInterval(interval);
-        setIsTyping(false);
-        
-        // 如果还有更多消息，继续下一个
-        if (currentDisplayIndex + 1 < interpretationMessages.length) {
-          setTimeout(() => {
-            setCurrentDisplayIndex(prev => prev + 1);
-            setCurrentCharIndex(0);
-            startTextAnimation();
-          }, 800); // 间隔800ms再开始下一条
-        } else {
-          // 所有消息完成
-          setTimeout(() => {
-            setAnimationPhase('complete');
-          }, 500);
-        }
-      }
-    }, 30);
-  };
 
   const handleChatMore = () => {
     // 将所有解读消息传递给聊天页面，每条消息单独处理
@@ -205,6 +228,7 @@ export const useInterpretation = (catId: string | undefined) => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
+      clearAnimationInterval();
     };
   }, []);
 

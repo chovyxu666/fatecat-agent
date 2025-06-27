@@ -35,37 +35,28 @@ export const InterpretationMessages = ({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <div className="flex space-x-4 pb-2">
-            {/* 显示已完成和正在显示的消息 */}
+          <div className="flex space-x-4 pb-2" style={{ width: 'max-content' }}>
             {displayedMessages.map((message, index) => {
               // 只显示已开始显示的消息
               if (index > currentDisplayIndex) return null;
+              
+              // 清理消息文本，移除奇怪的字符
+              const cleanMessage = message.replace(/[（）]/g, '').trim();
+              if (!cleanMessage) return null;
               
               return (
                 <div key={index} className="flex-shrink-0 w-72">
                   <div className="bg-white/10 rounded-2xl border border-white/20 p-4" style={{ minHeight: 'auto' }}>
                     <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                      {message || ''}
+                      {cleanMessage}
                       {index === currentDisplayIndex && isTyping && 
-                        <span className="animate-pulse">|</span>
+                        <span className="animate-pulse ml-1">|</span>
                       }
                     </p>
                   </div>
                 </div>
               );
             })}
-            
-            {/* 显示当前流式文本（仅在加载时） */}
-            {currentStreamText.trim() && isLoading && (
-              <div className="flex-shrink-0 w-72">
-                <div className="bg-white/10 rounded-2xl border border-white/20 p-4" style={{ minHeight: 'auto' }}>
-                  <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                    {currentStreamText}
-                    <span className="animate-pulse">|</span>
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}
