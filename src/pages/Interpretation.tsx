@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -17,6 +16,7 @@ const Interpretation = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [newMessageToType, setNewMessageToType] = useState('');
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -42,10 +42,10 @@ const Interpretation = () => {
     return cardDescriptions.join('\n');
   };
 
-  // 打字动画效果
-  const startTypingAnimation = (fullText: string) => {
+  // 打字动画效果 - 只对新消息进行动画
+  const startTypingAnimation = (newMessage: string) => {
     setIsTyping(true);
-    setDisplayedText('');
+    setNewMessageToType('');
     let currentIndex = 0;
     
     if (typingIntervalRef.current) {
@@ -53,12 +53,13 @@ const Interpretation = () => {
     }
     
     typingIntervalRef.current = setInterval(() => {
-      if (currentIndex < fullText.length) {
-        setDisplayedText(fullText.substring(0, currentIndex + 1));
+      if (currentIndex < newMessage.length) {
+        setNewMessageToType(newMessage.substring(0, currentIndex + 1));
         currentIndex++;
       } else {
         clearInterval(typingIntervalRef.current!);
         setIsTyping(false);
+        setNewMessageToType('');
         setAnimationPhase('complete');
       }
     }, 30); // 每30ms显示一个字符
@@ -73,10 +74,8 @@ const Interpretation = () => {
       setCurrentStreamText('');
       setIsLoading(false);
       
-      // 开始打字动画
-      const allMessages = [...interpretationMessages, newMessage];
-      const fullText = allMessages.join('\n\n');
-      startTypingAnimation(fullText);
+      // 只对新消息开始打字动画
+      startTypingAnimation(newMessage);
     } else {
       // 流式消息：更新当前流文本
       setCurrentStreamText(processedMessage.text);
@@ -180,22 +179,31 @@ const Interpretation = () => {
 
   // 获取要显示的文本内容
   const getDisplayContent = () => {
-    // 如果正在播放打字动画，显示已打字的内容
-    if (isTyping && displayedText) {
-      return displayedText;
-    }
-    
-    // 如果有完整的解读消息，显示所有消息
+    // 构建已完成的消息内容
+    let content = '';
     if (interpretationMessages.length > 0) {
-      return interpretationMessages.join('\n\n');
+      content = interpretationMessages.join('\n\n');
     }
     
-    // 如果有流式文本，显示流式文本
-    if (currentStreamText) {
-      return currentStreamText;
+    // 如果正在打字，添加正在打字的新消息
+    if (isTyping && newMessageToType) {
+      if (content) {
+        content += '\n\n' + newMessageToType;
+      } else {
+        content = newMessageToType;
+      }
     }
     
-    return '';
+    // 如果有流式文本，添加流式文本
+    if (currentStreamText && !isTyping) {
+      if (content) {
+        content += '\n\n' + currentStreamText;
+      } else {
+        content = currentStreamText;
+      }
+    }
+    
+    return content;
   };
 
   return (
@@ -261,7 +269,7 @@ const Interpretation = () => {
             ? '-translate-y-32'
             : 'translate-y-0'
         }`}>
-          {isLoading && !currentStreamText && !displayedText ? (
+          {isLoading && !currentStreamText && !getDisplayContent() ? (
             <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px] flex items-center justify-center">
               <div className="flex items-center">
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
