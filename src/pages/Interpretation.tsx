@@ -48,8 +48,8 @@ const Interpretation = () => {
       setFullInterpretation(prev => prev + processedMessage.text);
       setIsLoading(false);
     } else {
-      // 流式消息：更新当前显示的解读内容
-      setInterpretation(processedMessage.text);
+      // 流式消息：累积更新当前显示的解读内容
+      setInterpretation(prev => prev + processedMessage.text);
     }
   };
 
@@ -139,19 +139,22 @@ const Interpretation = () => {
   };
 
   const handleChatMore = () => {
-    // 传递完整的解读消息到聊天页面，使用完整的解读内容
-    const interpretationMessage = {
-      id: 'interpretation_' + Date.now(),
-      text: fullInterpretation, // 使用完整的解读内容
+    // 按\n分割解读内容为多条消息
+    const interpretationText = fullInterpretation || displayedText;
+    const messageParts = interpretationText.split('\n').filter(part => part.trim());
+    
+    const interpretationMessages = messageParts.map((text, index) => ({
+      id: `interpretation_${Date.now()}_${index}`,
+      text: text.trim(),
       sender: 'cat' as const,
       timestamp: new Date()
-    };
+    }));
 
     navigate(`/chat/${catId}`, { 
       state: { 
         question,
         cards,
-        initialMessages: [interpretationMessage]
+        initialMessages: interpretationMessages
       } 
     });
   };
@@ -230,21 +233,17 @@ const Interpretation = () => {
               ? '-translate-y-32'
               : 'translate-y-0'
           }`}>
-            <div className="bg-white/10 rounded-2xl border border-white/20 max-h-80">
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-4 max-h-80 overflow-y-auto">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span className="ml-3 text-white text-sm">正在为你解读...</span>
                 </div>
               ) : (
-                <ScrollArea className="h-full max-h-80">
-                  <div className="p-4">
-                    <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                      {isLoading ? (interpretation || fullInterpretation) : (displayedText || fullInterpretation)}
-                      {!textComplete && animationPhase === 'showText' && !isLoading && <span className="animate-pulse">|</span>}
-                    </p>
-                  </div>
-                </ScrollArea>
+                <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
+                  {isLoading ? (interpretation || fullInterpretation) : (displayedText || fullInterpretation)}
+                  {!textComplete && animationPhase === 'showText' && !isLoading && <span className="animate-pulse">|</span>}
+                </p>
               )}
             </div>
           </div>
