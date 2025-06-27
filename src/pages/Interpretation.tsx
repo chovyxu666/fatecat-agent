@@ -43,8 +43,21 @@ const Interpretation = () => {
     return cardDescriptions.join('\n');
   };
 
-  // 打字动画效果 - 优化间隔时间
+  // 检查内容是否已经存在
+  const isContentAlreadyDisplayed = (newContent: string) => {
+    const currentDisplayed = getDisplayContent();
+    return currentDisplayed.includes(newContent.trim());
+  };
+
+  // 打字动画效果 - 添加换行延迟和重复检查
   const startTypingAnimation = (newMessage: string) => {
+    // 检查内容是否已经存在
+    if (isContentAlreadyDisplayed(newMessage)) {
+      console.log('内容已存在，跳过打字动画');
+      setAnimationPhase('complete');
+      return;
+    }
+
     setIsTyping(true);
     setNewMessageToType('');
     let currentIndex = 0;
@@ -53,29 +66,43 @@ const Interpretation = () => {
       clearInterval(typingIntervalRef.current);
     }
 
-    typingIntervalRef.current = setInterval(() => {
+    const typeNextCharacter = () => {
       if (currentIndex < newMessage.length) {
+        const nextChar = newMessage[currentIndex];
         setNewMessageToType(newMessage.substring(0, currentIndex + 1));
         currentIndex++;
+
+        // 如果遇到换行符，延迟200毫秒
+        if (nextChar === '\n') {
+          setTimeout(() => {
+            typingIntervalRef.current = setTimeout(typeNextCharacter, 15);
+          }, 200);
+        } else {
+          typingIntervalRef.current = setTimeout(typeNextCharacter, 15);
+        }
       } else {
-        clearInterval(typingIntervalRef.current!);
+        clearTimeout(typingIntervalRef.current!);
         setIsTyping(false);
+        
+        // 动画完成后，将消息添加到已完成消息数组
+        setInterpretationMessages(prev => [...prev, newMessage]);
         setNewMessageToType('');
         setAnimationPhase('complete');
       }
-    }, 15); // 减少间隔时间从30ms到15ms
+    };
+
+    typeNextCharacter();
   };
 
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
     if (processedMessage.isComplete) {
-      // 完整消息：添加到消息数组中并开始打字动画
+      // 完整消息：开始打字动画（不立即添加到消息数组）
       const newMessage = processedMessage.text;
-      setInterpretationMessages(prev => [...prev, newMessage]);
       setCurrentStreamText('');
       setIsLoading(false);
 
-      // 只对新消息开始打字动画
+      // 开始打字动画
       startTypingAnimation(newMessage);
     } else {
       // 流式消息：更新当前流文本
@@ -180,12 +207,12 @@ const Interpretation = () => {
         abortControllerRef.current.abort();
       }
       if (typingIntervalRef.current) {
-        clearInterval(typingIntervalRef.current);
+        clearTimeout(typingIntervalRef.current);
       }
     };
   }, []);
 
-  // 获取要显示的文本内容 - 进一步优化
+  // 获取要显示的文本内容
   const getDisplayContent = () => {
     // 构建已完成的消息内容
     let content = '';
@@ -193,7 +220,7 @@ const Interpretation = () => {
       content = interpretationMessages.join('\n\n');
     }
 
-    // 如果正在打字，只添加正在打字的新消息
+    // 如果正在打字，添加正在打字的新消息
     if (isTyping && newMessageToType) {
       if (content) {
         content += '\n\n' + newMessageToType;
