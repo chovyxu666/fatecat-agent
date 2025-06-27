@@ -4,7 +4,7 @@ import { Cat } from '../types';
 export const cats: Cat[] = [
   {
     id: 'siamese',
-    name: 'Tara',
+    name: '露娜',
     breed: '暹罗猫',
     specialty: '塔罗占卜',
     personality: '温柔治愈',
@@ -24,7 +24,7 @@ export const cats: Cat[] = [
   },
   {
     id: 'bombay',
-    name: 'Nova',
+    name: '塞巴斯蒂安',
     breed: '孟买猫',
     specialty: '星座占卜',
     personality: '优雅时髦',

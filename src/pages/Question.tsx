@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { predefinedQuestions } from '../data/predefinedQuestions';
 import { ChevronLeft } from 'lucide-react';
+
 const Question = () => {
   const {
     catId
@@ -87,7 +88,7 @@ const Question = () => {
       {/* Fixed Input Area - 确保最高层级 */}
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-black/30 backdrop-blur-md border-t border-white/10 z-50">
         <div className="flex items-center space-x-3 max-w-md mx-auto">
-          <input type="text" value={question} onChange={handleInputChange} onKeyPress={handleKeyPress} onFocus={handleInputFocus} placeholder="请输入你的问题..." className="flex-1 bg-white/15 border border-white/30 rounded-full px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/30 focus:bg-white/20 transition-all duration-200" autoComplete="off" />
+          <input type="text" value={question} onChange={handleInputChange} onKeyPress={handleKeyPress} onFocus={handleInputFocus} placeholder="点击这里输入你的问题..." className="flex-1 bg-white/15 border border-white/30 rounded-full px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/30 focus:bg-white/20 transition-all duration-200" autoComplete="off" />
           <button onClick={handleButtonClick} disabled={!question.trim()} className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:opacity-50 rounded-full py-3 text-white font-medium transition-all duration-200 min-w-[100px] cursor-pointer active:scale-95 disabled:cursor-not-allowed px-[10px]">
             开始占卜
           </button>
