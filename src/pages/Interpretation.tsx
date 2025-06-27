@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -5,7 +6,6 @@ import { TarotCardComponent } from '../components/TarotCardComponent';
 import { ChevronLeft } from 'lucide-react';
 import { ChatService, ChatRequest, ProcessedMessage } from '../services/chatService';
 import { getUserId } from '../utils/userIdUtils';
-import { ScrollArea } from '../components/ui/scroll-area';
 
 const Interpretation = () => {
   const { catId } = useParams<{ catId: string }>();
@@ -14,11 +14,12 @@ const Interpretation = () => {
   const [animationPhase, setAnimationPhase] = useState<'initial' | 'hideHeader' | 'moveCards' | 'showText' | 'complete'>('initial');
   const [displayedText, setDisplayedText] = useState('');
   const [textComplete, setTextComplete] = useState(false);
-  const [interpretation, setInterpretation] = useState('');
-  const [fullInterpretation, setFullInterpretation] = useState(''); // 保存完整的解读内容
+  const [interpretationMessages, setInterpretationMessages] = useState<string[]>([]); // 用数组存储解读消息
+  const [currentStreamText, setCurrentStreamText] = useState(''); // 当前流式文本缓冲
   const [isLoading, setIsLoading] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
+  const [currentDisplayIndex, setCurrentDisplayIndex] = useState(0); // 当前显示的文字动画索引
 
   const cat = cats.find(c => c.id === catId);
   const question = location.state?.question || '';
@@ -44,12 +45,26 @@ const Interpretation = () => {
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
     if (processedMessage.isComplete) {
-      // 完整消息：累积到完整解读内容中
-      setFullInterpretation(prev => prev + processedMessage.text);
+      // 完整消息：添加到消息数组中
+      setInterpretationMessages(prev => [...prev, processedMessage.text]);
+      setCurrentStreamText(''); // 清空当前流式文本
       setIsLoading(false);
     } else {
-      // 流式消息：累积更新当前显示的解读内容
-      setInterpretation(prev => prev + processedMessage.text);
+      // 流式消息：更新当前流式文本，检查是否有换行符
+      const newText = processedMessage.text;
+      setCurrentStreamText(newText);
+      
+      // 检查是否包含换行符
+      if (newText.includes('\n')) {
+        const lines = newText.split('\n');
+        // 将完整的行添加到消息数组中
+        const completeLines = lines.slice(0, -1).filter(line => line.trim());
+        if (completeLines.length > 0) {
+          setInterpretationMessages(prev => [...prev, ...completeLines]);
+        }
+        // 保留最后不完整的行作为当前流式文本
+        setCurrentStreamText(lines[lines.length - 1] || '');
+      }
     }
   };
 
@@ -85,8 +100,7 @@ const Interpretation = () => {
       }
       
       console.error('获取解读失败:', error);
-      setInterpretation('抱歉，我现在无法为你提供解读。请稍后再试。');
-      setFullInterpretation('抱歉，我现在无法为你提供解读。请稍后再试。');
+      setInterpretationMessages(['抱歉，我现在无法为你提供解读。请稍后再试。']);
       setIsLoading(false);
     }
   };
@@ -102,7 +116,6 @@ const Interpretation = () => {
 
     const timer3 = setTimeout(() => {
       setAnimationPhase('showText');
-      // 在页面初始化时就开始获取解读
       fetchInterpretation();
     }, 1800);
 
@@ -113,37 +126,54 @@ const Interpretation = () => {
     };
   }, []);
 
-  // 当解读内容获取完成后，开始文字动画
+  // 当解读消息获取完成后，开始文字动画
   useEffect(() => {
-    if (fullInterpretation && animationPhase === 'showText' && !displayedText && !isLoading) {
+    if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading) {
       startTextAnimation();
     }
-  }, [fullInterpretation, animationPhase, isLoading]);
+  }, [interpretationMessages, animationPhase, isLoading]);
 
   const startTextAnimation = () => {
-    if (!fullInterpretation) return;
+    if (interpretationMessages.length === 0) return;
     
-    let index = 0;
+    let messageIndex = 0;
+    let charIndex = 0;
+    
     const interval = setInterval(() => {
-      if (index < fullInterpretation.length) {
-        setDisplayedText(fullInterpretation.slice(0, index + 1));
-        index++;
-      } else {
+      const currentMessage = interpretationMessages[messageIndex];
+      if (!currentMessage) {
         clearInterval(interval);
         setTextComplete(true);
         setTimeout(() => {
           setAnimationPhase('complete');
         }, 300);
+        return;
+      }
+      
+      if (charIndex < currentMessage.length) {
+        setDisplayedText(prev => {
+          const messages = interpretationMessages.slice(0, messageIndex);
+          const currentPartial = currentMessage.slice(0, charIndex + 1);
+          return [...messages, currentPartial].join('\n');
+        });
+        charIndex++;
+      } else {
+        // 当前消息完成，移动到下一个消息
+        messageIndex++;
+        charIndex = 0;
+        setCurrentDisplayIndex(messageIndex);
       }
     }, 30);
   };
 
   const handleChatMore = () => {
-    // 按\n分割解读内容为多条消息
-    const interpretationText = fullInterpretation || displayedText;
-    const messageParts = interpretationText.split('\n').filter(part => part.trim());
+    // 将所有解读消息传递到聊天页面
+    const allMessages = [...interpretationMessages];
+    if (currentStreamText.trim()) {
+      allMessages.push(currentStreamText);
+    }
     
-    const interpretationMessages = messageParts.map((text, index) => ({
+    const interpretationMessagesForChat = allMessages.map((text, index) => ({
       id: `interpretation_${Date.now()}_${index}`,
       text: text.trim(),
       sender: 'cat' as const,
@@ -154,7 +184,7 @@ const Interpretation = () => {
       state: { 
         question,
         cards,
-        initialMessages: interpretationMessages
+        initialMessages: interpretationMessagesForChat
       } 
     });
   };
@@ -223,7 +253,7 @@ const Interpretation = () => {
             ))}
           </div>
 
-          {/* Interpretation - 显示累积的完整解读内容 */}
+          {/* Interpretation - 水平滚动显示多条消息 */}
           <div className={`px-6 mt-4 transition-all duration-1000 ${
             animationPhase === 'showText' || animationPhase === 'complete'
               ? 'opacity-100' 
@@ -233,19 +263,46 @@ const Interpretation = () => {
               ? '-translate-y-32'
               : 'translate-y-0'
           }`}>
-            <div className="bg-white/10 rounded-2xl border border-white/20 p-4 max-h-80 overflow-y-auto">
-              {isLoading ? (
+            {isLoading ? (
+              <div className="bg-white/10 rounded-2xl border border-white/20 p-4 max-h-80">
                 <div className="flex items-center justify-center py-8">
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span className="ml-3 text-white text-sm">正在为你解读...</span>
                 </div>
-              ) : (
-                <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                  {isLoading ? (interpretation || fullInterpretation) : (displayedText || fullInterpretation)}
-                  {!textComplete && animationPhase === 'showText' && !isLoading && <span className="animate-pulse">|</span>}
-                </p>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-2">
+                  {interpretationMessages.map((message, index) => (
+                    <div key={index} className="flex-shrink-0 w-72">
+                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 h-80 overflow-y-auto">
+                        <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
+                          {index === currentDisplayIndex && !textComplete ? 
+                            displayedText.split('\n')[index] || message :
+                            message
+                          }
+                          {index === currentDisplayIndex && !textComplete && animationPhase === 'showText' && 
+                            <span className="animate-pulse">|</span>
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* 显示当前流式文本 */}
+                  {currentStreamText.trim() && (
+                    <div className="flex-shrink-0 w-72">
+                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 h-80 overflow-y-auto">
+                        <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
+                          {currentStreamText}
+                          <span className="animate-pulse">|</span>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -254,9 +311,9 @@ const Interpretation = () => {
       <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black/20 to-transparent">
         <button
           onClick={handleChatMore}
-          disabled={isLoading || !fullInterpretation}
+          disabled={isLoading || (interpretationMessages.length === 0 && !currentStreamText)}
           className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
-            animationPhase === 'complete' && !isLoading && fullInterpretation
+            animationPhase === 'complete' && !isLoading && (interpretationMessages.length > 0 || currentStreamText)
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-4 pointer-events-none'
           }`}
