@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -18,6 +17,7 @@ const Interpretation = () => {
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [newMessageToType, setNewMessageToType] = useState('');
+  const [isStreamComplete, setIsStreamComplete] = useState(false); // 新增状态跟踪流是否完成
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -62,6 +62,7 @@ const Interpretation = () => {
         setIsTyping(false);
         setNewMessageToType('');
         setAnimationPhase('complete');
+        setIsStreamComplete(true); // 标记流完成
       }
     }, 30); // 每30ms显示一个字符
   };
@@ -150,12 +151,15 @@ const Interpretation = () => {
       allMessages.push(currentStreamText);
     }
 
-    // 整合成一条消息，用换行符分隔
+    // 整合成一条消息，保留换行符格式
     const combinedMessage = allMessages.join('\n\n').trim();
+    
+    // 将 \n 转换为实际换行
+    const formattedMessage = combinedMessage.replace(/\\n/g, '\n');
 
     const interpretationMessagesForChat = [{
       id: `interpretation_${Date.now()}`,
-      text: combinedMessage,
+      text: formattedMessage,
       sender: 'cat' as const,
       timestamp: new Date()
     }];
@@ -289,11 +293,12 @@ const Interpretation = () => {
       <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-gradient-to-t from-black/20 to-transparent">
         <button
           onClick={handleChatMore}
-          disabled={isLoading || (interpretationMessages.length === 0 && !currentStreamText)}
-          className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${animationPhase === 'complete' && !isLoading && (interpretationMessages.length > 0 || currentStreamText)
-            ? 'opacity-100 translate-y-0'
-            : 'opacity-0 translate-y-4 pointer-events-none'
-            }`}
+          disabled={!isStreamComplete || isLoading}
+          className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
+            isStreamComplete && !isLoading
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
         >
           <span>💬</span>
           <span>我想聊更多</span>
