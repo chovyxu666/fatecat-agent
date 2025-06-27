@@ -151,19 +151,16 @@ const Interpretation = () => {
   const handleChatMore = () => {
     // 将所有解读消息整合成一条完整的消息
     const allMessages = [...interpretationMessages];
+
     if (currentStreamText.trim()) {
       allMessages.push(currentStreamText);
     }
-
     // 整合成一条消息，保留换行符格式
     const combinedMessage = allMessages.join('\n\n').trim();
-    
-    // 将 \\n 转换为实际换行符，同时保持现有的换行符
-    const formattedMessage = combinedMessage.replace(/\\n/g, '\n');
 
     const interpretationMessagesForChat = [{
       id: `interpretation_${Date.now()}`,
-      text: formattedMessage,
+      text: combinedMessage,
       sender: 'cat' as const,
       timestamp: new Date()
     }];
@@ -299,11 +296,10 @@ const Interpretation = () => {
         <button
           onClick={handleChatMore}
           disabled={!isStreamComplete || isLoading}
-          className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
-            isStreamComplete && !isLoading
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-4 pointer-events-none'
-          }`}
+          className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${isStreamComplete && !isLoading
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 translate-y-4 pointer-events-none'
+            }`}
         >
           <span>💬</span>
           <span>我想聊更多</span>
