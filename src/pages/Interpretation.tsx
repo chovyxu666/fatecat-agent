@@ -32,13 +32,13 @@ const Interpretation = () => {
   // 格式化塔罗牌信息
   const formatTarotCards = () => {
     if (cards.length === 0) return '';
-    
+
     const positions = ['过去', '现在', '未来'];
     const cardDescriptions = cards.map((card: any, index: number) => {
       const orientation = card.isReversed ? '逆位' : '正位';
       return `${positions[index]}：${card.name}（${orientation}）`;
     });
-    
+
     return cardDescriptions.join('\n');
   };
 
@@ -47,11 +47,11 @@ const Interpretation = () => {
     setIsTyping(true);
     setNewMessageToType('');
     let currentIndex = 0;
-    
+
     if (typingIntervalRef.current) {
       clearInterval(typingIntervalRef.current);
     }
-    
+
     typingIntervalRef.current = setInterval(() => {
       if (currentIndex < newMessage.length) {
         setNewMessageToType(newMessage.substring(0, currentIndex + 1));
@@ -73,7 +73,7 @@ const Interpretation = () => {
       setInterpretationMessages(prev => [...prev, newMessage]);
       setCurrentStreamText('');
       setIsLoading(false);
-      
+
       // 只对新消息开始打字动画
       startTypingAnimation(newMessage);
     } else {
@@ -112,7 +112,7 @@ const Interpretation = () => {
         console.log('请求被取消');
         return;
       }
-      
+
       console.error('获取解读失败:', error);
       const errorMessage = '抱歉，我现在无法为你提供解读。请稍后再试。';
       setInterpretationMessages([errorMessage]);
@@ -148,7 +148,7 @@ const Interpretation = () => {
     if (currentStreamText.trim()) {
       allMessages.push(currentStreamText);
     }
-    
+
     const interpretationMessagesForChat = allMessages.map((text, index) => ({
       id: `interpretation_${Date.now()}_${index}`,
       text: text.trim(),
@@ -156,12 +156,12 @@ const Interpretation = () => {
       timestamp: new Date()
     }));
 
-    navigate(`/chat/${catId}`, { 
-      state: { 
+    navigate(`/chat/${catId}`, {
+      state: {
         question,
         cards,
         initialMessages: interpretationMessagesForChat
-      } 
+      }
     });
   };
 
@@ -184,7 +184,7 @@ const Interpretation = () => {
     if (interpretationMessages.length > 0) {
       content = interpretationMessages.join('\n\n');
     }
-    
+
     // 如果正在打字，添加正在打字的新消息
     if (isTyping && newMessageToType) {
       if (content) {
@@ -193,7 +193,7 @@ const Interpretation = () => {
         content = newMessageToType;
       }
     }
-    
+
     // 如果有流式文本，添加流式文本
     if (currentStreamText && !isTyping) {
       if (content) {
@@ -202,7 +202,7 @@ const Interpretation = () => {
         content = currentStreamText;
       }
     }
-    
+
     return content;
   };
 
@@ -212,11 +212,11 @@ const Interpretation = () => {
       <div className="absolute inset-0 opacity-20" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
       }}></div>
-      
+
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
         <div className="flex items-center justify-between p-4 pt-8">
-          <button 
+          <button
             onClick={() => navigate(-1)}
             className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
           >
@@ -226,14 +226,13 @@ const Interpretation = () => {
         </div>
 
         {/* Cat Avatar and Title - 隐藏动画 */}
-        <div className={`text-center px-6 mb-4 transition-all duration-500 ${
-          animationPhase === 'hideHeader' || animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
-            ? 'opacity-0 -translate-y-4' 
+        <div className={`text-center px-6 mb-4 transition-all duration-500 ${animationPhase === 'hideHeader' || animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+            ? 'opacity-0 -translate-y-4'
             : 'opacity-100'
-        }`}>
+          }`}>
           <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white/20 mb-3">
-            <img 
-              src={cat.avatar} 
+            <img
+              src={cat.avatar}
               alt={cat.name}
               className="w-full h-full object-cover"
             />
@@ -243,11 +242,10 @@ const Interpretation = () => {
         </div>
 
         {/* Cards container - 向上调整40% */}
-        <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${
-          animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+        <div className={`flex justify-center space-x-2 px-4 w-full max-w-sm mx-auto transition-all duration-1000 ${animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
             ? '-translate-y-32 mt-2'
             : 'translate-y-0'
-        }`}>
+          }`}>
           {cards.map((card: any, index: number) => (
             <div key={card.id} className="flex-1">
               <TarotCardComponent
@@ -260,24 +258,22 @@ const Interpretation = () => {
         </div>
 
         {/* Interpretation - 自适应高度 */}
-        <div className={`flex-1 px-6 mt-4 pb-24 transition-all duration-1000 ${
-          animationPhase === 'showText' || animationPhase === 'complete'
-            ? 'opacity-100' 
+        <div className={`flex-1 px-6 mt-4 pb-24 transition-all duration-1000 ${animationPhase === 'showText' || animationPhase === 'complete'
+            ? 'opacity-100'
             : 'opacity-0 translate-y-8'
-        } ${
-          animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
+          } ${animationPhase === 'moveCards' || animationPhase === 'showText' || animationPhase === 'complete'
             ? '-translate-y-32'
             : 'translate-y-0'
-        }`}>
+          }`}>
           {isLoading && !currentStreamText && !getDisplayContent() ? (
-            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px] flex items-center justify-center">
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 flex items-center justify-center">
               <div className="flex items-center">
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span className="ml-3 text-white text-sm">正在为你解读...</span>
               </div>
             </div>
           ) : (
-            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 min-h-[200px]">
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-6 ">
               <div className="text-white leading-relaxed text-sm whitespace-pre-line">
                 {getDisplayContent()}
                 {isTyping && <span className="animate-pulse">|</span>}
@@ -292,11 +288,10 @@ const Interpretation = () => {
         <button
           onClick={handleChatMore}
           disabled={isLoading || (interpretationMessages.length === 0 && !currentStreamText)}
-          className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${
-            animationPhase === 'complete' && !isLoading && (interpretationMessages.length > 0 || currentStreamText)
-              ? 'opacity-100 translate-y-0' 
+          className={`w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-500 disabled:cursor-not-allowed rounded-full py-3 text-white font-bold text-lg flex items-center justify-center space-x-3 border-4 border-orange-400 shadow-2xl transition-all duration-500 ${animationPhase === 'complete' && !isLoading && (interpretationMessages.length > 0 || currentStreamText)
+              ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4 pointer-events-none'
-          }`}
+            }`}
         >
           <span>💬</span>
           <span>我想聊更多</span>
