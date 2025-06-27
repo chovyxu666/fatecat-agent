@@ -188,25 +188,22 @@ const Interpretation = () => {
 
   // 获取要显示的文本内容 - 修复重复显示问题
   const getDisplayContent = () => {
-    // 如果正在打字，只显示正在打字的内容
-    if (isTyping && newMessageToType) {
-      // 显示所有已完成的消息 + 正在打字的部分内容
-      const completedContent = interpretationMessages.join('\n\n');
-      if (completedContent) {
-        return completedContent + '\n\n' + newMessageToType;
-      } else {
-        return newMessageToType;
-      }
-    }
-
     // 构建已完成的消息内容
     let content = '';
     if (interpretationMessages.length > 0) {
       content = interpretationMessages.join('\n\n');
     }
 
+    // 如果正在打字，只添加正在打字的新消息（不重复已完成的内容）
+    if (isTyping && newMessageToType) {
+      if (content) {
+        content += '\n\n' + newMessageToType;
+      } else {
+        content = newMessageToType;
+      }
+    }
     // 如果有流式文本且不在打字状态，添加流式文本
-    if (currentStreamText && !isTyping) {
+    else if (currentStreamText && !isTyping) {
       if (content) {
         content += '\n\n' + currentStreamText;
       } else {
