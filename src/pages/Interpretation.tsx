@@ -17,7 +17,7 @@ const Interpretation = () => {
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [newMessageToType, setNewMessageToType] = useState('');
-  const [isStreamComplete, setIsStreamComplete] = useState(false); // 新增状态跟踪流是否完成
+  const [isStreamComplete, setIsStreamComplete] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -62,7 +62,7 @@ const Interpretation = () => {
         setIsTyping(false);
         setNewMessageToType('');
         setAnimationPhase('complete');
-        setIsStreamComplete(true); // 标记流完成
+        // 不在这里设置 setIsStreamComplete(true)，因为这只是单个消息的打字完成
       }
     }, 30); // 每30ms显示一个字符
   };
@@ -109,6 +109,9 @@ const Interpretation = () => {
         abortControllerRef.current
       );
 
+      // 当所有流都完成后，设置流完成状态
+      setIsStreamComplete(true);
+
     } catch (error: any) {
       if (error.name === 'AbortError') {
         console.log('请求被取消');
@@ -120,6 +123,7 @@ const Interpretation = () => {
       setInterpretationMessages([errorMessage]);
       setIsLoading(false);
       startTypingAnimation(errorMessage);
+      setIsStreamComplete(true);
     }
   };
 
@@ -154,7 +158,7 @@ const Interpretation = () => {
     // 整合成一条消息，保留换行符格式
     const combinedMessage = allMessages.join('\n\n').trim();
     
-    // 将 \n 转换为实际换行
+    // 将 \\n 转换为实际换行符，同时保持现有的换行符
     const formattedMessage = combinedMessage.replace(/\\n/g, '\n');
 
     const interpretationMessagesForChat = [{
@@ -211,7 +215,8 @@ const Interpretation = () => {
       }
     }
 
-    return content;
+    // 处理换行符，将 \n 转换为实际换行
+    return content.replace(/\\n/g, '\n');
   };
 
   return (
