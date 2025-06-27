@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -12,14 +11,15 @@ const Interpretation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [animationPhase, setAnimationPhase] = useState<'initial' | 'hideHeader' | 'moveCards' | 'showText' | 'complete'>('initial');
-  const [displayedText, setDisplayedText] = useState('');
-  const [textComplete, setTextComplete] = useState(false);
-  const [interpretationMessages, setInterpretationMessages] = useState<string[]>([]); // 用数组存储解读消息
-  const [currentStreamText, setCurrentStreamText] = useState(''); // 当前流式文本缓冲
+  const [interpretationMessages, setInterpretationMessages] = useState<string[]>([]);
+  const [currentStreamText, setCurrentStreamText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [displayedMessages, setDisplayedMessages] = useState<string[]>([]);
+  const [currentDisplayIndex, setCurrentDisplayIndex] = useState(0);
+  const [currentCharIndex, setCurrentCharIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatServiceRef = useRef(new ChatService());
-  const [currentDisplayIndex, setCurrentDisplayIndex] = useState(0); // 当前显示的文字动画索引
 
   const cat = cats.find(c => c.id === catId);
   const question = location.state?.question || '';
@@ -45,24 +45,19 @@ const Interpretation = () => {
   // 处理从聊天服务返回的消息
   const handleProcessedMessage = (processedMessage: ProcessedMessage) => {
     if (processedMessage.isComplete) {
-      // 完整消息：添加到消息数组中
       setInterpretationMessages(prev => [...prev, processedMessage.text]);
-      setCurrentStreamText(''); // 清空当前流式文本
+      setCurrentStreamText('');
       setIsLoading(false);
     } else {
-      // 流式消息：更新当前流式文本，检查是否有换行符
       const newText = processedMessage.text;
       setCurrentStreamText(newText);
       
-      // 检查是否包含换行符
       if (newText.includes('\n')) {
         const lines = newText.split('\n');
-        // 将完整的行添加到消息数组中
         const completeLines = lines.slice(0, -1).filter(line => line.trim());
         if (completeLines.length > 0) {
           setInterpretationMessages(prev => [...prev, ...completeLines]);
         }
-        // 保留最后不完整的行作为当前流式文本
         setCurrentStreamText(lines[lines.length - 1] || '');
       }
     }
@@ -128,57 +123,61 @@ const Interpretation = () => {
 
   // 当解读消息获取完成后，开始文字动画
   useEffect(() => {
-    if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading) {
+    if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading && !isTyping) {
       startTextAnimation();
     }
-  }, [interpretationMessages, animationPhase, isLoading]);
+  }, [interpretationMessages, animationPhase, isLoading, isTyping]);
 
   const startTextAnimation = () => {
-    if (interpretationMessages.length === 0) return;
+    if (interpretationMessages.length === 0 || currentDisplayIndex >= interpretationMessages.length) return;
     
-    let messageIndex = 0;
-    let charIndex = 0;
+    setIsTyping(true);
+    const currentMessage = interpretationMessages[currentDisplayIndex];
     
     const interval = setInterval(() => {
-      const currentMessage = interpretationMessages[messageIndex];
-      if (!currentMessage) {
-        clearInterval(interval);
-        setTextComplete(true);
-        setTimeout(() => {
-          setAnimationPhase('complete');
-        }, 300);
-        return;
-      }
-      
-      if (charIndex < currentMessage.length) {
-        setDisplayedText(prev => {
-          const messages = interpretationMessages.slice(0, messageIndex);
-          const currentPartial = currentMessage.slice(0, charIndex + 1);
-          return [...messages, currentPartial].join('\n');
+      if (currentCharIndex < currentMessage.length) {
+        setDisplayedMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[currentDisplayIndex] = currentMessage.slice(0, currentCharIndex + 1);
+          return newMessages;
         });
-        charIndex++;
+        setCurrentCharIndex(prev => prev + 1);
       } else {
         // 当前消息完成，移动到下一个消息
-        messageIndex++;
-        charIndex = 0;
-        setCurrentDisplayIndex(messageIndex);
+        clearInterval(interval);
+        setCurrentDisplayIndex(prev => prev + 1);
+        setCurrentCharIndex(0);
+        setIsTyping(false);
+        
+        // 如果还有更多消息，继续
+        if (currentDisplayIndex + 1 < interpretationMessages.length) {
+          setTimeout(() => {
+            setIsTyping(true);
+          }, 500); // 间隔500ms再开始下一条
+        } else {
+          // 所有消息完成
+          setTimeout(() => {
+            setAnimationPhase('complete');
+          }, 300);
+        }
       }
     }, 30);
   };
 
   const handleChatMore = () => {
-    // 将所有解读消息传递到聊天页面
     const allMessages = [...interpretationMessages];
     if (currentStreamText.trim()) {
       allMessages.push(currentStreamText);
     }
     
-    const interpretationMessagesForChat = allMessages.map((text, index) => ({
-      id: `interpretation_${Date.now()}_${index}`,
-      text: text.trim(),
-      sender: 'cat' as const,
-      timestamp: new Date()
-    }));
+    const interpretationMessagesForChat = allMessages.flatMap(text => 
+      text.split('\n').filter(line => line.trim()).map((line, index) => ({
+        id: `interpretation_${Date.now()}_${index}`,
+        text: line.trim(),
+        sender: 'cat' as const,
+        timestamp: new Date()
+      }))
+    );
 
     navigate(`/chat/${catId}`, { 
       state: { 
@@ -264,7 +263,7 @@ const Interpretation = () => {
               : 'translate-y-0'
           }`}>
             {isLoading ? (
-              <div className="bg-white/10 rounded-2xl border border-white/20 p-4 max-h-80">
+              <div className="bg-white/10 rounded-2xl border border-white/20 p-4">
                 <div className="flex items-center justify-center py-8">
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span className="ml-3 text-white text-sm">正在为你解读...</span>
@@ -273,15 +272,13 @@ const Interpretation = () => {
             ) : (
               <div className="overflow-x-auto">
                 <div className="flex space-x-4 pb-2">
-                  {interpretationMessages.map((message, index) => (
+                  {/* 显示已完成的消息 */}
+                  {displayedMessages.map((message, index) => (
                     <div key={index} className="flex-shrink-0 w-72">
-                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 h-80 overflow-y-auto">
+                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-20">
                         <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                          {index === currentDisplayIndex && !textComplete ? 
-                            displayedText.split('\n')[index] || message :
-                            message
-                          }
-                          {index === currentDisplayIndex && !textComplete && animationPhase === 'showText' && 
+                          {message}
+                          {index === currentDisplayIndex - 1 && isTyping && 
                             <span className="animate-pulse">|</span>
                           }
                         </p>
@@ -289,10 +286,22 @@ const Interpretation = () => {
                     </div>
                   ))}
                   
+                  {/* 显示正在输入的消息 */}
+                  {isTyping && currentDisplayIndex < interpretationMessages.length && (
+                    <div className="flex-shrink-0 w-72">
+                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-20">
+                        <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
+                          {displayedMessages[currentDisplayIndex] || ''}
+                          <span className="animate-pulse">|</span>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* 显示当前流式文本 */}
                   {currentStreamText.trim() && (
                     <div className="flex-shrink-0 w-72">
-                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 h-80 overflow-y-auto">
+                      <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-20">
                         <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
                           {currentStreamText}
                           <span className="animate-pulse">|</span>
