@@ -36,15 +36,16 @@ export const InterpretationMessages = ({
       ) : (
         <div className="overflow-x-auto">
           <div className="flex space-x-4 pb-2">
-            {/* 显示已完成的消息 */}
+            {/* 显示已完成和正在显示的消息 */}
             {displayedMessages.map((message, index) => {
-              if (!message && index > currentDisplayIndex) return null;
+              // 只显示已开始显示的消息
+              if (index > currentDisplayIndex) return null;
               
               return (
                 <div key={index} className="flex-shrink-0 w-72">
-                  <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-20">
+                  <div className="bg-white/10 rounded-2xl border border-white/20 p-4" style={{ minHeight: 'auto' }}>
                     <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
-                      {message}
+                      {message || ''}
                       {index === currentDisplayIndex && isTyping && 
                         <span className="animate-pulse">|</span>
                       }
@@ -57,7 +58,7 @@ export const InterpretationMessages = ({
             {/* 显示当前流式文本（仅在加载时） */}
             {currentStreamText.trim() && isLoading && (
               <div className="flex-shrink-0 w-72">
-                <div className="bg-white/10 rounded-2xl border border-white/20 p-4 min-h-20">
+                <div className="bg-white/10 rounded-2xl border border-white/20 p-4" style={{ minHeight: 'auto' }}>
                   <p className="text-white leading-relaxed text-sm text-center whitespace-pre-line">
                     {currentStreamText}
                     <span className="animate-pulse">|</span>

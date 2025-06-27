@@ -42,10 +42,19 @@ export const useInterpretation = (catId: string | undefined) => {
       // 流式传输完成，处理完整文本
       const fullText = processedMessage.text.trim();
       if (fullText) {
-        // 按换行符分割成多条消息
-        const messages = fullText.split('\n').filter(msg => msg.trim().length > 0);
-        console.log('Split complete messages:', messages);
-        setInterpretationMessages(messages);
+        // 按两个换行符分割成多条消息（每条解读信息通常用双换行分隔）
+        let messages = fullText.split('\n\n').filter(msg => msg.trim().length > 0);
+        
+        // 如果没有双换行符分隔，尝试单换行符分割
+        if (messages.length === 1) {
+          messages = fullText.split('\n').filter(msg => msg.trim().length > 0);
+        }
+        
+        // 确保每条消息都有内容
+        const validMessages = messages.map(msg => msg.trim()).filter(msg => msg.length > 0);
+        
+        console.log('Split complete messages:', validMessages);
+        setInterpretationMessages(validMessages);
       }
       setCurrentStreamText('');
       setIsLoading(false);
@@ -118,17 +127,27 @@ export const useInterpretation = (catId: string | undefined) => {
 
   // 当解读消息获取完成后，开始文字动画
   useEffect(() => {
-    if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading && !isTyping) {
+    if (interpretationMessages.length > 0 && animationPhase === 'showText' && !isLoading) {
+      console.log('Starting text animation with messages:', interpretationMessages);
       setDisplayedMessages(new Array(interpretationMessages.length).fill(''));
       setCurrentDisplayIndex(0);
       setCurrentCharIndex(0);
-      startTextAnimation();
+      setIsTyping(false);
+      
+      // 开始第一条消息的动画
+      setTimeout(() => {
+        startTextAnimation();
+      }, 500);
     }
   }, [interpretationMessages, animationPhase, isLoading]);
 
   const startTextAnimation = () => {
-    if (interpretationMessages.length === 0 || currentDisplayIndex >= interpretationMessages.length) return;
+    if (interpretationMessages.length === 0 || currentDisplayIndex >= interpretationMessages.length) {
+      setAnimationPhase('complete');
+      return;
+    }
     
+    console.log(`Starting animation for message ${currentDisplayIndex}: "${interpretationMessages[currentDisplayIndex]}"`);
     setIsTyping(true);
     const currentMessage = interpretationMessages[currentDisplayIndex];
     
@@ -141,22 +160,22 @@ export const useInterpretation = (catId: string | undefined) => {
         });
         setCurrentCharIndex(prev => prev + 1);
       } else {
-        // 当前消息完成，移动到下一个消息
+        // 当前消息完成
         clearInterval(interval);
-        setCurrentDisplayIndex(prev => prev + 1);
-        setCurrentCharIndex(0);
         setIsTyping(false);
         
-        // 如果还有更多消息，继续
+        // 如果还有更多消息，继续下一个
         if (currentDisplayIndex + 1 < interpretationMessages.length) {
           setTimeout(() => {
-            setIsTyping(true);
-          }, 500); // 间隔500ms再开始下一条
+            setCurrentDisplayIndex(prev => prev + 1);
+            setCurrentCharIndex(0);
+            startTextAnimation();
+          }, 800); // 间隔800ms再开始下一条
         } else {
           // 所有消息完成
           setTimeout(() => {
             setAnimationPhase('complete');
-          }, 300);
+          }, 500);
         }
       }
     }, 30);
