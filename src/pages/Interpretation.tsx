@@ -144,18 +144,21 @@ const Interpretation = () => {
   }, []);
 
   const handleChatMore = () => {
-    // 将所有解读消息传递到聊天页面
+    // 将所有解读消息整合成一条完整的消息
     const allMessages = [...interpretationMessages];
     if (currentStreamText.trim()) {
       allMessages.push(currentStreamText);
     }
 
-    const interpretationMessagesForChat = allMessages.map((text, index) => ({
-      id: `interpretation_${Date.now()}_${index}`,
-      text: text.trim(),
+    // 整合成一条消息，用换行符分隔
+    const combinedMessage = allMessages.join('\n\n').trim();
+
+    const interpretationMessagesForChat = [{
+      id: `interpretation_${Date.now()}`,
+      text: combinedMessage,
       sender: 'cat' as const,
       timestamp: new Date()
-    }));
+    }];
 
     navigate(`/chat/${catId}`, {
       state: {
