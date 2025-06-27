@@ -199,7 +199,7 @@ const Interpretation = () => {
       content = interpretationMessages.join('\n\n');
     }
 
-    // 如果正在打字，只添加正在打字的新消息
+    // 如果正在打字，添加正在打字的新消息
     if (isTyping && newMessageToType) {
       if (content) {
         content += '\n\n' + newMessageToType;
