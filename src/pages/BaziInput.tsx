@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -195,7 +196,7 @@ const BaziInput = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2 mb-2">
                 <Select value={hour} onValueChange={setHour}>
                   <SelectTrigger className="h-14 rounded-xl border-2 bg-white text-sm">
                     <SelectValue />
@@ -217,12 +218,13 @@ const BaziInput = () => {
                   </SelectContent>
                 </Select>
               </div>
+              <p className="text-gray-500 text-xs mt-2">若出生时间不详，请选择默认12:00</p>
             </div>
 
             {/* Birth Location - 三级联动 */}
             <div>
               <label className="block text-gray-800 font-semibold mb-4 text-lg">出生地点</label>
-              <div className="space-y-3">
+              <div className="space-y-3 mb-2">
                 <Select value={province} onValueChange={setProvince}>
                   <SelectTrigger className="h-14 rounded-xl border-2 bg-white">
                     <SelectValue />
@@ -254,6 +256,7 @@ const BaziInput = () => {
                   </SelectContent>
                 </Select>
               </div>
+              <p className="text-gray-500 text-xs mt-2">若出生地点不详，请选择默认北京市</p>
             </div>
           </div>
         </div>
