@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -46,6 +45,7 @@ const BaziInput = () => {
   const { catId } = useParams<{ catId: string }>();
   const navigate = useNavigate();
   const [gender, setGender] = useState<'male' | 'female'>('male');
+  const [calendarType, setCalendarType] = useState<'solar' | 'lunar'>('solar');
   const [year, setYear] = useState('2000');
   const [month, setMonth] = useState('01');
   const [day, setDay] = useState('01');
@@ -67,13 +67,9 @@ const BaziInput = () => {
   const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
 
-  // 获取当前省份的城市列表
   const cities = Object.keys(locationData[province] || {});
-  
-  // 获取当前城市的区县列表
   const districts = locationData[province]?.[city] || [];
 
-  // 当省份变化时，重置城市和区县
   useEffect(() => {
     const availableCities = Object.keys(locationData[province] || {});
     if (availableCities.length > 0) {
@@ -81,7 +77,6 @@ const BaziInput = () => {
     }
   }, [province]);
 
-  // 当城市变化时，重置区县
   useEffect(() => {
     const availableDistricts = locationData[province]?.[city] || [];
     if (availableDistricts.length > 0) {
@@ -89,7 +84,6 @@ const BaziInput = () => {
     }
   }, [province, city]);
 
-  // 检查表单是否完整
   const isFormValid = year && month && day && hour && minute && province && city && district;
 
   const handleSubmit = () => {
@@ -97,6 +91,7 @@ const BaziInput = () => {
     
     const birthInfo = {
       gender,
+      calendarType,
       year,
       month,
       day,
@@ -176,59 +171,86 @@ const BaziInput = () => {
               </div>
             </div>
 
-            {/* Birth Date */}
+            {/* Calendar Type Selection */}
+            <div>
+              <label className="block text-gray-800 font-semibold mb-4 text-lg">历法类型</label>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => setCalendarType('solar')}
+                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${
+                    calendarType === 'solar'
+                      ? 'border-orange-400 bg-orange-50 text-orange-600 shadow-lg scale-105'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
+                  }`}
+                >
+                  ☀️ 阳历
+                </button>
+                <button
+                  onClick={() => setCalendarType('lunar')}
+                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${
+                    calendarType === 'lunar'
+                      ? 'border-purple-400 bg-purple-50 text-purple-600 shadow-lg scale-105'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
+                  }`}
+                >
+                  🌙 农历
+                </button>
+              </div>
+            </div>
+
+            {/* Birth Date - Improved for mobile */}
             <div>
               <label className="block text-gray-800 font-semibold mb-4 text-lg">出生时间</label>
-              <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="grid grid-cols-3 gap-2 mb-4">
                 <Select value={year} onValueChange={setYear}>
-                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
+                  <SelectTrigger className="h-14 rounded-xl border-2 bg-white text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-64 z-50">
                     {years.map(y => (
-                      <SelectItem key={y} value={y} className="py-2">{y}年</SelectItem>
+                      <SelectItem key={y} value={y} className="py-3 text-sm">{y}年</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={month} onValueChange={setMonth}>
-                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
+                  <SelectTrigger className="h-14 rounded-xl border-2 bg-white text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl">
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl z-50">
                     {months.map(m => (
-                      <SelectItem key={m} value={m} className="py-2">{m}月</SelectItem>
+                      <SelectItem key={m} value={m} className="py-3 text-sm">{m}月</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={day} onValueChange={setDay}>
-                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
+                  <SelectTrigger className="h-14 rounded-xl border-2 bg-white text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-64 z-50">
                     {days.map(d => (
-                      <SelectItem key={d} value={d} className="py-2">{d}日</SelectItem>
+                      <SelectItem key={d} value={d} className="py-3 text-sm">{d}日</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <Select value={hour} onValueChange={setHour}>
-                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
+                  <SelectTrigger className="h-14 rounded-xl border-2 bg-white text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-64 z-50">
                     {hours.map(h => (
-                      <SelectItem key={h} value={h} className="py-2">{h}时</SelectItem>
+                      <SelectItem key={h} value={h} className="py-3 text-sm">{h}时</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={minute} onValueChange={setMinute}>
-                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
+                  <SelectTrigger className="h-14 rounded-xl border-2 bg-white text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-64 z-50">
                     {minutes.map(m => (
-                      <SelectItem key={m} value={m} className="py-2">{m}分</SelectItem>
+                      <SelectItem key={m} value={m} className="py-3 text-sm">{m}分</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -240,32 +262,32 @@ const BaziInput = () => {
               <label className="block text-gray-800 font-semibold mb-4 text-lg">出生地点</label>
               <div className="space-y-3">
                 <Select value={province} onValueChange={setProvince}>
-                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
+                  <SelectTrigger className="h-14 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48 z-50">
                     {Object.keys(locationData).map(p => (
-                      <SelectItem key={p} value={p} className="py-2">{p}</SelectItem>
+                      <SelectItem key={p} value={p} className="py-3">{p}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={city} onValueChange={setCity}>
-                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
+                  <SelectTrigger className="h-14 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48 z-50">
                     {cities.map(c => (
-                      <SelectItem key={c} value={c} className="py-2">{c}</SelectItem>
+                      <SelectItem key={c} value={c} className="py-3">{c}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={district} onValueChange={setDistrict}>
-                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
+                  <SelectTrigger className="h-14 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48 z-50">
                     {districts.map(d => (
-                      <SelectItem key={d} value={d} className="py-2">{d}</SelectItem>
+                      <SelectItem key={d} value={d} className="py-3">{d}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -274,12 +296,12 @@ const BaziInput = () => {
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit Button - Increased height */}
         <div className="px-6 pb-8">
           <Button
             onClick={handleSubmit}
             disabled={!isFormValid}
-            className={`w-full font-bold py-4 text-lg rounded-2xl transition-all shadow-lg ${
+            className={`w-full font-bold py-6 text-xl rounded-2xl transition-all shadow-lg ${
               isFormValid
                 ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white transform hover:scale-105'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'

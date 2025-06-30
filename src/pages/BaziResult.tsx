@@ -73,7 +73,6 @@ const BaziResult = () => {
           <div className="flex-1" />
         </div>
 
-        {/* Cat Avatar and Title */}
         <div className="text-center px-6 mb-6">
           <div className="w-20 h-20 mx-auto rounded-full overflow-hidden border-4 border-white/20 mb-3">
             <img
@@ -86,7 +85,7 @@ const BaziResult = () => {
         </div>
 
         <div className="flex-1 px-6 pb-6 space-y-6">
-          {/* Bazi Chart */}
+          {/* Improved Bazi Chart with better alignment */}
           <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-yellow-200">
             <h3 className="text-center text-gray-800 font-bold text-lg mb-6">八字命盘</h3>
             
@@ -107,36 +106,38 @@ const BaziResult = () => {
             </div>
 
             <div className="grid grid-cols-5 gap-2 mb-4">
-              <div className="text-center text-gray-700 font-medium">天干<br/>地支</div>
+              <div className="text-center text-gray-700 font-medium flex items-center justify-center">
+                <div className="text-xs leading-tight">天干<br/>地支</div>
+              </div>
               <div className="flex flex-col items-center">
-                <div className="w-14 h-18 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-xs shadow-lg">
-                  <span className="text-red-400 font-bold">丙</span>
-                  <span className="text-blue-400 font-bold">子</span>
+                <div className="w-16 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
+                  <span className="text-red-400 font-bold text-base">丙</span>
+                  <span className="text-blue-400 font-bold text-base">子</span>
                 </div>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-14 h-18 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-xs shadow-lg">
-                  <span className="text-blue-400 font-bold">癸</span>
-                  <span className="text-red-400 font-bold">巳</span>
+                <div className="w-16 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
+                  <span className="text-blue-400 font-bold text-base">癸</span>
+                  <span className="text-red-400 font-bold text-base">巳</span>
                 </div>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-14 h-18 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-xs shadow-lg border-2 border-yellow-400">
-                  <span className="text-green-400 font-bold">甲</span>
-                  <span className="text-blue-400 font-bold">子</span>
+                <div className="w-16 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg border-2 border-yellow-400">
+                  <span className="text-green-400 font-bold text-base">甲</span>
+                  <span className="text-blue-400 font-bold text-base">子</span>
                 </div>
                 <div className="text-xs text-yellow-600 font-bold mt-1">日主</div>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-14 h-18 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-xs shadow-lg">
-                  <span className="text-green-400 font-bold">乙</span>
-                  <span className="text-yellow-400 font-bold">丑</span>
+                <div className="w-16 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
+                  <span className="text-green-400 font-bold text-base">乙</span>
+                  <span className="text-yellow-400 font-bold text-base">丑</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Birth Info Display */}
+          {/* Birth Info Display - Enhanced for lunar calendar */}
           {birthInfo && (
             <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl">
               <h3 className="text-gray-800 font-bold text-lg mb-4">出生信息</h3>
@@ -146,6 +147,10 @@ const BaziResult = () => {
                   <span className="text-gray-800 font-medium">{birthInfo.gender === 'male' ? '男' : '女'}</span>
                 </div>
                 <div>
+                  <span className="text-gray-600">历法：</span>
+                  <span className="text-gray-800 font-medium">{birthInfo.calendarType === 'solar' ? '阳历' : '农历'}</span>
+                </div>
+                <div className="col-span-2">
                   <span className="text-gray-600">出生时间：</span>
                   <span className="text-gray-800 font-medium">
                     {birthInfo.year}/{birthInfo.month}/{birthInfo.day} {birthInfo.hour}:{birthInfo.minute}
@@ -173,21 +178,21 @@ const BaziResult = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Increased height */}
         <div className="px-6 pb-8 space-y-4">
           <Button
             onClick={handleTodayFortune}
-            className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 text-lg rounded-2xl flex items-center justify-center space-x-3 shadow-lg transform hover:scale-105 transition-all"
+            className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-6 text-xl rounded-2xl flex items-center justify-center space-x-3 shadow-lg transform hover:scale-105 transition-all"
           >
-            <span className="text-xl">📅</span>
+            <span className="text-2xl">📅</span>
             <span>今年运势</span>
           </Button>
           
           <Button
             onClick={handleLifeConsultation}
-            className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold py-4 text-lg rounded-2xl flex items-center justify-center space-x-3 shadow-lg transform hover:scale-105 transition-all"
+            className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold py-6 text-xl rounded-2xl flex items-center justify-center space-x-3 shadow-lg transform hover:scale-105 transition-all"
           >
-            <span className="text-xl">🔮</span>
+            <span className="text-2xl">🔮</span>
             <span>人生问事</span>
           </Button>
         </div>
