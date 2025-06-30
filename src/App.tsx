@@ -9,6 +9,8 @@ import Question from "./pages/Question";
 import Cards from "./pages/Cards";
 import Interpretation from "./pages/Interpretation";
 import Chat from "./pages/Chat";
+import BaziInput from "./pages/BaziInput";
+import BaziResult from "./pages/BaziResult";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,8 @@ const App = () => (
           <Route path="/cards/:catId" element={<Cards />} />
           <Route path="/interpretation/:catId" element={<Interpretation />} />
           <Route path="/chat/:catId" element={<Chat />} />
+          <Route path="/bazi-input/:catId" element={<BaziInput />} />
+          <Route path="/bazi-result/:catId" element={<BaziResult />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
