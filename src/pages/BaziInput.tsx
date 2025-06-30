@@ -1,45 +1,45 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
-// 中国省市区数据
+// 中国省市区数据 - 扩展为三级联动
 const locationData = {
-  '北京市': ['东城区', '西城区', '朝阳区', '丰台区', '石景山区', '海淀区'],
-  '天津市': ['和平区', '河东区', '河西区', '南开区', '河北区', '红桥区'],
-  '河北省': ['石家庄市', '唐山市', '秦皇岛市', '邯郸市', '邢台市', '保定市'],
-  '山西省': ['太原市', '大同市', '阳泉市', '长治市', '晋城市', '朔州市'],
-  '内蒙古自治区': ['呼和浩特市', '包头市', '乌海市', '赤峰市', '通辽市', '鄂尔多斯市'],
-  '辽宁省': ['沈阳市', '大连市', '鞍山市', '抚顺市', '本溪市', '丹东市'],
-  '吉林省': ['长春市', '吉林市', '四平市', '辽源市', '通化市', '白山市'],
-  '黑龙江省': ['哈尔滨市', '齐齐哈尔市', '鸡西市', '鹤岗市', '双鸭山市', '大庆市'],
-  '上海市': ['黄浦区', '徐汇区', '长宁区', '静安区', '普陀区', '虹口区'],
-  '江苏省': ['南京市', '无锡市', '徐州市', '常州市', '苏州市', '南通市'],
-  '浙江省': ['杭州市', '宁波市', '温州市', '嘉兴市', '湖州市', '绍兴市'],
-  '安徽省': ['合肥市', '芜湖市', '蚌埠市', '淮南市', '马鞍山市', '淮北市'],
-  '福建省': ['福州市', '厦门市', '莆田市', '三明市', '泉州市', '漳州市'],
-  '江西省': ['南昌市', '景德镇市', '萍乡市', '九江市', '新余市', '鹰潭市'],
-  '山东省': ['济南市', '青岛市', '淄博市', '枣庄市', '东营市', '烟台市'],
-  '河南省': ['郑州市', '开封市', '洛阳市', '平顶山市', '安阳市', '鹤壁市'],
-  '湖北省': ['武汉市', '黄石市', '十堰市', '宜昌市', '襄阳市', '鄂州市'],
-  '湖南省': ['长沙市', '株洲市', '湘潭市', '衡阳市', '邵阳市', '岳阳市'],
-  '广东省': ['广州市', '韶关市', '深圳市', '珠海市', '汕头市', '佛山市'],
-  '广西壮族自治区': ['南宁市', '柳州市', '桂林市', '梧州市', '北海市', '防城港市'],
-  '海南省': ['海口市', '三亚市', '三沙市', '儋州市'],
-  '重庆市': ['万州区', '涪陵区', '渝中区', '大渡口区', '江北区', '沙坪坝区'],
-  '四川省': ['成都市', '自贡市', '攀枝花市', '泸州市', '德阳市', '绵阳市'],
-  '贵州省': ['贵阳市', '六盘水市', '遵义市', '安顺市', '毕节市', '铜仁市'],
-  '云南省': ['昆明市', '曲靖市', '玉溪市', '保山市', '昭通市', '丽江市'],
-  '西藏自治区': ['拉萨市', '日喀则市', '昌都市', '林芝市', '山南市', '那曲市'],
-  '陕西省': ['西安市', '铜川市', '宝鸡市', '咸阳市', '渭南市', '延安市'],
-  '甘肃省': ['兰州市', '嘉峪关市', '金昌市', '白银市', '天水市', '武威市'],
-  '青海省': ['西宁市', '海东市', '海北藏族自治州', '黄南藏族自治州'],
-  '宁夏回族自治区': ['银川市', '石嘴山市', '吴忠市', '固原市', '中卫市'],
-  '新疆维吾尔自治区': ['乌鲁木齐市', '克拉玛依市', '吐鲁番市', '哈密市']
+  '北京市': {
+    '东城区': ['东华门街道', '景山街道', '交道口街道', '安定门街道', '北新桥街道'],
+    '西城区': ['西长安街街道', '新街口街道', '月坛街道', '展览路街道', '德胜街道'],
+    '朝阳区': ['建国门外街道', '朝外街道', '呼家楼街道', '三里屯街道', '左家庄街道'],
+    '丰台区': ['右安门街道', '太平桥街道', '西罗园街道', '大红门街道', '南苑街道'],
+    '石景山区': ['八宝山街道', '老山街道', '八角街道', '古城街道', '苹果园街道'],
+    '海淀区': ['万寿路街道', '永定路街道', '羊坊店街道', '甘家口街道', '八里庄街道']
+  },
+  '上海市': {
+    '黄浦区': ['南京东路街道', '外滩街道', '半淞园路街道', '小东门街道', '豫园街道'],
+    '徐汇区': ['天平路街道', '湖南路街道', '斜土路街道', '枫林路街道', '长桥街道'],
+    '长宁区': ['华阳路街道', '江苏路街道', '新华路街道', '周家桥街道', '天山路街道'],
+    '静安区': ['江宁路街道', '石门二路街道', '南京西路街道', '静安寺街道', '曹家渡街道'],
+    '普陀区': ['曹杨新村街道', '长风新村街道', '长寿路街道', '甘泉路街道', '石泉路街道'],
+    '虹口区': ['乍浦路街道', '新港路街道', '欧阳路街道', '曲阳路街道', '广中路街道']
+  },
+  '广东省': {
+    '广州市': ['越秀区', '海珠区', '荔湾区', '天河区', '白云区', '黄埔区'],
+    '深圳市': ['罗湖区', '福田区', '南山区', '宝安区', '龙岗区', '盐田区'],
+    '珠海市': ['香洲区', '斗门区', '金湾区'],
+    '汕头市': ['龙湖区', '金平区', '濠江区', '潮阳区', '潮南区', '澄海区'],
+    '佛山市': ['禅城区', '南海区', '顺德区', '高明区', '三水区'],
+    '韶关市': ['武江区', '浈江区', '曲江区', '始兴县', '仁化县', '翁源县']
+  },
+  '浙江省': {
+    '杭州市': ['上城区', '下城区', '江干区', '拱墅区', '西湖区', '滨江区'],
+    '宁波市': ['海曙区', '江北区', '北仑区', '镇海区', '鄞州区', '奉化区'],
+    '温州市': ['鹿城区', '龙湾区', '瓯海区', '洞头区', '永嘉县', '平阳县'],
+    '嘉兴市': ['南湖区', '秀洲区', '嘉善县', '海盐县', '海宁市', '平湖市'],
+    '湖州市': ['吴兴区', '南浔区', '德清县', '长兴县', '安吉县'],
+    '绍兴市': ['越城区', '柯桥区', '上虞区', '新昌县', '诸暨市', '嵊州市']
+  }
 };
 
 const BaziInput = () => {
@@ -53,6 +53,7 @@ const BaziInput = () => {
   const [minute, setMinute] = useState('00');
   const [province, setProvince] = useState('北京市');
   const [city, setCity] = useState('东城区');
+  const [district, setDistrict] = useState('东华门街道');
 
   const cat = cats.find(c => c.id === catId);
 
@@ -66,7 +67,34 @@ const BaziInput = () => {
   const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
 
+  // 获取当前省份的城市列表
+  const cities = Object.keys(locationData[province] || {});
+  
+  // 获取当前城市的区县列表
+  const districts = locationData[province]?.[city] || [];
+
+  // 当省份变化时，重置城市和区县
+  useEffect(() => {
+    const availableCities = Object.keys(locationData[province] || {});
+    if (availableCities.length > 0) {
+      setCity(availableCities[0]);
+    }
+  }, [province]);
+
+  // 当城市变化时，重置区县
+  useEffect(() => {
+    const availableDistricts = locationData[province]?.[city] || [];
+    if (availableDistricts.length > 0) {
+      setDistrict(availableDistricts[0]);
+    }
+  }, [province, city]);
+
+  // 检查表单是否完整
+  const isFormValid = year && month && day && hour && minute && province && city && district;
+
   const handleSubmit = () => {
+    if (!isFormValid) return;
+    
     const birthInfo = {
       gender,
       year,
@@ -75,7 +103,8 @@ const BaziInput = () => {
       hour,
       minute,
       province,
-      city
+      city,
+      district
     };
     
     navigate(`/bazi-result/${catId}`, {
@@ -113,33 +142,33 @@ const BaziInput = () => {
           </div>
           <h2 className="text-white text-lg font-bold mb-1">你好呀，我是{cat.name}。</h2>
           <p className="text-white/80 text-sm">
-            这里是你心灵的避风港，每一张牌都会像羽毛般轻轻托住你的困惑。慢慢诉说，我会陪你找到答案。
+            八字命理需要准确的出生信息，请仔细填写哦～
           </p>
         </div>
 
         {/* Form */}
         <div className="flex-1 px-6 pb-6">
-          <div className="bg-white/90 rounded-2xl p-6 space-y-6">
+          <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 space-y-6 shadow-2xl">
             {/* Gender Selection */}
             <div>
-              <label className="block text-gray-700 font-medium mb-3">性别</label>
+              <label className="block text-gray-800 font-semibold mb-4 text-lg">性别</label>
               <div className="flex space-x-4">
                 <button
                   onClick={() => setGender('female')}
-                  className={`flex-1 py-3 px-4 rounded-full border-2 transition-all ${
+                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${
                     gender === 'female'
-                      ? 'border-pink-400 bg-pink-50 text-pink-600'
-                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                      ? 'border-pink-400 bg-pink-50 text-pink-600 shadow-lg scale-105'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
                   }`}
                 >
                   ♀ 女生
                 </button>
                 <button
                   onClick={() => setGender('male')}
-                  className={`flex-1 py-3 px-4 rounded-full border-2 transition-all ${
+                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${
                     gender === 'male'
-                      ? 'border-blue-400 bg-blue-50 text-blue-600'
-                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                      ? 'border-blue-400 bg-blue-50 text-blue-600 shadow-lg scale-105'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
                   }`}
                 >
                   ♂ 男生
@@ -149,87 +178,94 @@ const BaziInput = () => {
 
             {/* Birth Date */}
             <div>
-              <label className="block text-gray-700 font-medium mb-3">出生时间</label>
-              <div className="grid grid-cols-3 gap-3 mb-3">
+              <label className="block text-gray-800 font-semibold mb-4 text-lg">出生时间</label>
+              <div className="grid grid-cols-3 gap-3 mb-4">
                 <Select value={year} onValueChange={setYear}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
                     {years.map(y => (
-                      <SelectItem key={y} value={y}>{y}年</SelectItem>
+                      <SelectItem key={y} value={y} className="py-2">{y}年</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={month} onValueChange={setMonth}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl">
                     {months.map(m => (
-                      <SelectItem key={m} value={m}>{m}月</SelectItem>
+                      <SelectItem key={m} value={m} className="py-2">{m}月</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={day} onValueChange={setDay}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
                     {days.map(d => (
-                      <SelectItem key={d} value={d}>{d}日</SelectItem>
+                      <SelectItem key={d} value={d} className="py-2">{d}日</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Select value={hour} onValueChange={setHour}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
                     {hours.map(h => (
-                      <SelectItem key={h} value={h}>{h}时</SelectItem>
+                      <SelectItem key={h} value={h} className="py-2">{h}时</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={minute} onValueChange={setMinute}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
                     {minutes.map(m => (
-                      <SelectItem key={m} value={m}>{m}分</SelectItem>
+                      <SelectItem key={m} value={m} className="py-2">{m}分</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            {/* Birth Location */}
+            {/* Birth Location - 三级联动 */}
             <div>
-              <label className="block text-gray-700 font-medium mb-3">出生地点</label>
-              <div className="grid grid-cols-2 gap-3">
-                <Select value={province} onValueChange={(value) => {
-                  setProvince(value);
-                  setCity(locationData[value]?.[0] || '');
-                }}>
-                  <SelectTrigger>
+              <label className="block text-gray-800 font-semibold mb-4 text-lg">出生地点</label>
+              <div className="space-y-3">
+                <Select value={province} onValueChange={setProvince}>
+                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
                     {Object.keys(locationData).map(p => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                      <SelectItem key={p} value={p} className="py-2">{p}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Select value={city} onValueChange={setCity}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    {(locationData[province] || []).map(c => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
+                    {cities.map(c => (
+                      <SelectItem key={c} value={c} className="py-2">{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={district} onValueChange={setDistrict}>
+                  <SelectTrigger className="h-12 rounded-xl border-2 bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-2 rounded-xl shadow-xl max-h-48">
+                    {districts.map(d => (
+                      <SelectItem key={d} value={d} className="py-2">{d}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -242,7 +278,12 @@ const BaziInput = () => {
         <div className="px-6 pb-8">
           <Button
             onClick={handleSubmit}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 text-lg rounded-full"
+            disabled={!isFormValid}
+            className={`w-full font-bold py-4 text-lg rounded-2xl transition-all shadow-lg ${
+              isFormValid
+                ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white transform hover:scale-105'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
           >
             八字排盘
           </Button>
