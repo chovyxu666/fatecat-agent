@@ -4,42 +4,8 @@ import { cats } from '../data/cats';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import locationData from "@/config/locationData";
 
-// 中国省市区数据 - 扩展为三级联动
-const locationData = {
-  '北京市': {
-    '东城区': ['东华门街道', '景山街道', '交道口街道', '安定门街道', '北新桥街道'],
-    '西城区': ['西长安街街道', '新街口街道', '月坛街道', '展览路街道', '德胜街道'],
-    '朝阳区': ['建国门外街道', '朝外街道', '呼家楼街道', '三里屯街道', '左家庄街道'],
-    '丰台区': ['右安门街道', '太平桥街道', '西罗园街道', '大红门街道', '南苑街道'],
-    '石景山区': ['八宝山街道', '老山街道', '八角街道', '古城街道', '苹果园街道'],
-    '海淀区': ['万寿路街道', '永定路街道', '羊坊店街道', '甘家口街道', '八里庄街道']
-  },
-  '上海市': {
-    '黄浦区': ['南京东路街道', '外滩街道', '半淞园路街道', '小东门街道', '豫园街道'],
-    '徐汇区': ['天平路街道', '湖南路街道', '斜土路街道', '枫林路街道', '长桥街道'],
-    '长宁区': ['华阳路街道', '江苏路街道', '新华路街道', '周家桥街道', '天山路街道'],
-    '静安区': ['江宁路街道', '石门二路街道', '南京西路街道', '静安寺街道', '曹家渡街道'],
-    '普陀区': ['曹杨新村街道', '长风新村街道', '长寿路街道', '甘泉路街道', '石泉路街道'],
-    '虹口区': ['乍浦路街道', '新港路街道', '欧阳路街道', '曲阳路街道', '广中路街道']
-  },
-  '广东省': {
-    '广州市': ['越秀区', '海珠区', '荔湾区', '天河区', '白云区', '黄埔区'],
-    '深圳市': ['罗湖区', '福田区', '南山区', '宝安区', '龙岗区', '盐田区'],
-    '珠海市': ['香洲区', '斗门区', '金湾区'],
-    '汕头市': ['龙湖区', '金平区', '濠江区', '潮阳区', '潮南区', '澄海区'],
-    '佛山市': ['禅城区', '南海区', '顺德区', '高明区', '三水区'],
-    '韶关市': ['武江区', '浈江区', '曲江区', '始兴县', '仁化县', '翁源县']
-  },
-  '浙江省': {
-    '杭州市': ['上城区', '下城区', '江干区', '拱墅区', '西湖区', '滨江区'],
-    '宁波市': ['海曙区', '江北区', '北仑区', '镇海区', '鄞州区', '奉化区'],
-    '温州市': ['鹿城区', '龙湾区', '瓯海区', '洞头区', '永嘉县', '平阳县'],
-    '嘉兴市': ['南湖区', '秀洲区', '嘉善县', '海盐县', '海宁市', '平湖市'],
-    '湖州市': ['吴兴区', '南浔区', '德清县', '长兴县', '安吉县'],
-    '绍兴市': ['越城区', '柯桥区', '上虞区', '新昌县', '诸暨市', '嵊州市']
-  }
-};
 
 const BaziInput = () => {
   const { catId } = useParams<{ catId: string }>();
@@ -88,7 +54,7 @@ const BaziInput = () => {
 
   const handleSubmit = () => {
     if (!isFormValid) return;
-    
+
     const birthInfo = {
       gender,
       calendarType,
@@ -101,7 +67,7 @@ const BaziInput = () => {
       city,
       district
     };
-    
+
     navigate(`/bazi-result/${catId}`, {
       state: { birthInfo }
     });
@@ -150,21 +116,19 @@ const BaziInput = () => {
               <div className="flex space-x-4">
                 <button
                   onClick={() => setGender('female')}
-                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${
-                    gender === 'female'
+                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${gender === 'female'
                       ? 'border-pink-400 bg-pink-50 text-pink-600 shadow-lg scale-105'
                       : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
-                  }`}
+                    }`}
                 >
                   ♀ 女生
                 </button>
                 <button
                   onClick={() => setGender('male')}
-                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${
-                    gender === 'male'
+                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${gender === 'male'
                       ? 'border-blue-400 bg-blue-50 text-blue-600 shadow-lg scale-105'
                       : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
-                  }`}
+                    }`}
                 >
                   ♂ 男生
                 </button>
@@ -177,21 +141,19 @@ const BaziInput = () => {
               <div className="flex space-x-4">
                 <button
                   onClick={() => setCalendarType('solar')}
-                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${
-                    calendarType === 'solar'
+                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${calendarType === 'solar'
                       ? 'border-orange-400 bg-orange-50 text-orange-600 shadow-lg scale-105'
                       : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
-                  }`}
+                    }`}
                 >
                   ☀️ 阳历
                 </button>
                 <button
                   onClick={() => setCalendarType('lunar')}
-                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${
-                    calendarType === 'lunar'
+                  className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${calendarType === 'lunar'
                       ? 'border-purple-400 bg-purple-50 text-purple-600 shadow-lg scale-105'
                       : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
-                  }`}
+                    }`}
                 >
                   🌙 农历
                 </button>
@@ -301,11 +263,10 @@ const BaziInput = () => {
           <Button
             onClick={handleSubmit}
             disabled={!isFormValid}
-            className={`w-full font-bold py-6 text-xl rounded-2xl transition-all shadow-lg ${
-              isFormValid
+            className={`w-full font-bold py-6 text-xl rounded-2xl transition-all shadow-lg ${isFormValid
                 ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white transform hover:scale-105'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
+              }`}
           >
             八字排盘
           </Button>

@@ -8,7 +8,7 @@ const BaziResult = () => {
   const { catId } = useParams<{ catId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const cat = cats.find(c => c.id === catId);
   const birthInfo = location.state?.birthInfo;
 
@@ -88,7 +88,7 @@ const BaziResult = () => {
           {/* Improved Bazi Chart with better alignment */}
           <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-yellow-200">
             <h3 className="text-center text-gray-800 font-bold text-lg mb-6">八字命盘</h3>
-            
+
             <div className="grid grid-cols-5 gap-2 text-center text-sm font-medium mb-4">
               <div className="text-gray-700">日期</div>
               <div className="text-gray-700">年柱</div>
@@ -96,7 +96,7 @@ const BaziResult = () => {
               <div className="text-gray-700">日柱</div>
               <div className="text-gray-700">时柱</div>
             </div>
-            
+
             <div className="grid grid-cols-5 gap-2 text-center text-sm mb-4">
               <div className="text-gray-700 font-medium">主星</div>
               <div className="text-gray-700">{baziData.year.tiangan}</div>
@@ -107,29 +107,29 @@ const BaziResult = () => {
 
             <div className="grid grid-cols-5 gap-2 mb-4">
               <div className="text-center text-gray-700 font-medium flex items-center justify-center">
-                <div className="text-xs leading-tight">天干<br/>地支</div>
+                <div className="text-xs leading-tight">天干<br />地支</div>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-16 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
+                <div className="w-14 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
                   <span className="text-red-400 font-bold text-base">丙</span>
                   <span className="text-blue-400 font-bold text-base">子</span>
                 </div>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-16 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
+                <div className="w-14 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
                   <span className="text-blue-400 font-bold text-base">癸</span>
                   <span className="text-red-400 font-bold text-base">巳</span>
                 </div>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-16 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg border-2 border-yellow-400">
+                <div className="w-14 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg border-2 border-yellow-400">
                   <span className="text-green-400 font-bold text-base">甲</span>
                   <span className="text-blue-400 font-bold text-base">子</span>
                 </div>
                 <div className="text-xs text-yellow-600 font-bold mt-1">日主</div>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-16 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
+                <div className="w-14 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
                   <span className="text-green-400 font-bold text-base">乙</span>
                   <span className="text-yellow-400 font-bold text-base">丑</span>
                 </div>
@@ -187,7 +187,7 @@ const BaziResult = () => {
             <span className="text-2xl">📅</span>
             <span>今年运势</span>
           </Button>
-          
+
           <Button
             onClick={handleLifeConsultation}
             className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold py-6 text-xl rounded-2xl flex items-center justify-center space-x-3 shadow-lg transform hover:scale-105 transition-all"
