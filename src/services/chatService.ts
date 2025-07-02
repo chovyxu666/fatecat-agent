@@ -1,5 +1,5 @@
-import { API_CONFIG, getApiUrl } from '../config/api';
-import { httpClient } from '../utils/httpClient';
+import { API_CONFIG } from '../config/api';
+import { apiService } from './apiService';
 
 export interface ChatRequest {
   user_id: string;
@@ -31,8 +31,8 @@ export class ChatService {
       this.abortController = signal;
     }
 
-    const response = await httpClient.stream(
-      getApiUrl(API_CONFIG.ENDPOINTS.CHAT_STREAM),
+    const response = await apiService.stream(
+      API_CONFIG.ENDPOINTS.CHAT_STREAM,
       request,
       { signal: this.abortController?.signal }
     );

@@ -1,11 +1,11 @@
+
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { predefinedQuestions } from '../data/predefinedQuestions';
 import { ChevronLeft } from 'lucide-react';
 import { getUserId } from '../utils/userIdUtils';
-import { getApiUrl } from '../config/api';
-import { httpClient } from '../utils/httpClient';
+import { apiService } from '../services/apiService';
 
 const Question = () => {
   const {
@@ -24,7 +24,7 @@ const Question = () => {
   // 调用删除历史记录接口
   const deleteHistory = async () => {
     try {
-      await httpClient.post(getApiUrl('/deleteHistory'), {
+      await apiService.post('/deleteHistory', {
         user_id: getUserId(),
         message: ""
       });
