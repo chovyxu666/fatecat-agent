@@ -1,9 +1,10 @@
 
+import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
-
+import { getBaZiResult } from "../services/http"
 const BaziResult = () => {
   const { catId } = useParams<{ catId: string }>();
   const location = useLocation();
@@ -11,11 +12,21 @@ const BaziResult = () => {
 
   const cat = cats.find(c => c.id === catId);
   const birthInfo = location.state?.birthInfo;
-
   if (!cat) {
     return <div>Cat not found</div>;
   }
+  useEffect(() => {
+    getBaZiResult({
+      district_provincial: birthInfo.province,
+      district_county: birthInfo.district,
+      district_city: birthInfo.city,
+      sex: birthInfo.gender === 'male' ? '男' : '女',
+      date_type: birthInfo.calendarType === 'solar' ? '1' : '2',
+      date_time: `${birthInfo.year}-${birthInfo.month}-${birthInfo.day} ${birthInfo.hour}:${birthInfo.minute}:00`
+    }).then((res) => {
 
+    })
+  }, [])
   // 示例八字数据 - 实际应用中应该根据出生信息计算
   const baziData = {
     year: { tiangan: '食神', dizhi: '正印', element: '丙子', color: 'text-red-500' },

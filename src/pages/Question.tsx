@@ -4,8 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { predefinedQuestions } from '../data/predefinedQuestions';
 import { ChevronLeft } from 'lucide-react';
-import { getUserId } from '../utils/userIdUtils';
-import { apiService } from '../services/apiService';
+import { deleteHistory } from "../services/http"
 
 const Question = () => {
   const {
@@ -20,18 +19,6 @@ const Question = () => {
   if (!cat) {
     return <div>Cat not found</div>;
   }
-
-  // 调用删除历史记录接口
-  const deleteHistory = async () => {
-    try {
-      await apiService.post('/deleteHistory', {
-        user_id: getUserId(),
-        message: ""
-      });
-    } catch (error) {
-      console.error('删除历史记录请求失败:', error);
-    }
-  };
 
   const handleQuestionSelect = (selectedQuestion: string) => {
     console.log('Question selected:', selectedQuestion);

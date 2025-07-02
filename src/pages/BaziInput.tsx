@@ -5,7 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import locationData from "@/config/locationData";
-
+import { deleteHistory } from "../services/http"
 
 const BaziInput = () => {
   const { catId } = useParams<{ catId: string }>();
@@ -52,7 +52,7 @@ const BaziInput = () => {
 
   const isFormValid = year && month && day && hour && minute && province && city && district;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isFormValid) return;
 
     const birthInfo = {
@@ -67,7 +67,7 @@ const BaziInput = () => {
       city,
       district
     };
-
+    await deleteHistory('bazi');
     navigate(`/bazi-result/${catId}`, {
       state: { birthInfo }
     });
@@ -117,8 +117,8 @@ const BaziInput = () => {
                 <button
                   onClick={() => setGender('female')}
                   className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${gender === 'female'
-                      ? 'border-pink-400 bg-pink-50 text-pink-600 shadow-lg scale-105'
-                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
+                    ? 'border-pink-400 bg-pink-50 text-pink-600 shadow-lg scale-105'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
                     }`}
                 >
                   ♀ 女生
@@ -126,8 +126,8 @@ const BaziInput = () => {
                 <button
                   onClick={() => setGender('male')}
                   className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${gender === 'male'
-                      ? 'border-blue-400 bg-blue-50 text-blue-600 shadow-lg scale-105'
-                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
+                    ? 'border-blue-400 bg-blue-50 text-blue-600 shadow-lg scale-105'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
                     }`}
                 >
                   ♂ 男生
@@ -142,8 +142,8 @@ const BaziInput = () => {
                 <button
                   onClick={() => setCalendarType('solar')}
                   className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${calendarType === 'solar'
-                      ? 'border-orange-400 bg-orange-50 text-orange-600 shadow-lg scale-105'
-                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
+                    ? 'border-orange-400 bg-orange-50 text-orange-600 shadow-lg scale-105'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
                     }`}
                 >
                   ☀️ 阳历
@@ -151,8 +151,8 @@ const BaziInput = () => {
                 <button
                   onClick={() => setCalendarType('lunar')}
                   className={`flex-1 py-4 px-6 rounded-2xl border-2 transition-all font-medium ${calendarType === 'lunar'
-                      ? 'border-purple-400 bg-purple-50 text-purple-600 shadow-lg scale-105'
-                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
+                    ? 'border-purple-400 bg-purple-50 text-purple-600 shadow-lg scale-105'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:shadow-md'
                     }`}
                 >
                   🌙 农历
@@ -266,8 +266,8 @@ const BaziInput = () => {
             onClick={handleSubmit}
             disabled={!isFormValid}
             className={`w-full font-bold py-6 text-xl rounded-2xl transition-all shadow-lg ${isFormValid
-                ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white transform hover:scale-105'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white transform hover:scale-105'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
           >
             八字排盘
