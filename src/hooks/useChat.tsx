@@ -38,13 +38,13 @@ export const useChat = (catId: string | undefined) => {
   // 格式化塔罗牌信息
   const formatTarotCards = () => {
     if (cards.length === 0) return '';
-    
+
     const positions = ['过去', '现在', '未来'];
     const cardDescriptions = cards.map((card: any, index: number) => {
       const orientation = card.isReversed ? '逆位' : '正位';
       return `${positions[index]}：${card.name}（${orientation}）`;
     });
-    
+
     return cardDescriptions.join('\n');
   };
 
@@ -54,7 +54,7 @@ export const useChat = (catId: string | undefined) => {
         // 完整消息：移除临时消息，添加完整消息
         const filtered = prev.filter(msg => !msg.id.includes('_current'));
         const exists = filtered.some(msg => msg.id === processedMessage.id);
-        
+
         if (!exists) {
           const completeMessage: ChatMessage = {
             id: processedMessage.id,
@@ -62,7 +62,7 @@ export const useChat = (catId: string | undefined) => {
             sender: 'cat',
             timestamp: new Date()
           };
-          
+
           console.log(`创建完整消息: ${processedMessage.id} - "${processedMessage.text}"`);
           return [...filtered, completeMessage];
         }
@@ -76,7 +76,7 @@ export const useChat = (catId: string | undefined) => {
           sender: 'cat',
           timestamp: new Date()
         };
-        
+
         if (existingIndex >= 0) {
           const updated = [...prev];
           updated[existingIndex] = tempMessage;
@@ -86,7 +86,7 @@ export const useChat = (catId: string | undefined) => {
         }
       }
     });
-    
+
     setIsLoading(false);
   };
 
@@ -121,9 +121,9 @@ export const useChat = (catId: string | undefined) => {
         console.log('请求被取消');
         return;
       }
-      
+
       console.error('发送消息失败:', error);
-      
+
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: '抱歉，我现在无法回复你。请稍后再试。',
