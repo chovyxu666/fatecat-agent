@@ -1,5 +1,5 @@
-
 import { API_CONFIG, getApiUrl } from '../config/api';
+import { httpClient } from '../utils/httpClient';
 
 export interface ChatRequest {
   user_id: string;
@@ -31,18 +31,11 @@ export class ChatService {
       this.abortController = signal;
     }
 
-    const response = await fetch(getApiUrl(API_CONFIG.ENDPOINTS.CHAT_STREAM), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-      signal: this.abortController?.signal
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    const response = await httpClient.stream(
+      getApiUrl(API_CONFIG.ENDPOINTS.CHAT_STREAM),
+      request,
+      { signal: this.abortController?.signal }
+    );
 
     await this.handleStreamResponse(response, onMessage);
   }

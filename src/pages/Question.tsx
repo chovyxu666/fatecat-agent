@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -6,6 +5,7 @@ import { predefinedQuestions } from '../data/predefinedQuestions';
 import { ChevronLeft } from 'lucide-react';
 import { getUserId } from '../utils/userIdUtils';
 import { getApiUrl } from '../config/api';
+import { httpClient } from '../utils/httpClient';
 
 const Question = () => {
   const {
@@ -24,20 +24,10 @@ const Question = () => {
   // 调用删除历史记录接口
   const deleteHistory = async () => {
     try {
-      const response = await fetch(getApiUrl('/deleteHistory'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: getUserId(),
-          message: ""
-        })
+      await httpClient.post(getApiUrl('/deleteHistory'), {
+        user_id: getUserId(),
+        message: ""
       });
-
-      if (!response.ok) {
-        console.error('删除历史记录失败:', response.status);
-      }
     } catch (error) {
       console.error('删除历史记录请求失败:', error);
     }
