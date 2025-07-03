@@ -36,7 +36,7 @@ export class ChatService {
 
     // 根据是否八字聊天选择不同的endpoint
     const endpoint = isBazi ? API_CONFIG.ENDPOINTS.BAZI_CHAT_STREAM : API_CONFIG.ENDPOINTS.CHAT_STREAM;
-    
+
     const response = await apiService.stream(
       endpoint,
       request,
@@ -52,7 +52,7 @@ export class ChatService {
   ): Promise<void> {
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
-    
+
     if (!reader) {
       throw new Error('无法读取响应流');
     }
@@ -64,15 +64,15 @@ export class ChatService {
 
     try {
       let buffer = '';
-      
+
       while (true) {
         const { done, value } = await reader.read();
-        
+
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
-        
+
         // 保留最后一行，可能不完整
         buffer = lines.pop() || '';
 
@@ -86,14 +86,14 @@ export class ChatService {
                 const data: ChatChunk = JSON.parse(jsonStr);
                 if (data.chunk && typeof data.chunk === 'string') {
                   this.processChunk(data.chunk, baseMessageId, messageCounter, textBuffer, onMessage);
-                  
+
                   // 更新本地状态
                   textBuffer += data.chunk;
-                  
+
                   // 检查是否包含换行符，如果有则完成消息
                   if (data.chunk.includes('\n')) {
                     const lines = textBuffer.split('\n');
-                    
+
                     // 处理完整的行（除了最后一行）
                     for (let i = 0; i < lines.length - 1; i++) {
                       const lineText = lines[i].trim();
@@ -106,11 +106,11 @@ export class ChatService {
                         });
                       }
                     }
-                    
+
                     // 重置缓冲区为最后一行
                     textBuffer = lines[lines.length - 1];
                   }
-                  
+
                   // 更新当前未完成的消息
                   if (textBuffer.trim()) {
                     onMessage({
@@ -127,7 +127,7 @@ export class ChatService {
           }
         }
       }
-      
+
       // 处理缓冲区中剩余的数据
       if (buffer.trim()) {
         const trimmedLine = buffer.trim();

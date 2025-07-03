@@ -37,7 +37,7 @@ const BaziResult = () => {
 
   const cat = cats.find(c => c.id === catId);
   const birthInfo = location.state?.birthInfo;
-  
+
   if (!cat) {
     return <div>Cat not found</div>;
   }
@@ -68,17 +68,17 @@ const BaziResult = () => {
   }, [birthInfo]);
 
   const fetchBaziInterpretation = async () => {
-    setIsLoadingInterpretation(true);
     const chatService = new ChatService();
-    
+
     try {
       let interpretationText = '';
-      
       const handleInterpretationMessage = (processedMessage: ProcessedMessage) => {
         if (processedMessage.isComplete) {
           interpretationText += processedMessage.text + '\n';
-          setInterpretation(interpretationText);
         }
+        setInterpretation(interpretationText + processedMessage.text);
+        setIsLoadingInterpretation(false);
+
       };
 
       await chatService.sendMessage(
@@ -95,7 +95,7 @@ const BaziResult = () => {
       console.error('获取八字解读失败:', error);
       setInterpretation('八字解读暂时无法获取，请稍后重试。');
     } finally {
-      setIsLoadingInterpretation(false);
+      setIsLoadingInterpretation(true);
     }
   };
 
@@ -112,7 +112,7 @@ const BaziResult = () => {
       if (match) {
         return {
           tiangan: match[1],
-          dizhi: match[2],  
+          dizhi: match[2],
           element: match[3]
         };
       }
@@ -311,7 +311,7 @@ const BaziResult = () => {
           {/* 新增八字解读部分 */}
           <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl">
             <h3 className="text-gray-800 font-bold text-lg mb-4">八字解读</h3>
-            {isLoadingInterpretation ? (
+            {!interpretation ? (
               <div className="text-gray-600 text-center py-4">正在生成解读...</div>
             ) : (
               <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
@@ -321,8 +321,7 @@ const BaziResult = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="px-6 pb-8 space-y-4">
+        {isLoadingInterpretation ? (<div className="px-6 pb-8 space-y-4" >
           <Button
             onClick={handleTodayFortune}
             className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-6 text-xl rounded-2xl flex items-center justify-center space-x-3 shadow-lg transform hover:scale-105 transition-all"
@@ -338,7 +337,8 @@ const BaziResult = () => {
             <span className="text-2xl">🔮</span>
             <span>人生问事</span>
           </Button>
-        </div>
+        </div>) : ""}
+
       </div>
     </div>
   );

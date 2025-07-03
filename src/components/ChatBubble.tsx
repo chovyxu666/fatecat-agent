@@ -8,7 +8,7 @@ interface ChatBubbleProps {
 
 export const ChatBubble = ({ message, catAvatar }: ChatBubbleProps) => {
   const isUser = message.sender === 'user';
-
+  console.log(message.text, 'message.sendermessage.sender')
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div className={`flex items-end space-x-2 max-w-[80%] ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
@@ -17,12 +17,11 @@ export const ChatBubble = ({ message, catAvatar }: ChatBubbleProps) => {
             <img src={catAvatar} alt="Cat" className="w-full h-full object-cover" />
           </div>
         )}
-        <div 
-          className={`rounded-2xl px-4 py-3 ${
-            isUser 
-              ? 'bg-purple-600 text-white' 
-              : 'bg-white/10 text-white border border-white/20'
-          }`}
+        <div
+          className={`rounded-2xl px-4 py-3 ${isUser
+            ? 'bg-purple-600 text-white'
+            : 'bg-white/10 text-white border border-white/20'
+            }`}
         >
           <p className="text-sm leading-relaxed whitespace-pre-line">{message.text}</p>
         </div>

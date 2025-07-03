@@ -17,19 +17,13 @@ export const useChat = (catId: string | undefined) => {
   const cards = location.state?.cards || [];
   const question = location.state?.question || '';
   const initialMessages = location.state?.initialMessages || [];
-  const chatType = location.state?.chatType; // 新增chatType状态
+  const [chatType, setChatType] = useState(location.state?.chatType);
 
   // 初始化验证和设置初始消息
   useEffect(() => {
     // 如果有初始消息，直接设置（来自解读页面）
-    if (initialMessages.length > 0) {
-      setMessages(initialMessages);
-      setIsFirstMessage(false); // 已经有消息了，不是第一条
-      return;
-    }
-
     // 如果没有初始消息且缺少必要信息，返回首页
-    if (!question.trim() || cards.length === 0) {
+    if (!question.trim() || cards.length === 0 && !chatType) {
       navigate('/');
       return;
     }
@@ -107,10 +101,10 @@ export const useChat = (catId: string | undefined) => {
 
       // 判断是否为八字聊天
       const isBazi = chatType !== undefined;
-      
       if (isBazi) {
-        // 八字聊天传递chat_type
         requestBody.chat_type = chatType;
+        requestBody.user_id = getUserId('bazi')
+        setChatType(4)
       } else if (isFirstMessage) {
         // 塔罗聊天传递tarot信息
         requestBody.tarot = formatTarotCards();
@@ -163,10 +157,19 @@ export const useChat = (catId: string | undefined) => {
 
   // 组件初始化时自动发送问题（仅当没有初始消息时）
   useEffect(() => {
+    if (initialMessages.length > 0) {
+      setMessages(initialMessages);
+      setIsFirstMessage(false);
+    }
+
     if (isFirstMessage && question.trim() && cards.length > 0 && initialMessages.length === 0) {
       sendMessageToBackend(question);
     }
-  }, [question, cards, initialMessages]);
+
+    if (chatType && initialMessages) {
+      sendMessageToBackend('');
+    }
+  }, []);
 
   // 组件卸载时清理
   useEffect(() => {
