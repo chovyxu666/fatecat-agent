@@ -25,7 +25,8 @@ export const API_CONFIG = {
   BASE_URL: getCurrentConfig().BASE_URL,
   BACKEND_URL: getCurrentConfig().BACKEND_URL,
   ENDPOINTS: {
-    CHAT_STREAM: '/chat/stream'
+    CHAT_STREAM: '/chat/stream',
+    BAZI_CHAT_STREAM: 'bazi_chat/stream'
   }
 };
 
