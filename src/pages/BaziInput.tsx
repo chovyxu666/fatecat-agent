@@ -27,7 +27,7 @@ const BaziInput = () => {
     return <div>Cat not found</div>;
   }
 
-  const years = Array.from({ length: 124 }, (_, i) => (2024 - i).toString());
+  const years = Array.from({ length: 124 }, (_, i) => (2024 - i).toString()).reverse();;
   const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
   const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString().padStart(2, '0'));
   const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
