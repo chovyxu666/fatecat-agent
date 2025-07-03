@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatMessage } from '../types';
@@ -18,6 +17,7 @@ export const useChat = (catId: string | undefined) => {
   const cards = location.state?.cards || [];
   const question = location.state?.question || '';
   const initialMessages = location.state?.initialMessages || [];
+  const chatType = location.state?.chatType; // 新增chatType状态
 
   // 初始化验证和设置初始消息
   useEffect(() => {
@@ -105,7 +105,14 @@ export const useChat = (catId: string | undefined) => {
         message: messageText
       };
 
-      if (isFirstMessage) {
+      // 判断是否为八字聊天
+      const isBazi = chatType !== undefined;
+      
+      if (isBazi) {
+        // 八字聊天传递chat_type
+        requestBody.chat_type = chatType;
+      } else if (isFirstMessage) {
+        // 塔罗聊天传递tarot信息
         requestBody.tarot = formatTarotCards();
         setIsFirstMessage(false);
       }
@@ -113,7 +120,8 @@ export const useChat = (catId: string | undefined) => {
       await chatServiceRef.current.sendMessage(
         requestBody,
         handleProcessedMessage,
-        abortControllerRef.current
+        abortControllerRef.current,
+        isBazi
       );
 
     } catch (error: any) {

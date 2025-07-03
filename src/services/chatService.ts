@@ -1,3 +1,4 @@
+
 import { API_CONFIG } from '../config/api';
 import { apiService } from './apiService';
 
@@ -5,6 +6,7 @@ export interface ChatRequest {
   user_id: string;
   message: string;
   tarot?: string;
+  chat_type?: number; // 新增chat_type参数
 }
 
 export interface ChatChunk {
@@ -25,14 +27,18 @@ export class ChatService {
   async sendMessage(
     request: ChatRequest,
     onMessage: (message: ProcessedMessage) => void,
-    signal?: AbortController
+    signal?: AbortController,
+    isBazi: boolean = false // 新增参数区分是否八字聊天
   ): Promise<void> {
     if (signal) {
       this.abortController = signal;
     }
 
+    // 根据是否八字聊天选择不同的endpoint
+    const endpoint = isBazi ? API_CONFIG.ENDPOINTS.BAZI_CHAT_STREAM : API_CONFIG.ENDPOINTS.CHAT_STREAM;
+    
     const response = await apiService.stream(
-      API_CONFIG.ENDPOINTS.CHAT_STREAM,
+      endpoint,
       request,
       { signal: this.abortController?.signal }
     );

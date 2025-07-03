@@ -1,10 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { getBaZiResult } from "../services/http"
+import { getBaZiResult } from "../services/http";
+import { ChatService, ProcessedMessage } from '../services/chatService';
+import { getUserId } from '../utils/userIdUtils';
 
 interface BaziApiResponse {
   "主星": string[];
@@ -31,6 +32,8 @@ const BaziResult = () => {
   const navigate = useNavigate();
   const [baziData, setBaziData] = useState<BaziApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [interpretation, setInterpretation] = useState<string>('');
+  const [isLoadingInterpretation, setIsLoadingInterpretation] = useState(false);
 
   const cat = cats.find(c => c.id === catId);
   const birthInfo = location.state?.birthInfo;
@@ -64,7 +67,44 @@ const BaziResult = () => {
     }
   }, [birthInfo]);
 
-  // 解析八字排盘数据
+  const fetchBaziInterpretation = async () => {
+    setIsLoadingInterpretation(true);
+    const chatService = new ChatService();
+    
+    try {
+      let interpretationText = '';
+      
+      const handleInterpretationMessage = (processedMessage: ProcessedMessage) => {
+        if (processedMessage.isComplete) {
+          interpretationText += processedMessage.text + '\n';
+          setInterpretation(interpretationText);
+        }
+      };
+
+      await chatService.sendMessage(
+        {
+          user_id: getUserId('bazi'),
+          message: '请解读我的八字命盘',
+          chat_type: 1
+        },
+        handleInterpretationMessage,
+        undefined,
+        true
+      );
+    } catch (error) {
+      console.error('获取八字解读失败:', error);
+      setInterpretation('八字解读暂时无法获取，请稍后重试。');
+    } finally {
+      setIsLoadingInterpretation(false);
+    }
+  };
+
+  useEffect(() => {
+    if (baziData && !interpretation) {
+      fetchBaziInterpretation();
+    }
+  }, [baziData]);
+
   const parseBaziPan = (baziPan: BaziApiResponse["八字排盘"]) => {
     const parseColumn = (columnStr: string) => {
       // 格式: "乙亥 (木水)" -> {tiangan: "乙", dizhi: "亥", element: "木水"}
@@ -87,7 +127,6 @@ const BaziResult = () => {
     };
   };
 
-  // 获取天干地支对应的颜色
   const getTianganColor = (tiangan: string) => {
     const colors: { [key: string]: string } = {
       '甲': 'text-green-400', '乙': 'text-green-400',
@@ -112,10 +151,11 @@ const BaziResult = () => {
   const handleTodayFortune = () => {
     navigate(`/chat/${catId}`, {
       state: {
-        question: '今日运势',
+        question: '今年运势',
+        chatType: 2,
         initialMessages: [{
           id: `fortune_${Date.now()}`,
-          text: '我想了解今天的运势如何，请帮我分析一下。',
+          text: '我想了解今年的运势如何，请帮我分析一下。',
           sender: 'user' as const,
           timestamp: new Date()
         }]
@@ -127,6 +167,7 @@ const BaziResult = () => {
     navigate(`/chat/${catId}`, {
       state: {
         question: '人生问事',
+        chatType: 3,
         initialMessages: [{
           id: `life_${Date.now()}`,
           text: '我想咨询一些人生问题，请为我指点迷津。',
@@ -266,6 +307,18 @@ const BaziResult = () => {
               </div>
             </div>
           )}
+
+          {/* 新增八字解读部分 */}
+          <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl">
+            <h3 className="text-gray-800 font-bold text-lg mb-4">八字解读</h3>
+            {isLoadingInterpretation ? (
+              <div className="text-gray-600 text-center py-4">正在生成解读...</div>
+            ) : (
+              <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
+                {interpretation || '暂无解读内容'}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Action Buttons */}
