@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { cats } from '../data/cats';
@@ -152,6 +153,7 @@ const BaziResult = () => {
       state: {
         question: '今年运势',
         chatType: 2,
+        interpretation: interpretation, // 传递解读信息
         initialMessages: [{
           id: `fortune_${Date.now()}`,
           text: '我想了解今年的运势如何，请帮我分析一下。',
@@ -167,6 +169,7 @@ const BaziResult = () => {
       state: {
         question: '人生问事',
         chatType: 3,
+        interpretation: interpretation, // 传递解读信息
         initialMessages: [{
           id: `life_${Date.now()}`,
           text: '我想咨询一些人生问题，请为我指点迷津。',

@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatMessage } from '../types';
@@ -17,6 +18,7 @@ export const useChat = (catId: string | undefined) => {
   const cards = location.state?.cards || [];
   const question = location.state?.question || '';
   const initialMessages = location.state?.initialMessages || [];
+  const interpretation = location.state?.interpretation || ''; // 接收解读信息
   const [chatType, setChatType] = useState(location.state?.chatType);
 
   // 初始化验证和设置初始消息
@@ -158,7 +160,18 @@ export const useChat = (catId: string | undefined) => {
   // 组件初始化时自动发送问题（仅当没有初始消息时）
   useEffect(() => {
     if (initialMessages.length > 0) {
-      setMessages(initialMessages);
+      // 如果有解读信息，先添加解读信息作为系统消息
+      if (interpretation) {
+        const interpretationMessage: ChatMessage = {
+          id: `interpretation_${Date.now()}`,
+          text: `八字解读：\n\n${interpretation}`,
+          sender: 'cat',
+          timestamp: new Date()
+        };
+        setMessages([interpretationMessage, ...initialMessages]);
+      } else {
+        setMessages(initialMessages);
+      }
       setIsFirstMessage(false);
     }
 
