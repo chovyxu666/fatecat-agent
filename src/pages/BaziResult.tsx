@@ -5,37 +5,109 @@ import { cats } from '../data/cats';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { getBaZiResult } from "../services/http"
+
+interface BaziApiResponse {
+  "主星": string[];
+  "八字排盘": {
+    "年柱": string;
+    "月柱": string;
+    "日柱": string;
+    "时柱": string;
+  };
+  "年柱副星": string[];
+  "年柱藏干": string[];
+  "性别": string;
+  "日柱副星": string[];
+  "日柱藏干": string[];
+  "时柱副星": string[];
+  "时柱藏干": string[];
+  "月柱副星": string[];
+  "月柱藏干": string[];
+}
+
 const BaziResult = () => {
   const { catId } = useParams<{ catId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const [baziData, setBaziData] = useState<BaziApiResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const cat = cats.find(c => c.id === catId);
   const birthInfo = location.state?.birthInfo;
+  
   if (!cat) {
     return <div>Cat not found</div>;
   }
-  useEffect(() => {
-    getBaZiResult({
-      district_provincial: birthInfo.province,
-      district_county: birthInfo.district,
-      district_city: birthInfo.city,
-      sex: birthInfo.gender === 'male' ? '男' : '女',
-      date_type: birthInfo.calendarType === 'solar' ? '1' : '2',
-      date_time: `${birthInfo.year}-${birthInfo.month}-${birthInfo.day} ${birthInfo.hour}:${birthInfo.minute}:00`
-    }).then((res) => {
 
-    })
-  }, [])
-  // 示例八字数据 - 实际应用中应该根据出生信息计算
-  const baziData = {
-    year: { tiangan: '食神', dizhi: '正印', element: '丙子', color: 'text-red-500' },
-    month: { tiangan: '劫财', dizhi: '元男', element: '癸巳', color: 'text-blue-500' },
-    day: { tiangan: '主星', dizhi: '甲子', element: '甲子', color: 'text-green-500' },
-    hour: { tiangan: '劫财', dizhi: '乙丑', element: '乙丑', color: 'text-green-500' }
+  useEffect(() => {
+    const fetchBaziData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getBaZiResult({
+          district_provincial: birthInfo.province,
+          district_county: birthInfo.district,
+          district_city: birthInfo.city,
+          sex: birthInfo.gender === 'male' ? '男' : '女',
+          date_type: birthInfo.calendarType === 'solar' ? '1' : '2',
+          date_time: `${birthInfo.year}-${birthInfo.month}-${birthInfo.day} ${birthInfo.hour}:${birthInfo.minute}:00`
+        });
+        setBaziData(response.data);
+      } catch (error) {
+        console.error('获取八字数据失败:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (birthInfo) {
+      fetchBaziData();
+    }
+  }, [birthInfo]);
+
+  // 解析八字排盘数据
+  const parseBaziPan = (baziPan: BaziApiResponse["八字排盘"]) => {
+    const parseColumn = (columnStr: string) => {
+      // 格式: "乙亥 (木水)" -> {tiangan: "乙", dizhi: "亥", element: "木水"}
+      const match = columnStr.match(/^(.)(.) \((.+)\)$/);
+      if (match) {
+        return {
+          tiangan: match[1],
+          dizhi: match[2],  
+          element: match[3]
+        };
+      }
+      return { tiangan: '', dizhi: '', element: '' };
+    };
+
+    return {
+      year: parseColumn(baziPan.年柱),
+      month: parseColumn(baziPan.月柱),
+      day: parseColumn(baziPan.日柱),
+      hour: parseColumn(baziPan.时柱)
+    };
   };
 
-  const interpretation = `嗨，凡人听好了，本小玄已经看穿你的命盘了！你是"甲子"日出生的，就像一棵长在水边的聪明大树，天生就带着贵气。你命里有"正印"和"食神"这两颗吉星照着，说明你脑子灵光，品味不俗，能把学到的东西变成闪闪发光的点子。不过本喵可要提醒你，你命里有个叫"劫财"的捣蛋鬼，所以交朋友和管小金干......哦不，是管钱的时候，一定要睁大眼睛，小心被别人占了便宜！等你学会了怎么保护好自己的宝贝，你就能成为最受尊敬的那棵参天大树，要谨记啊！`;
+  // 获取天干地支对应的颜色
+  const getTianganColor = (tiangan: string) => {
+    const colors: { [key: string]: string } = {
+      '甲': 'text-green-400', '乙': 'text-green-400',
+      '丙': 'text-red-400', '丁': 'text-red-400',
+      '戊': 'text-yellow-400', '己': 'text-yellow-400',
+      '庚': 'text-gray-400', '辛': 'text-gray-400',
+      '壬': 'text-blue-400', '癸': 'text-blue-400'
+    };
+    return colors[tiangan] || 'text-white';
+  };
+
+  const getDizhiColor = (dizhi: string) => {
+    const colors: { [key: string]: string } = {
+      '子': 'text-blue-400', '丑': 'text-yellow-400', '寅': 'text-green-400',
+      '卯': 'text-green-400', '辰': 'text-yellow-400', '巳': 'text-red-400',
+      '午': 'text-red-400', '未': 'text-yellow-400', '申': 'text-gray-400',
+      '酉': 'text-gray-400', '戌': 'text-yellow-400', '亥': 'text-blue-400'
+    };
+    return colors[dizhi] || 'text-white';
+  };
 
   const handleTodayFortune = () => {
     navigate(`/chat/${catId}`, {
@@ -64,6 +136,24 @@ const BaziResult = () => {
       }
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className={`min-h-screen bg-gradient-to-br ${cat.color} flex items-center justify-center`}>
+        <div className="text-white text-lg">正在解析八字...</div>
+      </div>
+    );
+  }
+
+  if (!baziData) {
+    return (
+      <div className={`min-h-screen bg-gradient-to-br ${cat.color} flex items-center justify-center`}>
+        <div className="text-white text-lg">八字数据加载失败</div>
+      </div>
+    );
+  }
+
+  const parsedBazi = parseBaziPan(baziData.八字排盘);
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${cat.color} relative`}>
@@ -96,7 +186,7 @@ const BaziResult = () => {
         </div>
 
         <div className="flex-1 px-6 pb-6 space-y-6">
-          {/* Improved Bazi Chart with better alignment */}
+          {/* Bazi Chart with real data */}
           <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-6 shadow-2xl border border-yellow-200">
             <h3 className="text-center text-gray-800 font-bold text-lg mb-6">八字命盘</h3>
 
@@ -110,10 +200,10 @@ const BaziResult = () => {
 
             <div className="grid grid-cols-5 gap-2 text-center text-sm mb-4">
               <div className="text-gray-700 font-medium">主星</div>
-              <div className="text-gray-700">{baziData.year.tiangan}</div>
-              <div className="text-gray-700">{baziData.month.tiangan}</div>
-              <div className="text-gray-700">{baziData.day.tiangan}</div>
-              <div className="text-gray-700">{baziData.hour.tiangan}</div>
+              <div className="text-gray-700">{baziData.主星[0]}</div>
+              <div className="text-gray-700">{baziData.主星[1]}</div>
+              <div className="text-gray-700">{baziData.主星[2]}</div>
+              <div className="text-gray-700">{baziData.主星[3]}</div>
             </div>
 
             <div className="grid grid-cols-5 gap-2 mb-4">
@@ -122,40 +212,40 @@ const BaziResult = () => {
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-14 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
-                  <span className="text-red-400 font-bold text-base">丙</span>
-                  <span className="text-blue-400 font-bold text-base">子</span>
+                  <span className={`font-bold text-base ${getTianganColor(parsedBazi.year.tiangan)}`}>{parsedBazi.year.tiangan}</span>
+                  <span className={`font-bold text-base ${getDizhiColor(parsedBazi.year.dizhi)}`}>{parsedBazi.year.dizhi}</span>
                 </div>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-14 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
-                  <span className="text-blue-400 font-bold text-base">癸</span>
-                  <span className="text-red-400 font-bold text-base">巳</span>
+                  <span className={`font-bold text-base ${getTianganColor(parsedBazi.month.tiangan)}`}>{parsedBazi.month.tiangan}</span>
+                  <span className={`font-bold text-base ${getDizhiColor(parsedBazi.month.dizhi)}`}>{parsedBazi.month.dizhi}</span>
                 </div>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-14 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg border-2 border-yellow-400">
-                  <span className="text-green-400 font-bold text-base">甲</span>
-                  <span className="text-blue-400 font-bold text-base">子</span>
+                  <span className={`font-bold text-base ${getTianganColor(parsedBazi.day.tiangan)}`}>{parsedBazi.day.tiangan}</span>
+                  <span className={`font-bold text-base ${getDizhiColor(parsedBazi.day.dizhi)}`}>{parsedBazi.day.dizhi}</span>
                 </div>
                 <div className="text-xs text-yellow-600 font-bold mt-1">日主</div>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-14 h-20 bg-gradient-to-b from-gray-800 to-black rounded-lg flex flex-col items-center justify-center text-white text-sm shadow-lg">
-                  <span className="text-green-400 font-bold text-base">乙</span>
-                  <span className="text-yellow-400 font-bold text-base">丑</span>
+                  <span className={`font-bold text-base ${getTianganColor(parsedBazi.hour.tiangan)}`}>{parsedBazi.hour.tiangan}</span>
+                  <span className={`font-bold text-base ${getDizhiColor(parsedBazi.hour.dizhi)}`}>{parsedBazi.hour.dizhi}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Birth Info Display - Enhanced for lunar calendar */}
+          {/* Birth Info Display */}
           {birthInfo && (
             <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl">
               <h3 className="text-gray-800 font-bold text-lg mb-4">出生信息</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">性别：</span>
-                  <span className="text-gray-800 font-medium">{birthInfo.gender === 'male' ? '男' : '女'}</span>
+                  <span className="text-gray-800 font-medium">{baziData.性别}</span>
                 </div>
                 <div>
                   <span className="text-gray-600">历法：</span>
@@ -176,20 +266,9 @@ const BaziResult = () => {
               </div>
             </div>
           )}
-
-          {/* Interpretation */}
-          <div className="bg-gradient-to-br from-purple-100/90 to-blue-100/90 backdrop-blur-sm rounded-3xl border border-purple-200 p-6 shadow-2xl">
-            <h3 className="text-gray-800 font-bold text-lg mb-4 flex items-center">
-              <span className="mr-2">🔮</span>
-              {cat.name}的命理解读
-            </h3>
-            <div className="text-gray-700 leading-relaxed text-sm bg-white/50 rounded-2xl p-4">
-              {interpretation}
-            </div>
-          </div>
         </div>
 
-        {/* Action Buttons - Increased height */}
+        {/* Action Buttons */}
         <div className="px-6 pb-8 space-y-4">
           <Button
             onClick={handleTodayFortune}
