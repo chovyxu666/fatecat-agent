@@ -71,12 +71,11 @@ const BaziResult = () => {
     const chatService = new ChatService();
 
     try {
-      let interpretationText = '';
       const handleInterpretationMessage = (processedMessage: ProcessedMessage) => {
         if (processedMessage.isComplete) {
-          interpretationText += processedMessage.text + '\n';
+          processedMessage.text += '\n';
         }
-        setInterpretation(interpretationText + processedMessage.text);
+        setInterpretation(processedMessage.text);
         setIsLoadingInterpretation(false);
 
       };
@@ -326,7 +325,7 @@ const BaziResult = () => {
             onClick={handleTodayFortune}
             className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-6 text-xl rounded-2xl flex items-center justify-center space-x-3 shadow-lg transform hover:scale-105 transition-all"
           >
-            <img src="/lovable-uploads/2e9885fc-8b67-4b5c-97f8-398da5754f06.png" alt="今年运势" className="w-8 h-8" />
+            <img src="/lovable-uploads/2e9885fc-8b67-4b5c-97f8-398da5754f06.png" alt="今年运势" className="w-10 h-8" />
             <span>今年运势</span>
           </Button>
 
